@@ -1,0 +1,23 @@
+{
+  "name": "macrostyles",
+  "version": "0.0.1",
+  "description": "Zero-Runtime CSS-in-JS powered by vite and typed-macro.",
+  "private": true,
+  "workspaces": [
+    "./packages/*"
+  ],
+  "packageManager": "npm@9.2.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkamenoko/macrostyles.git"
+  },
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tkamenoko/macrostyles/issues"
+  },
+  "homepage": "https://github.com/tkamenoko/macrostyles#readme"
+}
