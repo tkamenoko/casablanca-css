@@ -1,10 +1,46 @@
 {
   "name": "@macrostyles/core",
   "version": "0.0.1",
-  "description": "Zero-Runtime CSS-in-JS powered by vite and typed-macro.",
+  "description": "Zero-Runtime CSS-in-JS powered by vite and ttypescript.",
   "type": "module",
+  "module": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./vite": {
+      "default": "./dist/vite.js",
+      "types": "./dist/vite.d.ts"
+    },
+    "./babel": {
+      "default": "./dist/babel.js",
+      "types": "./dist/babel.d.ts"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "command": "vite build",
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/**/*.{js,d.ts}"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -17,8 +53,14 @@
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "dependencies": {
-    "@typed-macro/core": "^1.0.0-alpha",
+    "@babel/core": "^7.20.12",
     "postcss": "^8.4.21",
     "postcss-nested": "^6.0.0"
+  },
+  "peerDependencies": {
+    "vite": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.20"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "name": "@macrostyles/test-babel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "wireit"
+  },
+  "wireit": {
+    "test": {
+      "command": "vitest run",
+      "dependencies": [
+        "../../packages/core:build"
+      ],
+      "files": [
+        "./tests/**/*.ts",
+        "./vite.config.ts"
+      ],
+      "output": []
+    }
+  },
+  "dependencies": {
+    "@macrostyles/core": "npm:core@*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@types/babel__core": "^7.20.0"
+  }
+}

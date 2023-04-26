@@ -2,10 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./dist",
     "isolatedModules": true,
     "moduleResolution": "Node",
-    "resolveJsonModule": true
+    "types": ["vite/client"]
   },
   "include": ["**/*.ts"]
 }
