@@ -1,5 +1,11 @@
-import type { VirtualModuleIdPrefix } from 'src/types';
-import type { Plugin } from 'vite';
+import type { TransformOptions } from '@babel/core';
+import type { Plugin, ViteDevServer } from 'vite';
+
+import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
+import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
+import { evaluateModule } from '../stages/3.evaluate-module';
+import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
+import type { PluginOption, VirtualModuleIdPrefix } from '../types';
 
 type ResolvedVirtualModuleIdPrefix = `\0${VirtualModuleIdPrefix}`;
 const virtualModuleIdPrefix: VirtualModuleIdPrefix = 'virtual:macrostyles';
@@ -12,23 +18,64 @@ function isResolverId(
   return p.startsWith(resolvedVirtualModuleIdPrefix);
 }
 
-export function macrostyles(): Plugin {
+export function macrostyles(options: PluginOption): Plugin {
   const virtualModuleIdPrefix: VirtualModuleIdPrefix = 'virtual:macrostyles';
   const resolvedVirtualModuleIdPrefix: ResolvedVirtualModuleIdPrefix =
     '\0virtual:macrostyles';
 
   const cache = new Map<string, Record<string, string>>();
   // TODO: handle module dependencies?
-  const mcssLookup = new Map<
+  const cssLookup = new Map<
     `${ResolvedVirtualModuleIdPrefix}${string}`,
     string
   >();
+
+  type ProcessedClassName = string;
+  type RawClassName = string;
+  const rawClassNamesLookup = new Map<ProcessedClassName, RawClassName>();
+
+  let server: ViteDevServer | null = null;
   return {
     name: 'macrostyles',
-    transform(code, id, options) {
-      // const {transformed,mcss}=babel(code,options,cache)
-      // save css to lookup
-      // return code
+    async transform(code, id) {
+      if (!server) {
+        throw new Error('Vite server is not configured');
+      }
+      // TODO: if file is not changed, return cached content
+
+      // find tagged templates, then remove all tags.
+      const { capturedVariableNames, transformed: capturedCode } =
+        captureTaggedStyles(code);
+      if (!capturedVariableNames.length) {
+        return;
+      }
+      // TODO: create linker to evaluate module with importing
+      // const resp = await server.transformRequest();
+      server.moduleGraph;
+      // TODO: processComposition
+      const { mapOfVariableNamesToStyles } = await evaluateModule({
+        code: capturedCode,
+        variableNames: capturedVariableNames,
+        moduleGraph: server.moduleGraph,
+      });
+
+      const { importId, style } = createVirtualCssModule({
+        evaluatedStyles: mapOfVariableNamesToStyles.values(),
+        importerId: id,
+      });
+
+      const { transformed: resultCode } = assignStylesToCapturedVariables({
+        variableNames: capturedVariableNames,
+        code: capturedCode,
+        cssImportId: importId,
+      });
+
+      cssLookup.set(`\0${importId}`, style);
+
+      return resultCode;
+    },
+    configureServer(server_) {
+      server = server_;
     },
     resolveId(id) {
       if (id.startsWith(virtualModuleIdPrefix)) {
@@ -40,7 +87,7 @@ export function macrostyles(): Plugin {
       if (!isResolverId(id)) {
         return;
       }
-      const found = mcssLookup.get(id);
+      const found = cssLookup.get(id);
       return found;
     },
     handleHotUpdate(ctx) {

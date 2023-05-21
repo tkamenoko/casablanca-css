@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import dts from 'vite-plugin-dts';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 import packageJson from './package.json';
 
@@ -21,6 +22,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
     }),
+    tsconfigPaths(),
   ],
   test: {},
 });

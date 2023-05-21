@@ -1,3 +1,3 @@
 # macrostyles
 
-Zero-Runtime MCSS-in-JS powered by vite.
+Zero-Runtime CSS-in-JS powered by vite.

@@ -5,7 +5,15 @@
     "outDir": "./dist",
     "isolatedModules": true,
     "moduleResolution": "Node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@macrostyles/core": ["./src"]
+    },
+    "types": ["vite/client"],
+    "jsx": "react-jsx"
   },
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "src/stages/1.capture-tagged-styles/fixtures/static.tsx"
+  ]
 }

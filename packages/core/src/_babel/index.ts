@@ -1,13 +1,15 @@
-import type { PluginObj, PluginPass } from '@babel/core';
-import { transformSync, types as t } from '@babel/core';
+import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
+import { transformAsync, types as t } from '@babel/core';
 import type { VirtualModuleIdPrefix } from 'src/types';
 
-import { generateMcssFromIds } from './helpers/generateMcssFromIds';
-import { isMacrostylesImport } from './helpers/isMacrostylesImport';
+import { generateCssFromIds } from '../helpers/generateCssFromIds';
+import { isMacrostylesImport } from '../helpers/isMacrostylesImport';
+
 import type { EvaluatedStyle } from './types';
 
 type BabelMacrostylesPluginOptions = {
-  mcssFiles: Map<string, string>;
+  cssLookup: Map<string, string>;
+  fileName: string;
 };
 
 type BabelState = {
@@ -31,24 +33,20 @@ export function babelMacrostylesPlugin(
           if (!state.tagIds?.length) {
             return;
           }
-          const mcssStyles = new Map<string, EvaluatedStyle>();
+          const cssStyles = new Map<string, EvaluatedStyle>();
           // evaluate!
           // TODO!
-          if (!mcssStyles.size) {
+          if (!cssStyles.size) {
             return;
           }
 
-          // append mcss importing
-          const importSpecifierId = path.scope.generateUidIdentifier('styles');
-          // TODO: generate filename for mcss
+          // append css importing
+          // TODO: generate filename for css
           const importingSource: `${VirtualModuleIdPrefix}/${string}` = `virtual:macrostyles/${state.filename}`;
-          const generatedMcss = generateMcssFromIds(mcssStyles);
-          options.mcssFiles.set(importingSource, generatedMcss);
+          const generatedCss = generateCssFromIds(cssStyles);
+          options.cssLookup.set(importingSource, generatedCss);
           path.insertBefore(
-            t.importDeclaration(
-              [t.importDefaultSpecifier(importSpecifierId)],
-              t.stringLiteral(importingSource)
-            )
+            t.importDeclaration([], t.stringLiteral(importingSource))
           );
 
           // remove tags importing
@@ -100,16 +98,29 @@ export function babelMacrostylesPlugin(
 }
 
 type TransformReturn = {
-  code: string;
-  mcss?: string;
+  transformed: string;
+  css?: string;
+};
+
+type Options = BabelMacrostylesPluginOptions & {
+  babelOptions: TransformOptions;
 };
 
 export async function transform(
   code: string,
-  options: {}
+  options: Options
 ): Promise<TransformReturn> {
-  transformSync(code, {
-    plugins: [],
+  const { babelOptions, ...pluginOptions } = options;
+  const result = await transformAsync(code, {
+    plugins: [[babelMacrostylesPlugin, pluginOptions]],
+    ...babelOptions,
   });
-  throw new Error('TODO!');
+  if (!result) {
+    throw new Error('ERROR!');
+  }
+  const { code: transformed } = result;
+  if (!transformed) {
+    throw new Error('ERROR!');
+  }
+  return { transformed };
 }

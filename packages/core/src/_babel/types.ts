@@ -1,5 +1,5 @@
 export type EvaluatedStyle = {
   id: string;
-  mcss: string;
+  css: string;
   className: string;
 };
