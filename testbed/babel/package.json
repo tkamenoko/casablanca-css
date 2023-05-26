@@ -22,7 +22,7 @@
     "@macrostyles/core": "npm:core@*"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.4",
-    "@types/babel__core": "^7.20.0"
+    "@babel/core": "^7.21.8",
+    "@types/babel__core": "^7.20.1"
   }
 }
