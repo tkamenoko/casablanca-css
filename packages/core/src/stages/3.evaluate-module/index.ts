@@ -28,6 +28,7 @@ export async function evaluateModule({
   moduleId,
   variableNames,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
+  // moduleId is a string as full path of the module.
   // create linker using module graph
   // TODO!
   let moduleCapture: Record<string, string> = {};

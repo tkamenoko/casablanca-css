@@ -60,8 +60,9 @@ export function macrostyles(options: PluginOption): Plugin {
       });
 
       const { importId, style } = createVirtualCssModule({
-        evaluatedStyles: mapOfVariableNamesToStyles.values(),
+        evaluatedStyles: Array.from(mapOfVariableNamesToStyles.values()),
         importerId: id,
+        projectRoot: server.config.root,
       });
 
       const { transformed: resultCode } = assignStylesToCapturedVariables({
