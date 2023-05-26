@@ -43,18 +43,18 @@ export function macrostyles(options: PluginOption): Plugin {
       }
       // TODO: if file is not changed, return cached content
 
+      const { babelOptions } = options;
       // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
-        captureTaggedStyles(code);
+        captureTaggedStyles({ code, options: { babelOptions } });
       if (!capturedVariableNames.length) {
         return;
       }
-      // TODO: create linker to evaluate module with importing
-      // const resp = await server.transformRequest();
-      server.moduleGraph;
+
       // TODO: processComposition
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
+        moduleId: id,
         variableNames: capturedVariableNames,
         moduleGraph: server.moduleGraph,
       });

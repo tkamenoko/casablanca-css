@@ -1,9 +1,51 @@
 {
-  "name": "@macrostyles/core",
-  "version": "0.0.1",
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "bugs": {
+    "url": "https://github.com/tkamenoko/macrostyles/issues"
+  },
+  "dependencies": {
+    "@babel/core": "^7.20.12",
+    "postcss": "^8.4.21",
+    "postcss-nested": "^6.0.0"
+  },
   "description": "Zero-Runtime CSS-in-JS powered by vite.",
-  "type": "module",
+  "devDependencies": {
+    "@types/babel__core": "^7.20.0",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./babel": {
+      "default": "./dist/babel.js",
+      "types": "./dist/babel.d.ts"
+    },
+    "./vite": {
+      "default": "./dist/vite.js",
+      "types": "./dist/vite.d.ts"
+    }
+  },
+  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
+  "license": "MIT",
   "module": "./dist/index.js",
+  "name": "@macrostyles/core",
+  "peerDependencies": {
+    "vite": "^4.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkamenoko/macrostyles.git"
+  },
+  "scripts": {
+    "build": "wireit",
+    "test": "wireit"
+  },
+  "type": "module",
   "types": "dist/index.d.ts",
   "typesVersions": {
     "*": {
@@ -12,24 +54,7 @@
       ]
     }
   },
-  "exports": {
-    ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./vite": {
-      "default": "./dist/vite.js",
-      "types": "./dist/vite.d.ts"
-    },
-    "./babel": {
-      "default": "./dist/babel.js",
-      "types": "./dist/babel.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "wireit",
-    "test": "wireit"
-  },
+  "version": "0.0.1",
   "wireit": {
     "build": {
       "command": "vite build",
@@ -44,35 +69,13 @@
     },
     "test": {
       "command": "vitest run",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
       "files": [
         "src/**/*.ts"
       ],
       "output": []
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tkamenoko/macrostyles.git"
-  },
-  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tkamenoko/macrostyles/issues"
-  },
-  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
-  "dependencies": {
-    "@babel/core": "^7.20.12",
-    "postcss": "^8.4.21",
-    "postcss-nested": "^6.0.0"
-  },
-  "peerDependencies": {
-    "vite": "^4.0.4"
-  },
-  "devDependencies": {
-    "@types/babel__core": "^7.20.0",
-    "@types/react": "^18.2.6",
-    "@types/react-dom": "^18.2.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
   }
 }
