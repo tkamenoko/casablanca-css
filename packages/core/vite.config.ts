@@ -24,5 +24,5 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  test: { outputTruncateLength: 100 },
+  test: {},
 });
