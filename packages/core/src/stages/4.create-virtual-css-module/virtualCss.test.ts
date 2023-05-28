@@ -35,10 +35,8 @@ test('should create css string from partial styles and importer id', async ({
     projectRoot,
   });
 
-  const pathInProject = importerId.replace(projectRoot, '');
-  expect(importId).toEqual(
-    `virtual:macrostyles/${pathInProject}.module.css`.replace(/\/\/+/g, '/')
-  );
+  const pathInProject = importerId.replace(projectRoot, '').slice(1);
+  expect(importId).toEqual(`macrostyles:${pathInProject}.module.css`);
   expect(style).toMatch(new RegExp(`\\.foo *{`));
   for (const evaluated of evaluatedStyles) {
     expect(style).toMatch(evaluated.style);

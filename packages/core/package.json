@@ -43,7 +43,8 @@
   },
   "scripts": {
     "build": "wireit",
-    "test": "wireit"
+    "test": "wireit",
+    "types": "wireit"
   },
   "type": "module",
   "types": "dist/index.d.ts",
@@ -73,7 +74,16 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "files": [
-        "src/**/*.ts"
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    },
+    "types": {
+      "command": "tsc --noEmit",
+      "files": [
+        "./src/**/*.tsx?"
       ],
       "output": []
     }

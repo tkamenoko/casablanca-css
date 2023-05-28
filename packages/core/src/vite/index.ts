@@ -1,38 +1,19 @@
-import type { TransformOptions } from '@babel/core';
 import type { Plugin, ViteDevServer } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
 import { evaluateModule } from '../stages/3.evaluate-module';
 import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
-import type { PluginOption, VirtualModuleIdPrefix } from '../types';
+import type { PluginOption, ModuleIdPrefix } from '../types';
 
-type ResolvedVirtualModuleIdPrefix = `\0${VirtualModuleIdPrefix}`;
-const virtualModuleIdPrefix: VirtualModuleIdPrefix = 'virtual:macrostyles';
-const resolvedVirtualModuleIdPrefix: ResolvedVirtualModuleIdPrefix =
-  '\0virtual:macrostyles';
+const moduleIdPrefix: ModuleIdPrefix = 'macrostyles:';
 
-function isResolverId(
-  p: string
-): p is `${ResolvedVirtualModuleIdPrefix}${string}` {
-  return p.startsWith(resolvedVirtualModuleIdPrefix);
+function isResolverId(p: string): p is `${ModuleIdPrefix}${string}` {
+  return p.startsWith(moduleIdPrefix);
 }
 
 export function macrostyles(options: PluginOption): Plugin {
-  const virtualModuleIdPrefix: VirtualModuleIdPrefix = 'virtual:macrostyles';
-  const resolvedVirtualModuleIdPrefix: ResolvedVirtualModuleIdPrefix =
-    '\0virtual:macrostyles';
-
-  const cache = new Map<string, Record<string, string>>();
-  // TODO: handle module dependencies?
-  const cssLookup = new Map<
-    `${ResolvedVirtualModuleIdPrefix}${string}`,
-    string
-  >();
-
-  type ProcessedClassName = string;
-  type RawClassName = string;
-  const rawClassNamesLookup = new Map<ProcessedClassName, RawClassName>();
+  const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
 
   let server: ViteDevServer | null = null;
   return {
@@ -41,7 +22,10 @@ export function macrostyles(options: PluginOption): Plugin {
       if (!server) {
         throw new Error('Vite server is not configured');
       }
-      // TODO: if file is not changed, return cached content
+      if (/\/node_modules\//.test(id)) {
+        // ignore third party packages
+        return;
+      }
 
       const { babelOptions } = options;
       // find tagged templates, then remove all tags.
@@ -52,6 +36,7 @@ export function macrostyles(options: PluginOption): Plugin {
       }
 
       // TODO: processComposition
+
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
         moduleId: id,
@@ -69,9 +54,10 @@ export function macrostyles(options: PluginOption): Plugin {
         variableNames: capturedVariableNames,
         code: capturedCode,
         cssImportId: importId,
+        options: { babelOptions },
       });
 
-      cssLookup.set(`\0${importId}`, style);
+      cssLookup.set(`${importId}`, style);
 
       return resultCode;
     },
@@ -79,8 +65,8 @@ export function macrostyles(options: PluginOption): Plugin {
       server = server_;
     },
     resolveId(id) {
-      if (id.startsWith(virtualModuleIdPrefix)) {
-        return `\0${id}`;
+      if (id.startsWith(moduleIdPrefix)) {
+        return `${id}`;
       }
       return null;
     },
@@ -90,9 +76,6 @@ export function macrostyles(options: PluginOption): Plugin {
       }
       const found = cssLookup.get(id);
       return found;
-    },
-    handleHotUpdate(ctx) {
-      // TODO: reset cache based on timestamp
     },
   };
 }

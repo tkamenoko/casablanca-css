@@ -29,7 +29,7 @@ function captureVariableNamesPlugin({
   return {
     visitor: {
       Program: {
-        enter: (path, state) => {
+        enter: (path) => {
           const found = path.get('body').find(isMacrostylesImport);
 
           if (!found) {
@@ -43,7 +43,7 @@ function captureVariableNamesPlugin({
           // remove tags importing
           path.traverse({
             ImportDeclaration: {
-              enter: (p, s) => {
+              enter: (p) => {
                 if (!isMacrostylesImport(p)) {
                   return;
                 }
@@ -61,7 +61,7 @@ function captureVariableNamesPlugin({
                   }
                 }
               },
-              exit: (path, state) => {
+              exit: (path) => {
                 if (!isMacrostylesImport(path)) {
                   return;
                 }

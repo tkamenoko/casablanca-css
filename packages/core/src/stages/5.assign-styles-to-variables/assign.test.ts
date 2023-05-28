@@ -9,7 +9,7 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
   expect,
 }) => {
   const variableNames = ['styleA', 'styleB'];
-  const cssImportId = `virtual:macrostyles/fixtures/simple.ts.module.css`;
+  const cssImportId = `macrostyles:fixtures/simple.ts.module.css`;
   const { transformed } = assignStylesToCapturedVariables({
     code: simpleCode,
     cssImportId,

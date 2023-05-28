@@ -3,14 +3,12 @@ import { transformSync } from '@babel/core';
 import type babel from '@babel/core';
 import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
 
-import type { PluginOption, VirtualModuleIdPrefix } from '../../types';
-
-type VariableName = string;
+import type { PluginOption, ModuleIdPrefix } from '../../types';
 
 type AssignStylesToCapturedVariablesArgs = {
   code: string;
   variableNames: string[];
-  cssImportId: `${VirtualModuleIdPrefix}/${string}`;
+  cssImportId: `${ModuleIdPrefix}${string}`;
   options?: PluginOption;
 };
 type AssignStylesToCapturedVariablesReturn = {
@@ -19,7 +17,7 @@ type AssignStylesToCapturedVariablesReturn = {
 
 type Options = {
   variableNames: string[];
-  cssImportId: `${VirtualModuleIdPrefix}/${string}`;
+  cssImportId: `${ModuleIdPrefix}${string}`;
 };
 
 type BabelState = {

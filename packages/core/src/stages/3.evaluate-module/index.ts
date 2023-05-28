@@ -38,7 +38,7 @@ export async function evaluateModule({
     },
   });
   const targetLinker: ModuleLinker = async () => {
-    // TODO!
+    throw new Error('TODO!');
   };
   // create module
   const targetModule = new SourceTextModule(code, {
@@ -47,23 +47,23 @@ export async function evaluateModule({
   await targetModule.link(targetLinker);
   // create exports logger
 
-  const loggerModule = new SourceTextModule(
+  const captureModule = new SourceTextModule(
     `
-  import * as target from "target";
+  import * as target from "macrostyles:target";
 
   capture(target);
   `,
     { context: contextifiedObject }
   );
-  const loggerLinker: ModuleLinker = async (specifier, referencingModule) => {
-    if (specifier === 'target') {
+  const captureLinker: ModuleLinker = async (specifier) => {
+    if (specifier === 'macrostyles:target') {
       return targetModule;
     }
     throw new Error('Unreachable!');
   };
-  await loggerModule.link(loggerLinker);
+  await captureModule.link(captureLinker);
   // evaluate
-  await loggerModule.evaluate();
+  await captureModule.evaluate();
   // return captured styles
   const captured: Record<string, string> = { ...moduleCapture };
 
