@@ -4,6 +4,8 @@ import { transformWithEsbuild, createServer } from 'vite';
 
 import simpleModuleAsString from './fixtures/simple?raw';
 import * as simpleModuleExports from './fixtures/simple';
+import thirdPartyModuleAsString from './fixtures/thirdParty?raw';
+import * as thirdPartyModuleExports from './fixtures/thirdParty';
 
 import { evaluateModule } from '.';
 
@@ -38,6 +40,28 @@ test<TestContext>('should evaluate module to get exported styles', async ({
   expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
   for (const variableName of variableNames) {
     const value = simpleModuleExports[variableName];
+    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
+  }
+});
+
+test<TestContext>('should evaluate module third party modules', async ({
+  expect,
+  server,
+}) => {
+  const variableNames = ['styleWithPolished'] as const;
+  const { code: jsCode } = await transformWithEsbuild(
+    thirdPartyModuleAsString,
+    'thirdParty.ts'
+  );
+  const { mapOfVariableNamesToStyles } = await evaluateModule({
+    code: jsCode,
+    moduleGraph: server.moduleGraph,
+    moduleId: 'TODO!',
+    variableNames: [...variableNames],
+  });
+  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
+  for (const variableName of variableNames) {
+    const value = thirdPartyModuleExports[variableName];
     expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
   }
 });

@@ -1,5 +1,5 @@
 import type { ModuleLinker } from 'node:vm';
-import { SourceTextModule, createContext } from 'node:vm';
+import { SourceTextModule, createContext, SyntheticModule } from 'node:vm';
 
 import type { ModuleGraph } from 'vite';
 
@@ -37,8 +37,21 @@ export async function evaluateModule({
       moduleCapture = x;
     },
   });
-  const targetLinker: ModuleLinker = async () => {
-    throw new Error('TODO!');
+
+  const targetLinker: ModuleLinker = async (specifier, referencingModule) => {
+    // TODO: load local files from moduleGraph
+    // TODO: load virtual module from moduleGraph
+    const imported = await import(specifier);
+    const exportNames = Object.keys(imported);
+    const m = new SyntheticModule(
+      exportNames,
+      () => {
+        exportNames.forEach((name) => m.setExport(name, imported[name]));
+      },
+      { context: referencingModule.context }
+    );
+
+    return m;
   };
   // create module
   const targetModule = new SourceTextModule(code, {
