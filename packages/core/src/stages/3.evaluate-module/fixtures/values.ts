@@ -1,1 +1,3 @@
-export const fontSize = '10em';
+import { modular3 } from './themes';
+
+export const fontSize = modular3;

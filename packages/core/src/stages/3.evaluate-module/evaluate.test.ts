@@ -24,7 +24,6 @@ test('should evaluate module to get exported styles', async ({ expect }) => {
       './fixtures/simple.ts'
     )
   );
-  // await server.transformRequest(moduleId);
 
   const { code } = await transformWithEsbuild(simpleModuleAsString, moduleId);
   const { mapOfVariableNamesToStyles } = await evaluateModule({
@@ -51,7 +50,6 @@ test('should evaluate module using third party modules', async ({ expect }) => {
       './fixtures/thirdParty.ts'
     )
   );
-  // await server.transformRequest(moduleId);
 
   const { code } = await transformWithEsbuild(
     thirdPartyModuleAsString,
@@ -82,7 +80,6 @@ test('should evaluate module using local modules', async ({ expect }) => {
       './fixtures/useLocalFile.ts'
     )
   );
-  // await server.transformRequest(moduleId);
 
   const { code } = await transformWithEsbuild(localModuleAsString, moduleId);
 
