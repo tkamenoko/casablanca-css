@@ -26,7 +26,14 @@ test('should create css string from partial styles and importer id', async ({
   ];
   const projectRoot = normalizePath(process.cwd());
   const importerId = normalizePath(
-    resolve('./fixtures.ts', import.meta.url.replace(/^file:\/+/, ''))
+    resolve(
+      import.meta.url
+        .replace(/^file:\/+/, '')
+        .split('/')
+        .slice(0, -1)
+        .join('/'),
+      './fixtures.ts'
+    )
   );
 
   const { importId, style } = createVirtualCssModule({

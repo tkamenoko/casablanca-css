@@ -39,9 +39,8 @@ export function macrostyles(options: PluginOption): Plugin {
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
-        moduleId: id,
         variableNames: capturedVariableNames,
-        moduleGraph: server.moduleGraph,
+        moduleId: id,
       });
 
       const { importId, style } = createVirtualCssModule({

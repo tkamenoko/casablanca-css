@@ -1,14 +1,14 @@
 import type { ModuleLinker } from 'node:vm';
-import { SourceTextModule, createContext, SyntheticModule } from 'node:vm';
+import { SourceTextModule, createContext } from 'node:vm';
 
-import type { ModuleGraph } from 'vite';
+import { nodeModuleLinker } from './nodeModulesLinker';
+import { localModulesLinker } from './localModulesLinker';
 
 type VariableName = string;
 
 type EvaluateModuleArgs = {
   code: string;
   moduleId: string;
-  moduleGraph: ModuleGraph;
   variableNames: string[];
 };
 
@@ -24,13 +24,9 @@ type EvaluateModuleReturn = {
 
 export async function evaluateModule({
   code,
-  moduleGraph,
   moduleId,
   variableNames,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
-  // moduleId is a string as full path of the module.
-  // create linker using module graph
-  // TODO!
   let moduleCapture: Record<string, string> = {};
   const contextifiedObject = createContext({
     capture: (x: Record<string, string>): void => {
@@ -38,27 +34,29 @@ export async function evaluateModule({
     },
   });
 
-  const targetLinker: ModuleLinker = async (specifier, referencingModule) => {
-    // TODO: load local files from moduleGraph
-    // TODO: load virtual module from moduleGraph
-    const imported = await import(specifier);
-    const exportNames = Object.keys(imported);
-    const m = new SyntheticModule(
-      exportNames,
-      () => {
-        exportNames.forEach((name) => m.setExport(name, imported[name]));
-      },
-      { context: referencingModule.context }
-    );
+  const targetLinker: ModuleLinker = async (
+    specifier,
+    referencingModule,
+    extra
+  ) => {
+    try {
+      const m = await nodeModuleLinker(specifier, referencingModule, extra);
+      return m;
+    } catch (error) {
+      const m = await localModulesLinker({
+        contextifiedObject,
 
-    return m;
+        moduleId,
+      })(specifier, referencingModule, extra);
+      return m;
+    }
   };
   // create module
   const targetModule = new SourceTextModule(code, {
     context: contextifiedObject,
   });
   await targetModule.link(targetLinker);
-  // create exports logger
+  // create exports capture
 
   const captureModule = new SourceTextModule(
     `
