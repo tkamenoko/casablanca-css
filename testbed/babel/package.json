@@ -1,10 +1,17 @@
 {
   "name": "@macrostyles/test-babel",
+  "dependencies": {
+    "@macrostyles/core": "npm:core@*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.8",
+    "@types/babel__core": "^7.20.1"
+  },
   "private": true,
-  "type": "module",
   "scripts": {
     "test": "wireit"
   },
+  "type": "module",
   "wireit": {
     "test": {
       "command": "vitest run",
@@ -17,12 +24,5 @@
       ],
       "output": []
     }
-  },
-  "dependencies": {
-    "@macrostyles/core": "npm:core@*"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.21.8",
-    "@types/babel__core": "^7.20.1"
   }
 }

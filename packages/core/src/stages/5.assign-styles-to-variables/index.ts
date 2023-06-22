@@ -1,15 +1,15 @@
-import type { PluginObj, PluginPass } from '@babel/core';
+import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
 import { transformSync } from '@babel/core';
 import type babel from '@babel/core';
 import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
 
-import type { PluginOption, ModuleIdPrefix } from '../../types';
+import type { ModuleIdPrefix } from '../../types';
 
 type AssignStylesToCapturedVariablesArgs = {
   code: string;
   variableNames: string[];
   cssImportId: `${ModuleIdPrefix}${string}`;
-  options?: PluginOption;
+  options?: { babelOptions: TransformOptions };
 };
 type AssignStylesToCapturedVariablesReturn = {
   transformed: string;

@@ -1,9 +1,9 @@
 {
-  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "bugs": {
-    "url": "https://github.com/tkamenoko/macrostyles/issues"
-  },
+  "name": "macrostyles",
   "description": "Zero-Runtime CSS-in-JS powered by vite.",
+  "version": "0.0.1",
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "devDependencies": {
     "@styled/typescript-styled-plugin": "^1.0.0",
     "@tsconfig/strictest": "^2.0.1",
@@ -16,6 +16,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
     "prettier": "^2.8.8",
+    "syncpack": "^10.5.1",
     "taze": "^0.10.1",
     "typescript": "^5.0.4",
     "typesync": "^0.11.1",
@@ -26,21 +27,16 @@
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
-  "name": "macrostyles",
   "packageManager": "npm@9.6.7",
   "prettier": {
     "singleQuote": true
   },
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tkamenoko/macrostyles.git"
-  },
+  "repository": "tkamenoko/macrostyles.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
-  "version": "0.0.1",
   "workspaces": [
     "./packages/*",
     "./testbed/*"

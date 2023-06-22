@@ -1,4 +1,4 @@
-import { SourceTextModule } from 'node:vm';
+import vm from 'node:vm';
 import type { ModuleLinker, Context } from 'node:vm';
 import { resolve } from 'node:path';
 
@@ -14,7 +14,7 @@ export const localModulesLinker: (params: {
       resolve(moduleId.split('/').slice(0, -1).join('/'), specifier)
     );
 
-    const localModule = new SourceTextModule(
+    const localModule = new vm.SourceTextModule(
       `
 export * from ${JSON.stringify(path)};
 `,

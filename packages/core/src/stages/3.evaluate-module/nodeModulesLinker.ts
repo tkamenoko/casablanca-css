@@ -1,4 +1,4 @@
-import { SyntheticModule } from 'node:vm';
+import vm from 'node:vm';
 import type { ModuleLinker } from 'node:vm';
 
 export const nodeModuleLinker: ModuleLinker = async (
@@ -8,7 +8,7 @@ export const nodeModuleLinker: ModuleLinker = async (
   const imported = await import(specifier);
   const exportNames = Object.keys(imported);
 
-  const m = new SyntheticModule(
+  const m = new vm.SyntheticModule(
     exportNames,
     () => {
       exportNames.forEach((name) => m.setExport(name, imported[name]));

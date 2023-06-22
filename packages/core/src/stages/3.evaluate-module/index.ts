@@ -1,5 +1,5 @@
 import type { ModuleLinker } from 'node:vm';
-import { SourceTextModule, createContext } from 'node:vm';
+import vm from 'node:vm';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
@@ -28,7 +28,7 @@ export async function evaluateModule({
   variableNames,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
   let moduleCapture: Record<string, string> = {};
-  const contextifiedObject = createContext({
+  const contextifiedObject = vm.createContext({
     capture: (x: Record<string, string>): void => {
       moduleCapture = x;
     },
@@ -52,13 +52,13 @@ export async function evaluateModule({
     }
   };
   // create module
-  const targetModule = new SourceTextModule(code, {
+  const targetModule = new vm.SourceTextModule(code, {
     context: contextifiedObject,
   });
   await targetModule.link(targetLinker);
   // create exports capture
 
-  const captureModule = new SourceTextModule(
+  const captureModule = new vm.SourceTextModule(
     `
   import * as target from "macrostyles:target";
 

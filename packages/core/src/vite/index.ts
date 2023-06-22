@@ -1,4 +1,4 @@
-import type { Plugin, ViteDevServer } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
@@ -12,22 +12,28 @@ function isResolverId(p: string): p is `${ModuleIdPrefix}${string}` {
   return p.startsWith(moduleIdPrefix);
 }
 
-export function macrostyles(options: PluginOption): Plugin {
+export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
 
-  let server: ViteDevServer | null = null;
+  let config: ResolvedConfig | null = null;
+  const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
+    options ?? {};
+
   return {
     name: 'macrostyles',
     async transform(code, id) {
-      if (!server) {
-        throw new Error('Vite server is not configured');
+      if (!config) {
+        throw new Error('Vite config is not resolved');
+      }
+      if (!extensions.some((e) => id.endsWith(e))) {
+        // ignore module that is not JS/TS code
+        return;
       }
       if (/\/node_modules\//.test(id)) {
         // ignore third party packages
         return;
       }
 
-      const { babelOptions } = options;
       // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
@@ -46,7 +52,7 @@ export function macrostyles(options: PluginOption): Plugin {
       const { importId, style } = createVirtualCssModule({
         evaluatedStyles: Array.from(mapOfVariableNamesToStyles.values()),
         importerId: id,
-        projectRoot: server.config.root,
+        projectRoot: config.root,
       });
 
       const { transformed: resultCode } = assignStylesToCapturedVariables({
@@ -60,8 +66,9 @@ export function macrostyles(options: PluginOption): Plugin {
 
       return resultCode;
     },
-    configureServer(server_) {
-      server = server_;
+
+    configResolved(config_) {
+      config = config_;
     },
     resolveId(id) {
       if (id.startsWith(moduleIdPrefix)) {

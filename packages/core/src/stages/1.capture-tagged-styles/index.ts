@@ -1,15 +1,15 @@
-import type { PluginObj, PluginPass } from '@babel/core';
+import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
 import type babel from '@babel/core';
 import { transformSync } from '@babel/core';
 import { isMacrostylesCssTemplate } from 'src/helpers/isMacrostylesCssTemplate';
 import { isMacrostylesImport } from 'src/helpers/isMacrostylesImport';
 import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
 
-import type { PluginOption } from '../../types';
-
 type CaptureTaggedStylesArgs = {
   code: string;
-  options?: PluginOption;
+  options?: {
+    babelOptions: TransformOptions;
+  };
 };
 
 type CaptureTaggedStylesReturn = {

@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import dts from 'vite-plugin-dts';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import nodeExternals from 'rollup-plugin-node-externals';
 
 import packageJson from './package.json';
-
 const dependencies = Object.keys(packageJson.dependencies);
 
 export default defineConfig({
@@ -12,13 +12,12 @@ export default defineConfig({
       entry: {
         index: './src/index.ts',
         vite: './src/vite/index.ts',
-        babel: './src/babel/index.ts',
       },
       formats: ['es'],
     },
-    rollupOptions: { external: dependencies },
   },
   plugins: [
+    { ...nodeExternals(), enforce: 'pre' },
     dts({
       insertTypesEntry: true,
     }),

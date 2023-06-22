@@ -1,30 +1,27 @@
 {
+  "name": "@macrostyles/core",
+  "description": "Zero-Runtime CSS-in-JS powered by vite.",
+  "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "bugs": {
-    "url": "https://github.com/tkamenoko/macrostyles/issues"
-  },
+  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
     "@babel/core": "^7.21.8",
     "postcss": "^8.4.23",
     "postcss-nested": "^6.0.1"
   },
-  "description": "Zero-Runtime CSS-in-JS powered by vite.",
   "devDependencies": {
     "@types/babel__core": "^7.20.1",
     "@types/react": "^18.2.7",
     "@types/react-dom": "^18.2.4",
     "polished": "^4.2.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rollup-plugin-node-externals": "^6.1.1"
   },
   "exports": {
     ".": {
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./babel": {
-      "default": "./dist/babel.js",
-      "types": "./dist/babel.d.ts"
     },
     "./vite": {
       "default": "./dist/vite.js",
@@ -34,14 +31,10 @@
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
   "module": "./dist/index.js",
-  "name": "@macrostyles/core",
   "peerDependencies": {
-    "vite": "^4.0.4"
+    "vite": "^4.3.9"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tkamenoko/macrostyles.git"
-  },
+  "repository": "tkamenoko/macrostyles.git",
   "scripts": {
     "build": "wireit",
     "test": "wireit",
@@ -56,7 +49,6 @@
       ]
     }
   },
-  "version": "0.0.1",
   "wireit": {
     "build": {
       "command": "vite build",
