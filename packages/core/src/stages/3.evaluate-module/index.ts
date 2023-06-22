@@ -45,12 +45,12 @@ export async function evaluateModule({
     } catch (error) {
       const m = await localModulesLinker({
         contextifiedObject,
-
         moduleId,
       })(specifier, referencingModule, extra);
       return m;
     }
   };
+
   // create module
   const targetModule = new vm.SourceTextModule(code, {
     context: contextifiedObject,

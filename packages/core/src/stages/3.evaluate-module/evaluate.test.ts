@@ -73,7 +73,7 @@ test('should evaluate module using local modules', async ({ expect }) => {
   const moduleId = normalizePath(
     resolve(
       import.meta.url
-        .replace(/^file:\/+/, '')
+        .replace(/^file:\/\//, '')
         .split('/')
         .slice(0, -1)
         .join('/'),
