@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 
+import type { ExpectStatic } from 'vitest';
 import { test } from 'vitest';
 import { normalizePath, transformWithEsbuild } from 'vite';
 
@@ -12,18 +13,46 @@ import localModuleAsString from './fixtures/useLocalFile?raw';
 
 import { evaluateModule } from '.';
 
-test('should evaluate module to get exported styles', async ({ expect }) => {
-  const variableNames = ['staticStyle', 'embedded', 'functionCall'] as const;
-  const moduleId = normalizePath(
+function buildModuleId(relativePath: `./${string}`): string {
+  return normalizePath(
     resolve(
       import.meta.url
-        .replace(/^file:\/+/, '')
+        .replace(/^file:\/\//, '')
         .split('/')
         .slice(0, -1)
         .join('/'),
-      './fixtures/simple.ts'
+      relativePath
     )
   );
+}
+
+function testObjectHasEvaluatedStyles({
+  expect,
+  mapOfVariableNamesToStyles,
+  variableNames,
+  moduleExports,
+}: {
+  expect: ExpectStatic;
+  moduleExports: Record<string, unknown>;
+  mapOfVariableNamesToStyles: Map<
+    string,
+    {
+      variableName: string;
+      style: string;
+    }
+  >;
+  variableNames: readonly string[];
+}): void {
+  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
+  for (const variableName of variableNames) {
+    const value = moduleExports[variableName];
+    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
+  }
+}
+
+test('should evaluate module to get exported styles', async ({ expect }) => {
+  const variableNames = ['staticStyle', 'embedded', 'functionCall'] as const;
+  const moduleId = buildModuleId('./fixtures/simple.ts');
 
   const { code } = await transformWithEsbuild(simpleModuleAsString, moduleId);
   const { mapOfVariableNamesToStyles } = await evaluateModule({
@@ -31,25 +60,17 @@ test('should evaluate module to get exported styles', async ({ expect }) => {
     variableNames: [...variableNames],
     moduleId,
   });
-  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
-  for (const variableName of variableNames) {
-    const value = simpleModuleExports[variableName];
-    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
-  }
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfVariableNamesToStyles,
+    moduleExports: simpleModuleExports,
+    variableNames,
+  });
 });
 
 test('should evaluate module using third party modules', async ({ expect }) => {
   const variableNames = ['styleWithPolished'] as const;
-  const moduleId = normalizePath(
-    resolve(
-      import.meta.url
-        .replace(/^file:\/+/, '')
-        .split('/')
-        .slice(0, -1)
-        .join('/'),
-      './fixtures/thirdParty.ts'
-    )
-  );
+  const moduleId = buildModuleId('./fixtures/thirdParty.ts');
 
   const { code } = await transformWithEsbuild(
     thirdPartyModuleAsString,
@@ -61,25 +82,17 @@ test('should evaluate module using third party modules', async ({ expect }) => {
     variableNames: [...variableNames],
     moduleId,
   });
-  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
-  for (const variableName of variableNames) {
-    const value = thirdPartyModuleExports[variableName];
-    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
-  }
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfVariableNamesToStyles,
+    moduleExports: thirdPartyModuleExports,
+    variableNames,
+  });
 });
 
 test('should evaluate module using local modules', async ({ expect }) => {
   const variableNames = ['styleWithLocalModule'] as const;
-  const moduleId = normalizePath(
-    resolve(
-      import.meta.url
-        .replace(/^file:\/\//, '')
-        .split('/')
-        .slice(0, -1)
-        .join('/'),
-      './fixtures/useLocalFile.ts'
-    )
-  );
+  const moduleId = buildModuleId('./fixtures/useLocalFile.ts');
 
   const { code } = await transformWithEsbuild(localModuleAsString, moduleId);
 
@@ -88,9 +101,10 @@ test('should evaluate module using local modules', async ({ expect }) => {
     variableNames: [...variableNames],
     moduleId,
   });
-  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
-  for (const variableName of variableNames) {
-    const value = localModuleExports[variableName];
-    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
-  }
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfVariableNamesToStyles,
+    moduleExports: localModuleExports,
+    variableNames,
+  });
 });
