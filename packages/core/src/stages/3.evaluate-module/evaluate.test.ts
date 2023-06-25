@@ -10,6 +10,8 @@ import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import thirdPartyModuleAsString from './fixtures/thirdParty?raw';
 import * as localModuleExports from './fixtures/useLocalFile';
 import localModuleAsString from './fixtures/useLocalFile?raw';
+import nonScriptModuleAsString from './fixtures/useNonScriptFile?raw';
+import * as nonScriptModuleExports from './fixtures/useNonScriptFile';
 
 import { evaluateModule } from '.';
 
@@ -105,6 +107,28 @@ test('should evaluate module using local modules', async ({ expect }) => {
     expect,
     mapOfVariableNamesToStyles,
     moduleExports: localModuleExports,
+    variableNames,
+  });
+});
+
+test('should evaluate module using non-script modules', async ({ expect }) => {
+  const variableNames = ['className'] as const;
+  const moduleId = buildModuleId('./fixtures/useNonScriptFile.ts');
+
+  const { code } = await transformWithEsbuild(
+    nonScriptModuleAsString,
+    moduleId
+  );
+
+  const { mapOfVariableNamesToStyles } = await evaluateModule({
+    code,
+    moduleId,
+    variableNames: [...variableNames],
+  });
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfVariableNamesToStyles,
+    moduleExports: nonScriptModuleExports,
     variableNames,
   });
 });
