@@ -6,11 +6,7 @@ import { evaluateModule } from '../stages/3.evaluate-module';
 import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
 import type { PluginOption, ModuleIdPrefix } from '../types';
 
-const moduleIdPrefix: ModuleIdPrefix = 'macrostyles:';
-
-function isResolverId(p: string): p is `${ModuleIdPrefix}${string}` {
-  return p.startsWith(moduleIdPrefix);
-}
+import { isResolvedId } from './isResolvedId';
 
 export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
@@ -47,6 +43,13 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         code: capturedCode,
         variableNames: capturedVariableNames,
         moduleId: id,
+        load: async (id) => {
+          const { code } = await this.load({ id, resolveDependencies: true });
+          if (!code) {
+            throw new Error('LoadingError');
+          }
+          return code;
+        },
       });
 
       const { importId, style } = createVirtualCssModule({
@@ -71,13 +74,13 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       config = config_;
     },
     resolveId(id) {
-      if (id.startsWith(moduleIdPrefix)) {
-        return `${id}`;
+      if (isResolvedId(id)) {
+        return id;
       }
       return null;
     },
     load(id) {
-      if (!isResolverId(id)) {
+      if (!isResolvedId(id)) {
         return;
       }
       const found = cssLookup.get(id);
