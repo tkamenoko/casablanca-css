@@ -3,6 +3,7 @@ import vm from 'node:vm';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
+import { staticAssetsLinker } from './staticAssetsLinker';
 
 type VariableName = string;
 
@@ -10,6 +11,7 @@ type EvaluateModuleArgs = {
   code: string;
   moduleId: string;
   variableNames: string[];
+  load: (id: string) => Promise<string>;
 };
 
 type EvaluateModuleReturn = {
@@ -26,6 +28,7 @@ export async function evaluateModule({
   code,
   moduleId,
   variableNames,
+  load,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
   let moduleCapture: Record<string, string> = {};
   const contextifiedObject = vm.createContext({
@@ -43,10 +46,15 @@ export async function evaluateModule({
       const m = await nodeModuleLinker(specifier, referencingModule, extra);
       return m;
     } catch (error) {
-      const m = await localModulesLinker({
+      const m = await staticAssetsLinker({
         contextifiedObject,
+        load,
         moduleId,
       })(specifier, referencingModule, extra);
+      // const m = await localModulesLinker({
+      //   contextifiedObject,
+      //   moduleId,
+      // })(specifier, referencingModule, extra);
       return m;
     }
   };

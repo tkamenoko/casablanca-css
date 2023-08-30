@@ -3,9 +3,6 @@ import dts from 'vite-plugin-dts';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import nodeExternals from 'rollup-plugin-node-externals';
 
-import packageJson from './package.json';
-const dependencies = Object.keys(packageJson.dependencies);
-
 export default defineConfig({
   build: {
     lib: {
