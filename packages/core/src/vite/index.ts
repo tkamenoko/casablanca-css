@@ -1,4 +1,5 @@
-import type { Plugin, ResolvedConfig } from 'vite';
+import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
+import { createServer } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
@@ -12,6 +13,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
 
   let config: ResolvedConfig | null = null;
+  let server: ViteDevServer | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
 
@@ -21,6 +23,11 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
+      if (!server) {
+        throw new Error('Vite dev server is not running');
+      }
+      const serverResolved = server;
+
       if (!extensions.some((e) => id.endsWith(e))) {
         // ignore module that is not JS/TS code
         return;
@@ -44,11 +51,15 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         variableNames: capturedVariableNames,
         moduleId: id,
         load: async (id) => {
-          const { code } = await this.load({ id, resolveDependencies: true });
-          if (!code) {
-            throw new Error('LoadingError');
+          const result = await serverResolved.ssrLoadModule(id);
+          return result;
+        },
+        resolveId: async (id) => {
+          const r = await this.resolve(id);
+          if (!r) {
+            return r;
           }
-          return code;
+          return r.id;
         },
       });
 
@@ -73,6 +84,33 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
     configResolved(config_) {
       config = config_;
     },
+    configureServer(server_) {
+      server = server_;
+    },
+    async buildStart() {
+      if (!config) {
+        throw new Error('Vite config is not resolved');
+      }
+      if (!server) {
+        const {
+          configFile: _unused,
+          plugins,
+          assetsInclude: __unused,
+          ...rest
+        } = config;
+
+        server = await createServer({
+          ...rest,
+          plugins: plugins.slice(),
+        });
+        await server.listen();
+      }
+    },
+    async buildEnd() {
+      if (config?.command !== 'serve') {
+        await server?.close();
+      }
+    },
     resolveId(id) {
       if (isResolvedId(id)) {
         return id;
@@ -84,6 +122,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
       const found = cssLookup.get(id);
+
       return found;
     },
   };

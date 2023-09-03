@@ -4,10 +4,10 @@ import {
   type ResolvedConfig,
   type ViteDevServer,
 } from 'vite';
-import { isResolvedId } from 'src/vite/isResolvedId';
 import type { ExpectStatic } from 'vitest';
 import { assert, beforeEach, test } from 'vitest';
 
+import { isResolvedId } from '../../vite/isResolvedId';
 import type { ModuleIdPrefix, PluginOption } from '../../types';
 import { captureTaggedStyles } from '../1.capture-tagged-styles';
 import { buildModuleId } from '../fixtures/buildModuleId';
@@ -30,14 +30,21 @@ function partialPlugin(
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
 
   let config: ResolvedConfig | null = null;
+  let server: ViteDevServer | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
   return {
     name: 'macrostyles:partial',
+
     async transform(code, id) {
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
+      if (!server) {
+        throw new Error('Vite dev server is not running');
+      }
+      const serverResolved = server;
+
       if (!extensions.some((e) => id.endsWith(e))) {
         // ignore module that is not JS/TS code
         return;
@@ -61,12 +68,16 @@ function partialPlugin(
         code: capturedCode,
         variableNames: capturedVariableNames,
         moduleId: id,
-        load: async (id) => {
-          const { code } = await this.load({ id, resolveDependencies: true });
-          if (!code) {
-            throw new Error('LoadingError');
+        load: async (importingId) => {
+          const result = await serverResolved.ssrLoadModule(importingId);
+          return result;
+        },
+        resolveId: async (importingId) => {
+          const r = await this.resolve(importingId);
+          if (!r) {
+            return r;
           }
-          return code;
+          return r.id;
         },
       });
 
@@ -78,6 +89,33 @@ function partialPlugin(
 
     configResolved(config_) {
       config = config_;
+    },
+    configureServer(server_) {
+      server = server_;
+    },
+    async buildStart() {
+      if (!config) {
+        throw new Error('Vite config is not resolved');
+      }
+      if (!server) {
+        const {
+          configFile: _unused,
+          plugins,
+          assetsInclude: __unused,
+          ...rest
+        } = config;
+
+        server = await createServer({
+          ...rest,
+          plugins: plugins.slice(),
+        });
+        await server.listen();
+      }
+    },
+    async buildEnd() {
+      if (config?.command !== 'serve') {
+        await server?.close();
+      }
     },
     resolveId(id) {
       if (isResolvedId(id)) {

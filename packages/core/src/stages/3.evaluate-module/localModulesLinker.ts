@@ -1,24 +1,16 @@
-import vm from 'node:vm';
-import type { ModuleLinker, Context } from 'node:vm';
+import type { ModuleLinker } from 'node:vm';
 import { resolve } from 'node:path';
 
 import { normalizePath } from 'vite';
 
 export const localModulesLinker: (params: {
   moduleId: string;
-  contextifiedObject: Context;
+  baseLinker: ModuleLinker;
 }) => ModuleLinker =
-  ({ contextifiedObject, moduleId }) =>
-  async (specifier) => {
+  ({ baseLinker, moduleId }) =>
+  async (specifier, referencingModule, extra) => {
     const path = normalizePath(
       resolve(moduleId.split('/').slice(0, -1).join('/'), specifier)
     );
-
-    const localModule = new vm.SourceTextModule(
-      `
-export * from ${JSON.stringify(path)};
-`,
-      { context: contextifiedObject }
-    );
-    return localModule;
+    return await baseLinker(path, referencingModule, extra);
   };

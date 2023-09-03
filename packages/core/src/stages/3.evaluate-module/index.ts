@@ -3,7 +3,7 @@ import vm from 'node:vm';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
-import { staticAssetsLinker } from './staticAssetsLinker';
+import { baseLinker } from './baseLinker';
 
 type VariableName = string;
 
@@ -11,7 +11,8 @@ type EvaluateModuleArgs = {
   code: string;
   moduleId: string;
   variableNames: string[];
-  load: (id: string) => Promise<string>;
+  load: (id: string) => Promise<Record<string, unknown>>;
+  resolveId: (id: string) => Promise<string | null>;
 };
 
 type EvaluateModuleReturn = {
@@ -29,6 +30,7 @@ export async function evaluateModule({
   moduleId,
   variableNames,
   load,
+  resolveId,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
   let moduleCapture: Record<string, string> = {};
   const contextifiedObject = vm.createContext({
@@ -42,19 +44,19 @@ export async function evaluateModule({
     referencingModule,
     extra
   ) => {
+    const linker = baseLinker(load);
     try {
-      const m = await nodeModuleLinker(specifier, referencingModule, extra);
+      const m = await nodeModuleLinker({
+        baseLinker: linker,
+        resolveId,
+      })(specifier, referencingModule, extra);
       return m;
     } catch (error) {
-      const m = await staticAssetsLinker({
-        contextifiedObject,
-        load,
+      const m = await localModulesLinker({
+        baseLinker: linker,
         moduleId,
       })(specifier, referencingModule, extra);
-      // const m = await localModulesLinker({
-      //   contextifiedObject,
-      //   moduleId,
-      // })(specifier, referencingModule, extra);
+
       return m;
     }
   };

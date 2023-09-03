@@ -38,6 +38,10 @@ const config = {
           'warn',
           { disallowTypeAnnotations: false },
         ],
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          { varsIgnorePattern: '^_+' },
+        ],
         '@typescript-eslint/explicit-function-return-type': [
           'warn',
           {
