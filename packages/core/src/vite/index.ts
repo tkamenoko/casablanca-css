@@ -1,5 +1,5 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { createServer } from 'vite';
+import { transformWithEsbuild, createServer } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
@@ -14,6 +14,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
+  let shouldCloseServer = false;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
 
@@ -37,14 +38,31 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
 
+      let targetCode = code;
+      if (this.meta.watchMode) {
+        const m = server.moduleGraph.getModuleById(id);
+        if (!m) {
+          return;
+        }
+        const r = await server.ssrLoadModule(`${m.url}?raw`);
+        // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
+        const raw = r['default'];
+        if (!raw) {
+          return;
+        }
+        const c = await transformWithEsbuild(raw, id, {
+          format: 'esm',
+          platform: 'node',
+        });
+        targetCode = c.code;
+      }
+
       // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
-        captureTaggedStyles({ code, options: { babelOptions } });
+        captureTaggedStyles({ code: targetCode, options: { babelOptions } });
       if (!capturedVariableNames.length) {
         return;
       }
-
-      // TODO: processComposition
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
@@ -76,7 +94,11 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         options: { babelOptions },
       });
 
-      cssLookup.set(`${importId}`, style);
+      cssLookup.set(importId, style);
+      const createdCssModule = server.moduleGraph.getModuleById(importId);
+      if (createdCssModule) {
+        server.moduleGraph.invalidateModule(createdCssModule);
+      }
 
       return resultCode;
     },
@@ -91,7 +113,9 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
-      if (!server) {
+
+      if (config.command === 'build' && !shouldCloseServer) {
+        shouldCloseServer = true;
         const {
           configFile: _unused,
           plugins,
@@ -102,12 +126,14 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         server = await createServer({
           ...rest,
           plugins: plugins.slice(),
+          appType: 'custom',
+          server: { middlewareMode: true, hmr: false },
         });
-        await server.listen();
       }
     },
     async buildEnd() {
-      if (config?.command !== 'serve') {
+      if (shouldCloseServer) {
+        shouldCloseServer = false;
         await server?.close();
       }
     },
@@ -118,10 +144,12 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       return null;
     },
     load(id) {
-      if (!isResolvedId(id)) {
+      const normalizedId = id.replace(/\?.*/, '');
+      if (!isResolvedId(normalizedId)) {
         return;
       }
-      const found = cssLookup.get(id);
+
+      const found = cssLookup.get(normalizedId);
 
       return found;
     },

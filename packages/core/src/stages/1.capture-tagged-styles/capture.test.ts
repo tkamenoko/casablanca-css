@@ -29,15 +29,12 @@ function partialPlugin(
         throw new Error('Vite config is not resolved');
       }
       if (!extensions.some((e) => id.endsWith(e))) {
-        // ignore module that is not JS/TS code
         return;
       }
       if (/\/node_modules\//.test(id)) {
-        // ignore third party packages
         return;
       }
 
-      // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
       if (!capturedVariableNames.length) {
@@ -77,9 +74,11 @@ beforeEach<TestContext>(async (ctx) => {
     plugins: [
       partialPlugin({ capturedVariableNames: ctx.capturedVariableNames }),
     ],
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false },
   });
 
-  ctx.server = await server.listen();
+  ctx.server = server;
   return async () => {
     await ctx.server.close();
   };

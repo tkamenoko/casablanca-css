@@ -12,8 +12,5 @@
     "types": ["vite/client"],
     "jsx": "react-jsx"
   },
-  "include": [
-    "**/*.ts",
-    "src/stages/1.capture-tagged-styles/fixtures/static.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

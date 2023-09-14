@@ -46,23 +46,18 @@ function partialPlugin(
       const serverResolved = server;
 
       if (!extensions.some((e) => id.endsWith(e))) {
-        // ignore module that is not JS/TS code
         return;
       }
       if (/\/node_modules\//.test(id)) {
-        // ignore third party packages
         return;
       }
 
-      // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
 
       if (!capturedVariableNames.length) {
         return;
       }
-
-      // TODO: processComposition
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
@@ -108,8 +103,9 @@ function partialPlugin(
         server = await createServer({
           ...rest,
           plugins: plugins.slice(),
+          appType: 'custom',
+          server: { middlewareMode: true, hmr: false },
         });
-        await server.listen();
       }
     },
     async buildEnd() {
@@ -173,9 +169,11 @@ beforeEach<TestContext>(async (ctx) => {
         mapOfVariableNamesToStyles: ctx.mapOfVariableNamesToStyles,
       }),
     ],
+    server: { middlewareMode: true, hmr: false },
+    appType: 'custom',
   });
 
-  ctx.server = await server.listen();
+  ctx.server = server;
   return async () => {
     await ctx.server.close();
   };
