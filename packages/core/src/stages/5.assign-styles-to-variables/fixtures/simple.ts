@@ -1,11 +1,13 @@
-export const styleA = `
-  this string should be replaced to "style['styleA']"
+import { css } from '@macrostyles/core';
+
+export const styleA = css`
+  color: aliceblue;
 `;
 
 export const notCss = `
   this string should not be replaced
 `;
 
-export const styleB = `
-  this string should be replaced to "style['styleB']"
+export const styleB = css`
+  color: aqua;
 `;
