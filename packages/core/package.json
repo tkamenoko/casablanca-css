@@ -5,14 +5,14 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
-    "@babel/core": "^7.21.8",
-    "postcss": "^8.4.23",
+    "@babel/core": "^7.22.20",
+    "postcss": "^8.4.29",
     "postcss-nested": "^6.0.1"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.20.1",
-    "@types/react": "^18.2.7",
-    "@types/react-dom": "^18.2.4",
+    "@types/babel__core": "^7.20.2",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
     "polished": "^4.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -32,7 +32,7 @@
   "license": "MIT",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "vite": "^4.3.9"
+    "vite": "^4.4.9"
   },
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
