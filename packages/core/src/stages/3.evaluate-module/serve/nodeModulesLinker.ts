@@ -18,7 +18,7 @@ export const nodeModuleLinker: ({
         () => {
           exportNames.forEach((name) => m.setExport(name, imported[name]));
         },
-        { context: referencingModule.context }
+        { context: referencingModule.context },
       );
       return m;
     } catch (error) {

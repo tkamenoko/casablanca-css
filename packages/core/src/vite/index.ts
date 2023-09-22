@@ -1,9 +1,13 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { transformWithEsbuild, createServer } from 'vite';
+import { transformWithEsbuild } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
-import { evaluateModule } from '../stages/3.evaluate-module';
+import type { EvaluateModuleReturn } from '../stages/3.evaluate-module';
+import {
+  evaluateForProductionBuild,
+  evaluateWithServer,
+} from '../stages/3.evaluate-module';
 import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
 import type { PluginOption, ModuleIdPrefix } from '../types';
 
@@ -14,7 +18,6 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
-  let shouldCloseServer = false;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
 
@@ -24,10 +27,6 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
-      if (!server) {
-        throw new Error('Vite dev server is not running');
-      }
-      const serverResolved = server;
 
       if (!extensions.some((e) => id.endsWith(e))) {
         // ignore module that is not JS/TS code
@@ -39,7 +38,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       }
 
       let targetCode = code;
-      if (this.meta.watchMode) {
+      if (server && this.meta.watchMode) {
         const m = server.moduleGraph.getModuleById(id);
         if (!m) {
           return;
@@ -64,22 +63,75 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
 
-      const { mapOfVariableNamesToStyles } = await evaluateModule({
-        code: capturedCode,
-        variableNames: capturedVariableNames,
-        moduleId: id,
-        load: async (id) => {
-          const result = await serverResolved.ssrLoadModule(id);
-          return result;
-        },
-        resolveId: async (id) => {
-          const r = await this.resolve(id);
-          if (!r) {
-            return r;
+      const evaluateModule: (params: {
+        code: string;
+        variableNames: string[];
+        moduleId: string;
+      }) => Promise<EvaluateModuleReturn> = server
+        ? async ({ code, moduleId, variableNames }) => {
+            const result = await evaluateWithServer({
+              code,
+              moduleId,
+              variableNames,
+              load: async (importingId) => {
+                if (!server) {
+                  throw new Error('Server is not configured.');
+                }
+                const r = await server.ssrLoadModule(importingId);
+                return r;
+              },
+              resolveId: async (importingId) => {
+                const r = await this.resolve(importingId);
+                if (!r) {
+                  return r;
+                }
+                return r.id;
+              },
+            });
+            return result;
           }
-          return r.id;
-        },
-      });
+        : async ({ code, moduleId, variableNames }) => {
+            const result = await evaluateForProductionBuild({
+              code,
+              moduleId,
+              variableNames,
+              load: async (importingId) => {
+                const resolved = await this.resolve(importingId);
+                if (!resolved?.id) {
+                  throw new Error(`Failed to resolve ${importingId}`);
+                }
+
+                const result = await this.load({
+                  id: resolved.id,
+                  resolveDependencies: true,
+                });
+                if (!result.code) {
+                  throw new Error(`Failed to load ${resolved.id}`);
+                }
+
+                return result.code;
+              },
+            });
+            return result;
+          };
+
+      let mapOfVariableNamesToStyles: Map<
+        string,
+        {
+          variableName: string;
+          style: string;
+        }
+      >;
+      try {
+        const { mapOfVariableNamesToStyles: map_ } = await evaluateModule({
+          code: capturedCode,
+          variableNames: capturedVariableNames,
+          moduleId: id,
+        });
+        mapOfVariableNamesToStyles = map_;
+      } catch (error) {
+        return;
+      }
 
       const { importId, style } = createVirtualCssModule({
         evaluatedStyles: Array.from(mapOfVariableNamesToStyles.values()),
@@ -95,47 +147,19 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       });
 
       cssLookup.set(importId, style);
-      const createdCssModule = server.moduleGraph.getModuleById(importId);
-      if (createdCssModule) {
-        server.moduleGraph.invalidateModule(createdCssModule);
+      if (server) {
+        const createdCssModule = server.moduleGraph.getModuleById(importId);
+        if (createdCssModule) {
+          server.moduleGraph.invalidateModule(createdCssModule);
+        }
       }
-
       return resultCode;
     },
-
     configResolved(config_) {
       config = config_;
     },
-    configureServer(server_) {
+    async configureServer(server_) {
       server = server_;
-    },
-    async buildStart() {
-      if (!config) {
-        throw new Error('Vite config is not resolved');
-      }
-
-      if (config.command === 'build' && !shouldCloseServer) {
-        shouldCloseServer = true;
-        const {
-          configFile: _unused,
-          plugins,
-          assetsInclude: __unused,
-          ...rest
-        } = config;
-
-        server = await createServer({
-          ...rest,
-          plugins: plugins.slice(),
-          appType: 'custom',
-          server: { middlewareMode: true, hmr: false },
-        });
-      }
-    },
-    async buildEnd() {
-      if (shouldCloseServer) {
-        shouldCloseServer = false;
-        await server?.close();
-      }
     },
     resolveId(id) {
       if (isResolvedId(id)) {

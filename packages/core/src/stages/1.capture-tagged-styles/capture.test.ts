@@ -6,8 +6,7 @@ import {
 } from 'vite';
 import { assert, beforeEach, test } from 'vitest';
 
-import { isResolvedId } from '../../vite/isResolvedId';
-import type { ModuleIdPrefix, PluginOption } from '../../types';
+import type { PluginOption } from '../../types';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import { captureTaggedStyles } from '.';
@@ -15,10 +14,8 @@ import { captureTaggedStyles } from '.';
 function partialPlugin(
   options?: Partial<PluginOption> & {
     capturedVariableNames: string[];
-  }
+  },
 ): Plugin {
-  const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
-
   let config: ResolvedConfig | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
@@ -34,7 +31,6 @@ function partialPlugin(
       if (/\/node_modules\//.test(id)) {
         return;
       }
-
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
       if (!capturedVariableNames.length) {
@@ -46,19 +42,6 @@ function partialPlugin(
 
     configResolved(config_) {
       config = config_;
-    },
-    resolveId(id) {
-      if (isResolvedId(id)) {
-        return id;
-      }
-      return null;
-    },
-    load(id) {
-      if (!isResolvedId(id)) {
-        return;
-      }
-      const found = cssLookup.get(id);
-      return found;
     },
   };
 }
@@ -72,10 +55,18 @@ beforeEach<TestContext>(async (ctx) => {
   ctx.capturedVariableNames = [];
   const server = await createServer({
     plugins: [
-      partialPlugin({ capturedVariableNames: ctx.capturedVariableNames }),
+      partialPlugin({
+        capturedVariableNames: ctx.capturedVariableNames,
+      }),
     ],
     appType: 'custom',
-    server: { middlewareMode: true, hmr: false },
+    server: {
+      middlewareMode: true,
+      hmr: false,
+    },
+    optimizeDeps: {
+      disabled: true,
+    },
   });
 
   ctx.server = server;

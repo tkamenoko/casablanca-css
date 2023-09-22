@@ -1,11 +1,15 @@
-import type { ModuleIdPrefix, PluginOption } from 'src/types';
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { createServer } from 'vite';
-import { isResolvedId } from 'src/vite/isResolvedId';
 import { assert, beforeEach, test } from 'vitest';
 
+import type { ModuleIdPrefix, PluginOption } from '../../types';
+import { isResolvedId } from '../../vite/isResolvedId';
 import { captureTaggedStyles } from '../1.capture-tagged-styles';
-import { evaluateModule } from '../3.evaluate-module';
+import type { EvaluateModuleReturn } from '../3.evaluate-module';
+import {
+  evaluateForProductionBuild,
+  evaluateWithServer,
+} from '../3.evaluate-module';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import { createVirtualCssModule } from '.';
@@ -14,7 +18,7 @@ export function partialPlugin(
   options?: Partial<PluginOption> & {
     reverseLookup: Map<string, `${ModuleIdPrefix}${string}`>;
     cssLookup: Map<`${ModuleIdPrefix}${string}`, string>;
-  }
+  },
 ): Plugin {
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
@@ -27,10 +31,6 @@ export function partialPlugin(
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
-      if (!server) {
-        throw new Error('Vite dev server is not running');
-      }
-      const serverResolved = server;
 
       if (!extensions.some((e) => id.endsWith(e))) {
         return;
@@ -45,21 +45,62 @@ export function partialPlugin(
         return;
       }
 
+      const evaluateModule: (params: {
+        code: string;
+        variableNames: string[];
+        moduleId: string;
+      }) => Promise<EvaluateModuleReturn> = server
+        ? async ({ code, moduleId, variableNames }) => {
+            const result = await evaluateWithServer({
+              code,
+              moduleId,
+              variableNames,
+              load: async (importingId) => {
+                if (!server) {
+                  throw new Error('Server is not configured.');
+                }
+                const r = await server.ssrLoadModule(importingId);
+                return r;
+              },
+              resolveId: async (importingId) => {
+                const r = await this.resolve(importingId);
+                if (!r) {
+                  return r;
+                }
+                return r.id;
+              },
+            });
+            return result;
+          }
+        : async ({ code, moduleId, variableNames }) => {
+            const result = await evaluateForProductionBuild({
+              code,
+              moduleId,
+              variableNames,
+              load: async (importingId) => {
+                const resolved = await this.resolve(importingId);
+                if (!resolved?.id) {
+                  throw new Error(`Failed to resolve ${importingId}`);
+                }
+
+                const result = await this.load({
+                  id: resolved.id,
+                  resolveDependencies: true,
+                });
+                if (!result.code) {
+                  throw new Error(`Failed to load ${resolved.id}`);
+                }
+
+                return result.code;
+              },
+            });
+            return result;
+          };
+
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
         variableNames: capturedVariableNames,
         moduleId: id,
-        load: async (id) => {
-          const result = await serverResolved.ssrLoadModule(id);
-          return result;
-        },
-        resolveId: async (id) => {
-          const r = await this.resolve(id);
-          if (!r) {
-            return r;
-          }
-          return r.id;
-        },
       });
 
       const { importId, style } = createVirtualCssModule({
@@ -80,30 +121,7 @@ export function partialPlugin(
     configureServer(server_) {
       server = server_;
     },
-    async buildStart() {
-      if (!config) {
-        throw new Error('Vite config is not resolved');
-      }
-      if (!server) {
-        const {
-          configFile: _unused,
-          plugins,
-          assetsInclude: __unused,
-          ...rest
-        } = config;
 
-        server = await createServer({
-          ...rest,
-          plugins: plugins.slice(),
-          server: { middlewareMode: true, hmr: false },
-        });
-      }
-    },
-    async buildEnd() {
-      if (config?.command !== 'serve') {
-        await server?.close();
-      }
-    },
     resolveId(id) {
       if (isResolvedId(id)) {
         return id;
@@ -137,6 +155,8 @@ beforeEach<TestContext>(async (ctx) => {
         cssLookup: ctx.cssLookup,
       }),
     ],
+    appType: 'custom',
+    optimizeDeps: { disabled: true },
     server: { middlewareMode: true, hmr: false },
   });
 

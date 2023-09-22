@@ -10,7 +10,7 @@ export const localModulesLinker: (params: {
   ({ baseLinker, moduleId }) =>
   async (specifier, referencingModule, extra) => {
     const path = normalizePath(
-      resolve(moduleId.split('/').slice(0, -1).join('/'), specifier)
+      resolve(moduleId.split('/').slice(0, -1).join('/'), specifier),
     );
     return await baseLinker(path, referencingModule, extra);
   };
