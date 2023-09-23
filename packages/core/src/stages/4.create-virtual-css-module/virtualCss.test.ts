@@ -2,6 +2,7 @@ import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { createServer } from 'vite';
 import { assert, beforeEach, test } from 'vitest';
 
+import { isVirtualModuleId } from '../../vite/isVirtualModuleId';
 import type { ModuleIdPrefix, PluginOption } from '../../types';
 import { isResolvedId } from '../../vite/isResolvedId';
 import { captureTaggedStyles } from '../1.capture-tagged-styles';
@@ -123,16 +124,22 @@ function partialPlugin(
     },
 
     resolveId(id) {
-      if (isResolvedId(id)) {
-        return id;
+      if (isVirtualModuleId(id)) {
+        return '\0' + id;
       }
       return null;
     },
     load(id) {
-      if (!isResolvedId(id)) {
+      const normalizedId = id.replace(/\?.*/, '');
+      if (!isResolvedId(normalizedId)) {
         return;
       }
-      const found = options?.cssLookup.get(id);
+      const moduleId = normalizedId.slice(1);
+      if (!isVirtualModuleId(moduleId)) {
+        return;
+      }
+
+      const found = options?.cssLookup.get(moduleId);
 
       return found;
     },

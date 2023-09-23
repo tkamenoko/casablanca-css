@@ -2,8 +2,13 @@ import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { createServer } from 'vite';
 import { assert, beforeEach, test } from 'vitest';
 
+import { isVirtualModuleId } from '../../vite/isVirtualModuleId';
 import { isResolvedId } from '../../vite/isResolvedId';
-import type { ModuleIdPrefix, PluginOption } from '../../types';
+import {
+  moduleIdPrefix,
+  type ModuleIdPrefix,
+  type PluginOption,
+} from '../../types';
 import { captureTaggedStyles } from '../1.capture-tagged-styles';
 import type { EvaluateModuleReturn } from '../3.evaluate-module';
 import {
@@ -133,16 +138,22 @@ function partialPlugin(
       server = server_;
     },
     resolveId(id) {
-      if (isResolvedId(id)) {
-        return id;
+      if (isVirtualModuleId(id)) {
+        return '\0' + id;
       }
       return null;
     },
     load(id) {
-      if (!isResolvedId(id)) {
+      const normalizedId = id.replace(/\?.*/, '');
+      if (!isResolvedId(normalizedId)) {
         return;
       }
-      const found = cssLookup.get(id);
+      const moduleId = normalizedId.slice(1);
+      if (!isVirtualModuleId(moduleId)) {
+        return;
+      }
+
+      const found = cssLookup.get(moduleId);
 
       return found;
     },
@@ -188,7 +199,7 @@ test<TestContext>("should replace variable initializations with `styles[xxx]`, t
   expect(transformed).not.toMatch(styleB);
   expect(transformed).toMatch(notCss);
 
-  const cssImportId = `macrostyles:${moduleId
+  const cssImportId = `${moduleIdPrefix}${moduleId
     .replace(server.config.root, '')
     .slice(1)}.module.css`;
   expect(transformed).toMatch(cssImportId);

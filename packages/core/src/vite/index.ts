@@ -12,6 +12,7 @@ import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
 import type { PluginOption, ModuleIdPrefix } from '../types';
 
 import { isResolvedId } from './isResolvedId';
+import { isVirtualModuleId } from './isVirtualModuleId';
 
 export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
@@ -39,23 +40,30 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
 
       let targetCode = code;
       if (server && this.meta.watchMode) {
-        const m = server.moduleGraph.getModuleById(id);
-        if (!m) {
-          return;
-        }
-        const r = await server.ssrLoadModule(`${m.url}?raw`);
-        // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
-        const raw = r['default'];
-        if (!raw) {
-          return;
-        }
-        const c = await transformWithEsbuild(raw, id, {
-          format: 'esm',
-          platform: 'node',
-        });
-        targetCode = c.code;
-      }
+        hmrOnly: {
+          const m = server.moduleGraph.getModuleById(id);
+          if (!m) {
+            break hmrOnly;
+          }
 
+          const r = await server
+            .ssrLoadModule(`${m.url}?raw`)
+            .catch(() => null);
+          if (!r) {
+            break hmrOnly;
+          }
+          // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
+          const raw = r['default'];
+          if (typeof raw !== 'string') {
+            break hmrOnly;
+          }
+          const c = await transformWithEsbuild(raw, id, {
+            format: 'esm',
+            platform: 'node',
+          });
+          targetCode = c.code;
+        }
+      }
       // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code: targetCode, options: { babelOptions } });
@@ -148,7 +156,9 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
 
       cssLookup.set(importId, style);
       if (server) {
-        const createdCssModule = server.moduleGraph.getModuleById(importId);
+        const createdCssModule = server.moduleGraph.getModuleById(
+          '\0' + importId,
+        );
         if (createdCssModule) {
           server.moduleGraph.invalidateModule(createdCssModule);
         }
@@ -162,8 +172,8 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       server = server_;
     },
     resolveId(id) {
-      if (isResolvedId(id)) {
-        return id;
+      if (isVirtualModuleId(id)) {
+        return '\0' + id;
       }
       return null;
     },
@@ -172,8 +182,12 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!isResolvedId(normalizedId)) {
         return;
       }
+      const moduleId = normalizedId.slice(1);
+      if (!isVirtualModuleId(moduleId)) {
+        return;
+      }
 
-      const found = cssLookup.get(normalizedId);
+      const found = cssLookup.get(moduleId);
 
       return found;
     },

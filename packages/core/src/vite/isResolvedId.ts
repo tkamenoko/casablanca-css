@@ -1,7 +1,5 @@
-import type { ModuleIdPrefix } from '../types';
+import { moduleIdPrefix, type ResolvedModuleId } from '../types';
 
-const moduleIdPrefix: ModuleIdPrefix = 'macrostyles:';
-
-export function isResolvedId(p: string): p is `${ModuleIdPrefix}${string}` {
-  return p.startsWith(moduleIdPrefix);
+export function isResolvedId(p: string): p is ResolvedModuleId {
+  return p.startsWith('\0' + moduleIdPrefix);
 }

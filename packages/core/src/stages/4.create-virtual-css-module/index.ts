@@ -1,4 +1,4 @@
-import type { ModuleIdPrefix } from '../../types';
+import { moduleIdPrefix, type ModuleIdPrefix } from '../../types';
 
 type CreateVirtualCssModuleArgs = {
   importerId: string;
@@ -21,7 +21,7 @@ function buildImportId({
   projectRoot: string;
 }): `${ModuleIdPrefix}${string}` {
   const replaced = importerId.replace(projectRoot, '').replace(/^\//, '');
-  return `macrostyles:${replaced}.module.css`;
+  return `${moduleIdPrefix}${replaced}.module.css`;
 }
 
 export function createVirtualCssModule({

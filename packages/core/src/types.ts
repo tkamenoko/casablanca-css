@@ -7,4 +7,7 @@ export type PluginOption = {
   extensions: `.${string}`[];
 };
 
-export type ModuleIdPrefix = 'macrostyles:';
+export const moduleIdPrefix = 'virtual:macrostyles/';
+export type ModuleIdPrefix = typeof moduleIdPrefix;
+
+export type ResolvedModuleId = `\0${ModuleIdPrefix}${string}`;

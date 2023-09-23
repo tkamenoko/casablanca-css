@@ -7,11 +7,16 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 
 import './App.css';
+import { fontSize } from './values';
 
 
 const divBackGround = css`
   background-color: aquamarine;
 `;
+
+const h1Size = css`
+  font-size: ${fontSize};
+`
 
 function App(): ReactElement {
   const [count, setCount] = useState(0);
@@ -26,7 +31,7 @@ function App(): ReactElement {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1 className={h1Size}>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
