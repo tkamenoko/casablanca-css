@@ -40,7 +40,7 @@ const config = {
         ],
         '@typescript-eslint/no-unused-vars': [
           'error',
-          { varsIgnorePattern: '^_+' },
+          { varsIgnorePattern: '^_+', argsIgnorePattern: '^_+' },
         ],
         '@typescript-eslint/explicit-function-return-type': [
           'warn',

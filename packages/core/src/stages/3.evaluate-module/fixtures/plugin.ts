@@ -1,32 +1,26 @@
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { createServer } from 'vite';
-import { assert, beforeEach, test } from 'vitest';
+import { type Plugin, type ResolvedConfig, type ViteDevServer } from 'vite';
 
-import type { ModuleIdPrefix, PluginOption } from '../../types';
-import { isResolvedId } from '../../vite/isResolvedId';
-import { captureTaggedStyles } from '../1.capture-tagged-styles';
-import type { EvaluateModuleReturn } from '../3.evaluate-module';
-import {
-  evaluateForProductionBuild,
-  evaluateWithServer,
-} from '../3.evaluate-module';
-import { buildModuleId } from '../fixtures/buildModuleId';
+import { captureTaggedStyles } from '../../1.capture-tagged-styles';
+import type { PluginOption } from '../../../types';
+import type { EvaluateModuleReturn } from '../types';
+import { evaluateForProductionBuild, evaluateWithServer } from '..';
 
-import { createVirtualCssModule } from '.';
-
-function partialPlugin(
+export function partialPlugin(
   options?: Partial<PluginOption> & {
-    reverseLookup: Map<string, `${ModuleIdPrefix}${string}`>;
-    cssLookup: Map<`${ModuleIdPrefix}${string}`, string>;
+    mapOfVariableNamesToStyles: Map<
+      string,
+      { variableName: string; style: string }
+    >;
   },
 ): Plugin {
-  let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
+
+  let config: ResolvedConfig | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
-
   return {
     name: 'macrostyles:partial',
+
     async transform(code, id) {
       if (!config) {
         throw new Error('Vite config is not resolved');
@@ -41,6 +35,7 @@ function partialPlugin(
 
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
+
       if (!capturedVariableNames.length) {
         return;
       }
@@ -103,16 +98,10 @@ function partialPlugin(
         moduleId: id,
       });
 
-      const { importId, style } = createVirtualCssModule({
-        evaluatedStyles: Array.from(mapOfVariableNamesToStyles.values()),
-        importerId: id,
-        projectRoot: config.root,
-      });
-
-      options?.cssLookup.set(importId, style);
-      options?.reverseLookup.set(style, importId);
-
-      return style;
+      for (const [key, value] of mapOfVariableNamesToStyles) {
+        options?.mapOfVariableNamesToStyles.set(key, value);
+      }
+      return capturedCode;
     },
 
     configResolved(config_) {
@@ -121,67 +110,5 @@ function partialPlugin(
     configureServer(server_) {
       server = server_;
     },
-
-    resolveId(id) {
-      if (isResolvedId(id)) {
-        return id;
-      }
-      return null;
-    },
-    load(id) {
-      if (!isResolvedId(id)) {
-        return;
-      }
-      const found = options?.cssLookup.get(id);
-
-      return found;
-    },
   };
 }
-
-type TestContext = {
-  server: ViteDevServer;
-  reverseLookup: Map<string, `${ModuleIdPrefix}${string}`>;
-  cssLookup: Map<`${ModuleIdPrefix}${string}`, string>;
-};
-
-beforeEach<TestContext>(async (ctx) => {
-  ctx.reverseLookup = new Map();
-  ctx.cssLookup = new Map();
-  const server = await createServer({
-    plugins: [
-      partialPlugin({
-        reverseLookup: ctx.reverseLookup,
-        cssLookup: ctx.cssLookup,
-      }),
-    ],
-    appType: 'custom',
-    optimizeDeps: { disabled: true },
-    server: { middlewareMode: true, hmr: false },
-  });
-
-  ctx.server = server;
-  return async () => {
-    await ctx.server.close();
-  };
-});
-
-test<TestContext>('should create css string from partial styles and importer id', async ({
-  expect,
-  reverseLookup,
-  cssLookup,
-  server,
-}) => {
-  const moduleId = buildModuleId({
-    relativePath: './fixtures/styles.ts',
-    root: import.meta.url,
-  });
-  const result = await server.transformRequest(moduleId);
-  assert(result);
-
-  const importId = reverseLookup.get(result.code);
-  assert(importId);
-
-  const stored = cssLookup.get(importId);
-  expect(stored).toMatch(/\.foo *\{/);
-});

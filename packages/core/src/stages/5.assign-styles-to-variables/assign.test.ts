@@ -17,7 +17,7 @@ import { notCss, styleA, styleB } from './fixtures/simple';
 
 import { assignStylesToCapturedVariables } from '.';
 
-export function partialPlugin(
+function partialPlugin(
   options?: Partial<PluginOption> & {
     transformedLookup: Map<string, string>;
   },
