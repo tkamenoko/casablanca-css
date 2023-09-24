@@ -36,7 +36,7 @@ export function partialPlugin(
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
 
-      if (!capturedVariableNames.length) {
+      if (!capturedVariableNames.size) {
         return;
       }
 
@@ -94,7 +94,7 @@ export function partialPlugin(
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
-        variableNames: capturedVariableNames,
+        variableNames: [...capturedVariableNames.keys()],
         moduleId: id,
       });
 

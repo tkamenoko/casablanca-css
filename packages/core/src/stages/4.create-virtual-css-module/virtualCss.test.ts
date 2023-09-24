@@ -3,7 +3,11 @@ import { createServer } from 'vite';
 import { assert, beforeEach, test } from 'vitest';
 
 import { isVirtualModuleId } from '../../vite/isVirtualModuleId';
-import type { ModuleIdPrefix, PluginOption } from '../../types';
+import {
+  resolvedPrefix,
+  type ModuleIdPrefix,
+  type PluginOption,
+} from '../../types';
 import { isResolvedId } from '../../vite/isResolvedId';
 import { captureTaggedStyles } from '../1.capture-tagged-styles';
 import type { EvaluateModuleReturn } from '../3.evaluate-module';
@@ -42,7 +46,7 @@ function partialPlugin(
 
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
-      if (!capturedVariableNames.length) {
+      if (!capturedVariableNames.size) {
         return;
       }
 
@@ -100,7 +104,7 @@ function partialPlugin(
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
-        variableNames: capturedVariableNames,
+        variableNames: [...capturedVariableNames.keys()],
         moduleId: id,
       });
 
@@ -125,7 +129,7 @@ function partialPlugin(
 
     resolveId(id) {
       if (isVirtualModuleId(id)) {
-        return '\0' + id;
+        return resolvedPrefix + id;
       }
       return null;
     },
@@ -134,7 +138,7 @@ function partialPlugin(
       if (!isResolvedId(normalizedId)) {
         return;
       }
-      const moduleId = normalizedId.slice(1);
+      const moduleId = normalizedId.slice(resolvedPrefix.length);
       if (!isVirtualModuleId(moduleId)) {
         return;
       }

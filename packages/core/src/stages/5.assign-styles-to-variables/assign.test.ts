@@ -6,6 +6,7 @@ import { isVirtualModuleId } from '../../vite/isVirtualModuleId';
 import { isResolvedId } from '../../vite/isResolvedId';
 import {
   moduleIdPrefix,
+  resolvedPrefix,
   type ModuleIdPrefix,
   type PluginOption,
 } from '../../types';
@@ -18,7 +19,7 @@ import {
 import { createVirtualCssModule } from '../4.create-virtual-css-module';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
-import { notCss, styleA, styleB } from './fixtures/simple';
+import { notCss, styleA } from './fixtures/simple';
 
 import { assignStylesToCapturedVariables } from '.';
 
@@ -50,7 +51,7 @@ function partialPlugin(
 
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
-      if (!capturedVariableNames.length) {
+      if (!capturedVariableNames.size) {
         return;
       }
 
@@ -108,7 +109,7 @@ function partialPlugin(
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
         code: capturedCode,
-        variableNames: capturedVariableNames,
+        variableNames: [...capturedVariableNames.keys()],
         moduleId: id,
       });
 
@@ -139,7 +140,7 @@ function partialPlugin(
     },
     resolveId(id) {
       if (isVirtualModuleId(id)) {
-        return '\0' + id;
+        return resolvedPrefix + id;
       }
       return null;
     },
@@ -148,7 +149,7 @@ function partialPlugin(
       if (!isResolvedId(normalizedId)) {
         return;
       }
-      const moduleId = normalizedId.slice(1);
+      const moduleId = normalizedId.slice(resolvedPrefix.length);
       if (!isVirtualModuleId(moduleId)) {
         return;
       }
@@ -186,7 +187,7 @@ test<TestContext>("should replace variable initializations with `styles[xxx]`, t
   transformedLookup,
 }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/simple.ts',
+    relativePath: './fixtures/simple.tsx',
     root: import.meta.url,
   });
   const result = await server.transformRequest(moduleId);
@@ -196,7 +197,7 @@ test<TestContext>("should replace variable initializations with `styles[xxx]`, t
 
   assert(transformed);
   expect(transformed).not.toMatch(styleA);
-  expect(transformed).not.toMatch(styleB);
+  expect(transformed).not.toMatch('export const styleB');
   expect(transformed).toMatch(notCss);
 
   const cssImportId = `${moduleIdPrefix}${moduleId

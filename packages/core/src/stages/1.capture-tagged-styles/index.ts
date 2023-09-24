@@ -12,12 +12,20 @@ type CaptureTaggedStylesArgs = {
   };
 };
 
+export type CapturedVariableNames = Map<
+  string,
+  { shouldRemoveExport: boolean }
+>;
+
 type CaptureTaggedStylesReturn = {
   transformed: string;
-  capturedVariableNames: string[];
+  capturedVariableNames: CapturedVariableNames;
 };
 
-type Options = { capturedVariableNames: string[] };
+type Options = {
+  capturedVariableNames: CapturedVariableNames;
+  exportedNames: string[];
+};
 
 type BabelState = {
   opts: Options;
@@ -29,15 +37,46 @@ function captureVariableNamesPlugin({
   return {
     visitor: {
       Program: {
-        enter: (path) => {
+        enter: (path, state) => {
           const found = path.get('body').find(isMacrostylesImport);
 
           if (!found) {
             path.stop();
           }
+          // memory already-exported variables
+          path.traverse(
+            {
+              ExportNamedDeclaration: {
+                enter: (path, state) => {
+                  const declaration = path.get('declaration');
+                  if (declaration.isVariableDeclaration()) {
+                    // export const xxx = ...
+                    for (const v of declaration.get('declarations')) {
+                      const id = v.get('id');
+                      if (id.isIdentifier()) {
+                        state.opts.exportedNames.push(id.node.name);
+                      }
+                    }
+                    return;
+                  }
+                  const specifiers = path.get('specifiers');
+                  for (const specifier of specifiers) {
+                    // export { xxx as yyy, zzz, ...}
+                    if (specifier.isExportSpecifier()) {
+                      const id = specifier.get('exported');
+                      if (id.isIdentifier()) {
+                        state.opts.exportedNames.push(id.node.name);
+                      }
+                    }
+                  }
+                },
+              },
+            },
+            state,
+          );
         },
         exit: (path, state) => {
-          if (!state.opts.capturedVariableNames.length) {
+          if (!state.opts.capturedVariableNames.size) {
             return;
           }
           // remove tags importing
@@ -89,12 +128,21 @@ function captureVariableNamesPlugin({
               return;
             }
             const name = id.node.name;
-            state.opts.capturedVariableNames.push(name);
+
+            const captured = { name, shouldRemoveExport: false };
+
             init.replaceWith(init.get('quasi').node);
 
-            if (!path.parentPath.isExportNamedDeclaration()) {
+            if (
+              !path.parentPath.isExportNamedDeclaration() &&
+              !state.opts.exportedNames.includes(name)
+            ) {
               path.replaceWith(t.exportNamedDeclaration(path.node));
+              captured.shouldRemoveExport = true;
             }
+            state.opts.capturedVariableNames.set(captured.name, {
+              shouldRemoveExport: captured.shouldRemoveExport,
+            });
           }
         },
       },
@@ -109,10 +157,14 @@ export function captureTaggedStyles({
   options,
 }: CaptureTaggedStylesArgs): CaptureTaggedStylesReturn {
   const { babelOptions } = options ?? {};
-  const pluginOption: Options = { capturedVariableNames: [] };
+  const pluginOption: Options = {
+    capturedVariableNames: new Map(),
+    exportedNames: [],
+  };
   const result = transformSync(code, {
     ...babelOptions,
     plugins: [[captureVariableNamesPlugin, pluginOption]],
+    sourceMaps: 'inline',
   });
   if (!result) {
     throw new Error('Failed');

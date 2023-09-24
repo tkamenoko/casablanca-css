@@ -9,13 +9,18 @@ import {
   evaluateWithServer,
 } from '../stages/3.evaluate-module';
 import { captureTaggedStyles } from '../stages/1.capture-tagged-styles';
-import type { PluginOption, ModuleIdPrefix } from '../types';
+import {
+  type PluginOption,
+  type ModuleIdPrefix,
+  resolvedPrefix,
+} from '../types';
 
 import { isResolvedId } from './isResolvedId';
 import { isVirtualModuleId } from './isVirtualModuleId';
 
 export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
+  const jsToCssMap = new Map<string, `${ModuleIdPrefix}${string}`>();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
@@ -38,36 +43,10 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
 
-      let targetCode = code;
-      if (server && this.meta.watchMode) {
-        hmrOnly: {
-          const m = server.moduleGraph.getModuleById(id);
-          if (!m) {
-            break hmrOnly;
-          }
-
-          const r = await server
-            .ssrLoadModule(`${m.url}?raw`)
-            .catch(() => null);
-          if (!r) {
-            break hmrOnly;
-          }
-          // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
-          const raw = r['default'];
-          if (typeof raw !== 'string') {
-            break hmrOnly;
-          }
-          const c = await transformWithEsbuild(raw, id, {
-            format: 'esm',
-            platform: 'node',
-          });
-          targetCode = c.code;
-        }
-      }
       // find tagged templates, then remove all tags.
       const { capturedVariableNames, transformed: capturedCode } =
-        captureTaggedStyles({ code: targetCode, options: { babelOptions } });
-      if (!capturedVariableNames.length) {
+        captureTaggedStyles({ code, options: { babelOptions } });
+      if (!capturedVariableNames.size) {
         return;
       }
 
@@ -123,6 +102,38 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
             return result;
           };
 
+      let evaluationTarget = capturedCode;
+      if (server && this.meta.watchMode) {
+        hmrOnly: {
+          const m = server.moduleGraph.getModuleById(id);
+          if (!m) {
+            break hmrOnly;
+          }
+
+          const r = await server
+            .ssrLoadModule(`${m.url}?raw`)
+            .catch(() => null);
+          if (!r) {
+            break hmrOnly;
+          }
+          // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
+          const raw = r['default'];
+          if (typeof raw !== 'string') {
+            break hmrOnly;
+          }
+          const c = await transformWithEsbuild(raw, id, {
+            format: 'esm',
+            platform: 'node',
+          });
+
+          const { transformed: ssrEvaluationTarget } = captureTaggedStyles({
+            code: c.code,
+            options: { babelOptions },
+          });
+          evaluationTarget = ssrEvaluationTarget;
+        }
+      }
+
       let mapOfVariableNamesToStyles: Map<
         string,
         {
@@ -132,12 +143,14 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       >;
       try {
         const { mapOfVariableNamesToStyles: map_ } = await evaluateModule({
-          code: capturedCode,
-          variableNames: capturedVariableNames,
+          code: evaluationTarget,
+          variableNames: [...capturedVariableNames.keys()],
           moduleId: id,
         });
         mapOfVariableNamesToStyles = map_;
       } catch (error) {
+        console.log(error);
+
         return;
       }
 
@@ -154,16 +167,20 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         options: { babelOptions },
       });
 
+      const previousCss = cssLookup.get(importId);
       cssLookup.set(importId, style);
-      if (server) {
-        const createdCssModule = server.moduleGraph.getModuleById(
-          '\0' + importId,
-        );
-        if (createdCssModule) {
-          server.moduleGraph.invalidateModule(createdCssModule);
+      jsToCssMap.set(id, importId);
+      if (server && previousCss && previousCss !== style) {
+        const m = server.moduleGraph.getModuleById(resolvedPrefix + importId);
+        if (m) {
+          server.reloadModule(m);
         }
       }
-      return resultCode;
+
+      return {
+        code: resultCode,
+        moduleSideEffects: false,
+      };
     },
     configResolved(config_) {
       config = config_;
@@ -173,7 +190,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
     },
     resolveId(id) {
       if (isVirtualModuleId(id)) {
-        return '\0' + id;
+        return resolvedPrefix + id;
       }
       return null;
     },
@@ -182,14 +199,16 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!isResolvedId(normalizedId)) {
         return;
       }
-      const moduleId = normalizedId.slice(1);
+      const moduleId = normalizedId.slice(resolvedPrefix.length);
       if (!isVirtualModuleId(moduleId)) {
         return;
       }
 
       const found = cssLookup.get(moduleId);
-
-      return found;
+      if (!found) {
+        return;
+      }
+      return { code: found, moduleSideEffects: false };
     },
   };
 }

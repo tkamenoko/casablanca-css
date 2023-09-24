@@ -4,10 +4,11 @@ import type babel from '@babel/core';
 import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
 
 import type { ModuleIdPrefix } from '../../types';
+import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
 type AssignStylesToCapturedVariablesArgs = {
   code: string;
-  variableNames: string[];
+  variableNames: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
   options?: { babelOptions: TransformOptions };
 };
@@ -16,7 +17,7 @@ type AssignStylesToCapturedVariablesReturn = {
 };
 
 type Options = {
-  variableNames: string[];
+  variableNames: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
 };
 
@@ -42,8 +43,8 @@ function assignStylesPlugin({
           head.insertBefore(
             t.importDeclaration(
               [t.importDefaultSpecifier(stylesId)],
-              t.stringLiteral(cssImportId)
-            )
+              t.stringLiteral(cssImportId),
+            ),
           );
         },
       },
@@ -60,12 +61,19 @@ function assignStylesPlugin({
               continue;
             }
             const name = id.node.name;
-            if (variableNames.includes(name)) {
+            const replaceTarget = variableNames.get(name);
+            if (replaceTarget) {
               declaration
                 .get('init')
                 .replaceWith(
-                  t.memberExpression(stylesId, t.stringLiteral(name), true)
+                  t.memberExpression(stylesId, t.stringLiteral(name), true),
                 );
+              if (
+                replaceTarget.shouldRemoveExport &&
+                path.parentPath.isExportDeclaration()
+              ) {
+                path.parentPath.replaceWith(path.node);
+              }
             }
           }
         },
@@ -85,6 +93,7 @@ export function assignStylesToCapturedVariables({
   const result = transformSync(code, {
     ...babelOptions,
     plugins: [[assignStylesPlugin, pluginOption]],
+    sourceMaps: 'inline',
   });
   if (!result) {
     throw new Error('Failed');
@@ -93,7 +102,6 @@ export function assignStylesToCapturedVariables({
   if (!transformed) {
     throw new Error('Failed');
   }
-  return {
-    transformed,
-  };
+
+  return { transformed };
 }

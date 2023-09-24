@@ -9,11 +9,12 @@ import { assert, beforeEach, test } from 'vitest';
 import type { PluginOption } from '../../types';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
+import type { CapturedVariableNames } from '.';
 import { captureTaggedStyles } from '.';
 
 function partialPlugin(
   options?: Partial<PluginOption> & {
-    capturedVariableNames: string[];
+    capturedVariableNames: CapturedVariableNames;
   },
 ): Plugin {
   let config: ResolvedConfig | null = null;
@@ -33,10 +34,12 @@ function partialPlugin(
       }
       const { capturedVariableNames, transformed: capturedCode } =
         captureTaggedStyles({ code, options: { babelOptions } });
-      if (!capturedVariableNames.length) {
+      if (!capturedVariableNames.size) {
         return;
       }
-      options?.capturedVariableNames.push(...capturedVariableNames);
+      for (const [key, value] of capturedVariableNames) {
+        options?.capturedVariableNames.set(key, value);
+      }
       return capturedCode;
     },
 
@@ -48,11 +51,11 @@ function partialPlugin(
 
 type TestContext = {
   server: ViteDevServer;
-  capturedVariableNames: string[];
+  capturedVariableNames: CapturedVariableNames;
 };
 
 beforeEach<TestContext>(async (ctx) => {
-  ctx.capturedVariableNames = [];
+  ctx.capturedVariableNames = new Map();
   const server = await createServer({
     plugins: [
       partialPlugin({
@@ -87,12 +90,15 @@ test<TestContext>('should capture variable names initialized with css tag', asyn
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  expect(capturedVariableNames).toEqual(['style', 'notExported']);
+  expect([...capturedVariableNames.entries()]).toEqual([
+    ['style', { shouldRemoveExport: false }],
+    ['notExported', { shouldRemoveExport: true }],
+  ]);
   const transformed = result.code;
   expect(transformed).not.toMatch(/css/);
   expect(transformed).not.toMatch(/@macrostyles\/core/);
 
-  for (const capturedVariableName of capturedVariableNames) {
+  for (const capturedVariableName of capturedVariableNames.keys()) {
     const regexp = new RegExp(`export .+ ${capturedVariableName}`);
     expect(transformed).toMatch(regexp);
   }
