@@ -15,5 +15,4 @@ export const Component: FC = () => {
   return <button className={notExported}>PUSH!</button>;
 };
 
-
-export const notStyleString = ``
+export const notStyleString = ``;

@@ -13,7 +13,6 @@ const styleB = css`
   color: aqua;
 `;
 
-
 export const Page: FC = () => {
-  return <div className={styleB}>YAY!</div>
-}
+  return <div className={styleB}>YAY!</div>;
+};
