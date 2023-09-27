@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { transformWithEsbuild } from 'vite';
 
@@ -20,21 +22,31 @@ import { isVirtualModuleId } from './isVirtualModuleId';
 
 export function macrostyles(options?: Partial<PluginOption>): Plugin {
   const cssLookup = new Map<`${ModuleIdPrefix}${string}`, string>();
-  const jsToCssMap = new Map<string, `${ModuleIdPrefix}${string}`>();
+  const jsToCssLookup = new Map<string, `${ModuleIdPrefix}${string}`>();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
+  const include = new Set(options?.includes ?? []);
 
   return {
     name: 'macrostyles',
-    async transform(code, id) {
+    async transform(code, url) {
+      const [id, ...qs] = url.split('?');
+      const query = new URLSearchParams(qs.join('?'));
+      if (query.has('raw')) {
+        return;
+      }
+
+      if (!id) {
+        return;
+      }
       if (!config) {
         throw new Error('Vite config is not resolved');
       }
 
-      if (!extensions.some((e) => id.endsWith(e))) {
+      if (!(include.has(id) || extensions.some((e) => id.endsWith(e)))) {
         // ignore module that is not JS/TS code
         return;
       }
@@ -49,7 +61,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!capturedVariableNames.size) {
         return;
       }
-
+      const dependencies: string[] = [];
       const evaluateModule: (params: {
         code: string;
         variableNames: string[];
@@ -65,6 +77,9 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
                   throw new Error('Server is not configured.');
                 }
                 const r = await server.ssrLoadModule(importingId);
+                dependencies.includes(importingId)
+                  ? null
+                  : dependencies.push(importingId);
                 return r;
               },
               resolveId: async (importingId) => {
@@ -95,7 +110,9 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
                 if (!result.code) {
                   throw new Error(`Failed to load ${resolved.id}`);
                 }
-
+                dependencies.includes(importingId)
+                  ? null
+                  : dependencies.push(importingId);
                 return result.code;
               },
             });
@@ -103,25 +120,20 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
           };
 
       let evaluationTarget = capturedCode;
-      if (server && this.meta.watchMode) {
+      if (server && this.meta.watchMode && code.includes('import.meta.hot')) {
         hmrOnly: {
           const m = server.moduleGraph.getModuleById(id);
-          if (!m) {
+          if (!m?.file) {
+            break hmrOnly;
+          }
+          const rawContent = await readFile(m.file, { encoding: 'utf8' }).catch(
+            () => null,
+          );
+          if (!rawContent) {
             break hmrOnly;
           }
 
-          const r = await server
-            .ssrLoadModule(`${m.url}?raw`)
-            .catch(() => null);
-          if (!r) {
-            break hmrOnly;
-          }
-          // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/prefer-optional-chain
-          const raw = r['default'];
-          if (typeof raw !== 'string') {
-            break hmrOnly;
-          }
-          const c = await transformWithEsbuild(raw, id, {
+          const c = await transformWithEsbuild(rawContent, id, {
             format: 'esm',
             platform: 'node',
           });
@@ -134,25 +146,11 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         }
       }
 
-      let mapOfVariableNamesToStyles: Map<
-        string,
-        {
-          variableName: string;
-          style: string;
-        }
-      >;
-      try {
-        const { mapOfVariableNamesToStyles: map_ } = await evaluateModule({
-          code: evaluationTarget,
-          variableNames: [...capturedVariableNames.keys()],
-          moduleId: id,
-        });
-        mapOfVariableNamesToStyles = map_;
-      } catch (error) {
-        console.log(error);
-
-        return;
-      }
+      const { mapOfVariableNamesToStyles } = await evaluateModule({
+        code: evaluationTarget,
+        variableNames: [...capturedVariableNames.keys()],
+        moduleId: id,
+      });
 
       const { importId, style } = createVirtualCssModule({
         evaluatedStyles: Array.from(mapOfVariableNamesToStyles.values()),
@@ -167,19 +165,18 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         options: { babelOptions },
       });
 
-      const previousCss = cssLookup.get(importId);
       cssLookup.set(importId, style);
-      jsToCssMap.set(id, importId);
-      if (server && previousCss && previousCss !== style) {
+      jsToCssLookup.set(id, importId);
+      if (server) {
         const m = server.moduleGraph.getModuleById(resolvedPrefix + importId);
         if (m) {
-          server.reloadModule(m);
+          server.moduleGraph.invalidateModule(m);
+          m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
         }
       }
 
       return {
         code: resultCode,
-        moduleSideEffects: false,
       };
     },
     configResolved(config_) {
@@ -209,6 +206,24 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
       return { code: found, moduleSideEffects: false };
+    },
+    handleHotUpdate({ modules, server }) {
+      const affectedModules = modules.flatMap((m) => {
+        const [id] = m.id?.split('?', 1) ?? [];
+        const cssId = jsToCssLookup.get(id ?? '');
+        if (!cssId) {
+          return m;
+        }
+        const cssModule = server.moduleGraph.getModuleById(
+          resolvedPrefix + cssId,
+        );
+        if (!cssModule) {
+          return m;
+        }
+        return [m, cssModule];
+      });
+
+      return affectedModules;
     },
   };
 }
