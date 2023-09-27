@@ -1,7 +1,4 @@
-import { readFile } from 'node:fs/promises';
-
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { transformWithEsbuild } from 'vite';
 
 import { createVirtualCssModule } from '../stages/4.create-virtual-css-module';
 import { assignStylesToCapturedVariables } from '../stages/5.assign-styles-to-variables';
@@ -61,7 +58,9 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       if (!capturedVariableNames.size) {
         return;
       }
-      const dependencies: string[] = [];
+
+      // TODO: library-specific hooks
+
       const evaluateModule: (params: {
         code: string;
         variableNames: string[];
@@ -77,9 +76,6 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
                   throw new Error('Server is not configured.');
                 }
                 const r = await server.ssrLoadModule(importingId);
-                dependencies.includes(importingId)
-                  ? null
-                  : dependencies.push(importingId);
                 return r;
               },
               resolveId: async (importingId) => {
@@ -110,44 +106,14 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
                 if (!result.code) {
                   throw new Error(`Failed to load ${resolved.id}`);
                 }
-                dependencies.includes(importingId)
-                  ? null
-                  : dependencies.push(importingId);
                 return result.code;
               },
             });
             return result;
           };
 
-      let evaluationTarget = capturedCode;
-      if (server && this.meta.watchMode && code.includes('import.meta.hot')) {
-        hmrOnly: {
-          const m = server.moduleGraph.getModuleById(id);
-          if (!m?.file) {
-            break hmrOnly;
-          }
-          const rawContent = await readFile(m.file, { encoding: 'utf8' }).catch(
-            () => null,
-          );
-          if (!rawContent) {
-            break hmrOnly;
-          }
-
-          const c = await transformWithEsbuild(rawContent, id, {
-            format: 'esm',
-            platform: 'node',
-          });
-
-          const { transformed: ssrEvaluationTarget } = captureTaggedStyles({
-            code: c.code,
-            options: { babelOptions },
-          });
-          evaluationTarget = ssrEvaluationTarget;
-        }
-      }
-
       const { mapOfVariableNamesToStyles } = await evaluateModule({
-        code: evaluationTarget,
+        code: capturedCode,
         variableNames: [...capturedVariableNames.keys()],
         moduleId: id,
       });

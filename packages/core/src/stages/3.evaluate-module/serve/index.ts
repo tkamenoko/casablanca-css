@@ -2,6 +2,7 @@ import type { ModuleLinker } from 'node:vm';
 import vm from 'node:vm';
 
 import type { EvaluateModuleReturn } from '../types';
+import { registerGlobals, unregisterGlobals } from '../registerGlobals';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
@@ -16,6 +17,25 @@ type EvaluateModuleArgs = {
   load: (id: string) => Promise<Record<string, unknown>>;
   resolveId: (id: string) => Promise<string | null>;
 };
+
+const reactRefreshScriptMock = `
+import RefreshRuntime from '/@react-refresh'
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type
+window.__vite_plugin_react_preamble_installed__ = true
+`;
+
+function injectGlobals(code: string): string {
+  return `
+${registerGlobals}
+${code.replace(
+  /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm,
+  reactRefreshScriptMock,
+)}
+${unregisterGlobals}
+`;
+}
 
 export async function evaluateModule({
   code,
@@ -47,9 +67,10 @@ export async function evaluateModule({
       return m;
     }
   };
+  const injectedCode = injectGlobals(code);
 
   // create module
-  const targetModule = new vm.SourceTextModule(code, {
+  const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
   });
   await targetModule.link(targetLinker);

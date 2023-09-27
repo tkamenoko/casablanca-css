@@ -2,6 +2,7 @@ import type { ModuleLinker } from 'node:vm';
 import vm from 'node:vm';
 
 import type { EvaluateModuleReturn } from '../types';
+import { registerGlobals, unregisterGlobals } from '../registerGlobals';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
@@ -14,6 +15,14 @@ type EvaluateModuleArgs = {
   variableNames: string[];
   load: (id: string) => Promise<string>;
 };
+
+function injectGlobals(code: string): string {
+  return `
+${registerGlobals}
+${code}
+${unregisterGlobals}
+`;
+}
 
 export async function evaluateModule({
   code,
@@ -42,8 +51,9 @@ export async function evaluateModule({
     }
   };
 
+  const injectedCode = injectGlobals(code);
   // create module
-  const targetModule = new vm.SourceTextModule(code, {
+  const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
   });
   await targetModule.link(targetLinker);
