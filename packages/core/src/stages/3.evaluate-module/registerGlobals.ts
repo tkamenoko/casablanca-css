@@ -4,13 +4,25 @@ const hex = randomBytes(20).toString('hex');
 
 export const registerGlobals = `
 import { GlobalRegistrator as GlobalRegistrator_${hex} } from '@happy-dom/global-registrator';
+
+let shouldUnregister_${hex} = false;
 if(!globalThis.window){
-  GlobalRegistrator_${hex}.register();
-  globalThis.window = globalThis;
+  try {
+    GlobalRegistrator_${hex}.register();
+    shouldUnregister_${hex} = true;
+  } catch (e) {
+    console.log("already registered");
+  }
+  finally{
+    globalThis.window = globalThis;
+  }
 }
 `;
 
 export const unregisterGlobals = `
-GlobalRegistrator_${hex}.unregister()
-globalThis.window = undefined;
+if(shouldUnregister_${hex}){
+  GlobalRegistrator_${hex}.unregister()
+  globalThis.window = undefined;
+  shouldUnregister_${hex} = false;
+}
 `;
