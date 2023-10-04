@@ -1,10 +1,9 @@
-import type { Page } from "rakkasjs";
-import { css } from "@macrostyles/core";
-
+import type { Page } from 'rakkasjs';
+import { css } from '@macrostyles/core';
 
 const h1Styles = css`
-  font-size: 3em;
-`
+  font-size: 2em;
+`;
 
 const HomePage: Page = () => {
   return (
@@ -13,7 +12,7 @@ const HomePage: Page = () => {
       <p>Welcome to the Rakkas demo page 💃</p>
       <p>
         Try editing the files in <code>src/routes</code> to get started or go to
-        the{" "}
+        the{' '}
         <a href="https://rakkasjs.org" target="_blank" rel="noreferrer">
           website
         </a>

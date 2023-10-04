@@ -1,5 +1,5 @@
-import { css } from '@macrostyles/core';
-import type { ReactElement } from 'react';
+import { compose, css } from '@macrostyles/core';
+import type { FC, ReactElement } from 'react';
 import { useState } from 'react';
 
 import reactLogo from './assets/react.svg';
@@ -7,20 +7,24 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 
 import './App.css';
-import { fontSize } from './values';
-
-
-const divBackGround = css`
-  background-color: aquamarine;
-`;
+import { composed, divBackGround, fontSize } from './values';
 
 const h1Size = css`
   font-size: ${fontSize};
-`
+  ${compose(composed)}
+`;
 
-function App(): ReactElement {
+const Counter: FC = () => {
   const [count, setCount] = useState(0);
 
+  return (
+    <button onClick={() => setCount((count) => count + 1)}>
+      count is {count}
+    </button>
+  );
+};
+
+function App(): ReactElement {
   return (
     <>
       <div className={divBackGround}>
@@ -33,9 +37,7 @@ function App(): ReactElement {
       </div>
       <h1 className={h1Size}>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+        <Counter />
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>

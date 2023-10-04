@@ -1,10 +1,10 @@
 // This is the main layout of our app. It renders the header and the footer.
 
-import type { Layout } from "rakkasjs";
-import { Head, Link, StyledLink } from "rakkasjs";
+import type { Layout } from 'rakkasjs';
+import { Head, Link, StyledLink } from 'rakkasjs';
 
 // Vite supports CSS modules out of the box!
-import css from "./layout.module.css";
+import css from './layout.module.css';
 
 const MainLayout: Layout = ({ children }) => (
   <>
@@ -48,13 +48,13 @@ const MainLayout: Layout = ({ children }) => (
       </p>
 
       <p>
-        Favicon: “Flamenco” by{" "}
+        Favicon: “Flamenco” by{' '}
         <a href="https://thenounproject.com/term/flamenco/111303/">
           gzz from Noun Project
-        </a>{" "}
+        </a>{' '}
         (not affiliated).
         <br />
-        Used under{" "}
+        Used under{' '}
         <a href="https://creativecommons.org/licenses/by/2.0/">
           Creative Commons Attribution Generic license (CCBY)
         </a>
