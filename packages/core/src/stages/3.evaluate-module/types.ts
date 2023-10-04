@@ -1,10 +1,11 @@
 type VariableName = string;
 
 export type EvaluateModuleReturn = {
-  mapOfVariableNamesToStyles: Map<
+  mapOfClassNamesToStyles: Map<
     VariableName,
     {
-      variableName: string;
+      temporalVariableName: string;
+      originalName: string;
       style: string;
     }
   >;

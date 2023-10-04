@@ -5,7 +5,8 @@ type CreateVirtualCssModuleArgs = {
   importerPath: string;
   projectRoot: string;
   evaluatedStyles: {
-    variableName: string;
+    originalName: string;
+    temporalVariableName: string;
     style: string;
   }[];
 };
@@ -19,9 +20,9 @@ export function createVirtualCssModule({
   importerPath,
   projectRoot,
 }: CreateVirtualCssModuleArgs): CreateVirtualCssModuleReturn {
-  const styles = evaluatedStyles.map(({ style, variableName }) => {
+  const styles = evaluatedStyles.map(({ style, originalName }) => {
     return `
-.${variableName} {${style}}
+.${originalName} {${style}}
 `;
   });
   return {

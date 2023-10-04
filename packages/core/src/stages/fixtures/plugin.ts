@@ -80,13 +80,15 @@ export function partialPlugin(
         return;
       }
 
-      const variableNames = [...capturedVariableNames.keys()];
+      const temporalVariableNames = new Map(
+        [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
+      );
 
       // replace `compose` calls to temporal strings
       const { transformed: composedCode, uuidToStylesMap } =
         await prepareCompositions({
           code: capturedCode,
-          variableNames,
+          temporalVariableNames: [...temporalVariableNames.keys()],
           importSources,
           projectRoot: config.root,
           resolve: async (importSource) => {
@@ -97,19 +99,24 @@ export function partialPlugin(
 
       const evaluateModule: (params: {
         code: string;
-        variableNames: string[];
+        temporalVariableNames: Map<
+          string,
+          {
+            originalName: string;
+            temporalName: string;
+          }
+        >;
         modulePath: string;
       }) => Promise<EvaluateModuleReturn> = server
-        ? async ({ code, modulePath, variableNames }) => {
+        ? async ({ code, modulePath, temporalVariableNames }) => {
             const result = await evaluateWithServer({
               code,
               modulePath,
-              variableNames,
+              temporalVariableNames,
               load: async (importingId) => {
                 if (!server) {
                   throw new Error('Server is not configured.');
                 }
-
                 const r = await server.ssrLoadModule(importingId);
                 return r;
               },
@@ -123,11 +130,11 @@ export function partialPlugin(
             });
             return result;
           }
-        : async ({ code, modulePath, variableNames }) => {
+        : async ({ code, modulePath, temporalVariableNames }) => {
             const result = await evaluateForProductionBuild({
               code,
               modulePath,
-              variableNames,
+              temporalVariableNames,
               load: async (importingId) => {
                 const resolved = await this.resolve(importingId);
                 if (!resolved?.id) {
@@ -147,15 +154,15 @@ export function partialPlugin(
             return result;
           };
 
-      const { mapOfVariableNamesToStyles } = await evaluateModule({
+      const { mapOfClassNamesToStyles } = await evaluateModule({
         code: composedCode,
-        variableNames,
+        temporalVariableNames,
         modulePath: path,
       });
 
       const { composedStyles } = replaceUuidToStyles({
         cssLookup,
-        ownedVariablesToStyles: mapOfVariableNamesToStyles,
+        ownedClassNamesToStyles: mapOfClassNamesToStyles,
         uuidToClassNamesMap: uuidToStylesMap,
       });
 
@@ -166,10 +173,10 @@ export function partialPlugin(
       });
 
       const { transformed: resultCode } = assignStylesToCapturedVariables({
-        variableNames: capturedVariableNames,
-        code: capturedCode,
+        temporalVariableNames,
+        originalToTemporalMap: capturedVariableNames,
+        code: composedCode,
         cssImportId: importId,
-        options: { babelOptions },
       });
 
       const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
@@ -177,9 +184,9 @@ export function partialPlugin(
       cssLookup.set(resolvedId, {
         style,
         classNameToStyleMap: new Map(
-          composedStyles.map(({ style, variableName }) => [
-            variableName,
-            { style, className: variableName },
+          composedStyles.map(({ style, originalName }) => [
+            originalName,
+            { style, className: originalName },
           ]),
         ),
       });
@@ -200,7 +207,11 @@ export function partialPlugin(
             cssLookup,
             jsToCssLookup,
             transformed: capturedCode,
-            stageResult: { capturedVariableNames, importSources },
+            stageResult: {
+              capturedVariableNames,
+              transformed: capturedCode,
+              importSources,
+            },
           });
           break;
         }
@@ -220,7 +231,7 @@ export function partialPlugin(
             id,
             jsToCssLookup,
             transformed: composedCode,
-            stageResult: { mapOfVariableNamesToStyles },
+            stageResult: { mapOfClassNamesToStyles },
           });
           break;
         }

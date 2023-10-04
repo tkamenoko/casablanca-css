@@ -31,6 +31,7 @@ const test = t.extend<TestContext>({
       server: {
         middlewareMode: true,
         hmr: false,
+        preTransformRequests: false,
       },
       optimizeDeps: {
         disabled: true,

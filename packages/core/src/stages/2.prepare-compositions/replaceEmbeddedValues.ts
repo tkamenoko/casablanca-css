@@ -8,7 +8,7 @@ import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
 import type { ResolvedModuleId } from '@/types';
 
 export type Options = {
-  variableNames: string[];
+  temporalVariableNames: string[];
   embeddedToClassNameMap: Map<
     string,
     { className: string; cssId: ResolvedModuleId; uuid: string }
@@ -99,7 +99,7 @@ export function replaceEmbeddedValuesPlugin({
             const id = declaration.get('id');
             if (
               !id.isIdentifier() ||
-              !state.opts.variableNames.includes(id.node.name)
+              !state.opts.temporalVariableNames.includes(id.node.name)
             ) {
               continue;
             }

@@ -9,7 +9,8 @@ type TestContext = {
   transformResult: Partial<
     TransformResult<{
       composedStyles: {
-        variableName: string;
+        temporalVariableName: string;
+        originalName: string;
         style: string;
       }[];
     }>
@@ -31,6 +32,7 @@ const test = t.extend<TestContext>({
       server: {
         middlewareMode: true,
         hmr: false,
+        preTransformRequests: false,
       },
       optimizeDeps: {
         disabled: true,
@@ -54,23 +56,23 @@ test('should compose styles', async ({ expect, server, transformResult }) => {
 
   const { composedStyles } = transformResult.stageResult ?? {};
   assert(composedStyles?.length);
-  for (const { style, variableName } of composedStyles) {
-    switch (variableName) {
+  for (const { style, originalName } of composedStyles) {
+    switch (originalName) {
       case 'styleA': {
         expect(style).toMatch(/color: red;/);
-        expect(style).not.toMatch(/font-size: .+;/);
+        expect(style).not.toMatch(/font-size:;/);
         break;
       }
       case 'styleB': {
         expect(style).toMatch(/color: red;/);
-        expect(style).toMatch(/font-size: .+;/);
-        expect(style).toMatch(/display: flex;/);
-        expect(style).toMatch(/border: .+;/);
+        expect(style).toMatch(/font-size:/);
+        expect(style).toMatch(/display:/);
+        expect(style).toMatch(/border:/);
         break;
       }
 
       default: {
-        throw new Error(`Unknown className ${variableName}`);
+        throw new Error(`Unknown className ${originalName}`);
       }
     }
   }

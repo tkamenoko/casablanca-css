@@ -14,10 +14,11 @@ type TestContext = {
   server: ViteDevServer;
   transformResult: Partial<
     TransformResult<{
-      mapOfVariableNamesToStyles: Map<
+      mapOfClassNamesToStyles: Map<
         string,
         {
-          variableName: string;
+          temporalVariableName: string;
+          originalName: string;
           style: string;
         }
       >;
@@ -40,6 +41,7 @@ const test = t.extend<TestContext>({
       server: {
         middlewareMode: true,
         hmr: false,
+        preTransformRequests: false,
       },
       optimizeDeps: {
         disabled: true,
@@ -67,12 +69,12 @@ test('should evaluate module to get exported styles', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
-  assert(mapOfVariableNamesToStyles);
+  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
-    mapOfVariableNamesToStyles,
+    mapOfClassNamesToStyles,
     moduleExports: simpleModuleExports,
     variableNames,
   });
@@ -92,12 +94,12 @@ test('should evaluate module using third party modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
-  assert(mapOfVariableNamesToStyles);
+  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
-    mapOfVariableNamesToStyles,
+    mapOfClassNamesToStyles,
     moduleExports: thirdPartyModuleExports,
     variableNames,
   });
@@ -117,12 +119,12 @@ test('should evaluate module using local modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
-  assert(mapOfVariableNamesToStyles);
+  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
-    mapOfVariableNamesToStyles,
+    mapOfClassNamesToStyles,
     moduleExports: localModuleExports,
     variableNames,
   });
@@ -142,12 +144,12 @@ test('should evaluate module using non-script modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
-  assert(mapOfVariableNamesToStyles);
+  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
-    mapOfVariableNamesToStyles,
+    mapOfClassNamesToStyles,
     moduleExports: assetModuleExports,
     variableNames,
   });

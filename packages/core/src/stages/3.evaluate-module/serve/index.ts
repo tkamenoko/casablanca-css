@@ -13,7 +13,13 @@ type VariableName = string;
 type EvaluateModuleArgs = {
   code: string;
   modulePath: string;
-  variableNames: string[];
+  temporalVariableNames: Map<
+    string,
+    {
+      originalName: string;
+      temporalName: string;
+    }
+  >;
   load: (id: string) => Promise<Record<string, unknown>>;
   resolveId: (id: string) => Promise<string | null>;
 };
@@ -40,7 +46,7 @@ ${unregisterGlobals}
 export async function evaluateModule({
   code,
   modulePath,
-  variableNames,
+  temporalVariableNames,
   load,
   resolveId,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
@@ -79,21 +85,26 @@ export async function evaluateModule({
   // return captured styles
   const captured: Record<string, unknown> = { ...targetModule.namespace };
 
-  const mapOfVariableNamesToStyles = new Map<
+  const mapOfClassNamesToStyles = new Map<
     VariableName,
     {
-      variableName: string;
+      temporalVariableName: string;
+      originalName: string;
       style: string;
     }
   >();
 
-  for (const variableName of variableNames) {
-    const style = captured[variableName];
+  for (const { originalName, temporalName } of temporalVariableNames.values()) {
+    const style = captured[temporalName];
     if (typeof style !== 'string') {
-      throw new Error(`Failed to capture variable ${variableName}`);
+      throw new Error(`Failed to capture variable ${temporalName}`);
     }
-    mapOfVariableNamesToStyles.set(variableName, { style, variableName });
+    mapOfClassNamesToStyles.set(originalName, {
+      style,
+      originalName,
+      temporalVariableName: temporalName,
+    });
   }
 
-  return { mapOfVariableNamesToStyles };
+  return { mapOfClassNamesToStyles };
 }

@@ -12,3 +12,5 @@ export const styleB = css`
   font-size: ${modularScale(3)};
   ${compose(styleA, composedStyle, anotherComposedStyle)}
 `;
+
+// export const v = modularScale(1);

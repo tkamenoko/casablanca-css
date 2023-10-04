@@ -2,24 +2,25 @@ import type { ExpectStatic } from 'vitest';
 
 export function testObjectHasEvaluatedStyles({
   expect,
-  mapOfVariableNamesToStyles,
+  mapOfClassNamesToStyles,
   variableNames,
   moduleExports,
 }: {
   expect: ExpectStatic;
   moduleExports: Record<string, unknown>;
-  mapOfVariableNamesToStyles: Map<
+  mapOfClassNamesToStyles: Map<
     string,
     {
-      variableName: string;
+      temporalVariableName: string;
+      originalName: string;
       style: string;
     }
   >;
   variableNames: readonly string[];
 }): void {
-  expect(mapOfVariableNamesToStyles.size).toEqual(variableNames.length);
+  expect(mapOfClassNamesToStyles.size).toEqual(variableNames.length);
   for (const variableName of variableNames) {
     const value = moduleExports[variableName];
-    expect(mapOfVariableNamesToStyles.get(variableName)?.style).toEqual(value);
+    expect(mapOfClassNamesToStyles.get(variableName)?.style).toEqual(value);
   }
 }

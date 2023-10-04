@@ -63,13 +63,15 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         return;
       }
 
-      const variableNames = [...capturedVariableNames.keys()];
+      const temporalVariableNames = new Map(
+        [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
+      );
 
       // replace `compose` calls to temporal strings
       const { transformed: composedCode, uuidToStylesMap } =
         await prepareCompositions({
           code: capturedCode,
-          variableNames,
+          temporalVariableNames: [...temporalVariableNames.keys()],
           importSources,
           projectRoot: config.root,
           resolve: async (importSource) => {
@@ -80,14 +82,20 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
 
       const evaluateModule: (params: {
         code: string;
-        variableNames: string[];
+        temporalVariableNames: Map<
+          string,
+          {
+            originalName: string;
+            temporalName: string;
+          }
+        >;
         modulePath: string;
       }) => Promise<EvaluateModuleReturn> = server
-        ? async ({ code, modulePath, variableNames }) => {
+        ? async ({ code, modulePath, temporalVariableNames }) => {
             const result = await evaluateWithServer({
               code,
               modulePath,
-              variableNames,
+              temporalVariableNames,
               load: async (importingId) => {
                 if (!server) {
                   throw new Error('Server is not configured.');
@@ -105,11 +113,11 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
             });
             return result;
           }
-        : async ({ code, modulePath, variableNames }) => {
+        : async ({ code, modulePath, temporalVariableNames }) => {
             const result = await evaluateForProductionBuild({
               code,
               modulePath,
-              variableNames,
+              temporalVariableNames,
               load: async (importingId) => {
                 const resolved = await this.resolve(importingId);
                 if (!resolved?.id) {
@@ -129,15 +137,15 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
             return result;
           };
 
-      const { mapOfVariableNamesToStyles } = await evaluateModule({
+      const { mapOfClassNamesToStyles } = await evaluateModule({
         code: composedCode,
-        variableNames,
+        temporalVariableNames,
         modulePath: path,
       });
 
       const { composedStyles } = replaceUuidToStyles({
         cssLookup,
-        ownedVariablesToStyles: mapOfVariableNamesToStyles,
+        ownedClassNamesToStyles: mapOfClassNamesToStyles,
         uuidToClassNamesMap: uuidToStylesMap,
       });
 
@@ -148,19 +156,19 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       });
 
       const { transformed: resultCode } = assignStylesToCapturedVariables({
-        variableNames: capturedVariableNames,
-        code: capturedCode,
+        temporalVariableNames,
+        originalToTemporalMap: capturedVariableNames,
+        code: composedCode,
         cssImportId: importId,
-        options: { babelOptions },
       });
 
       const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
       cssLookup.set(resolvedId, {
         style,
         classNameToStyleMap: new Map(
-          composedStyles.map(({ style, variableName }) => [
-            variableName,
-            { style, className: variableName },
+          composedStyles.map(({ style, originalName }) => [
+            originalName,
+            { style, className: originalName },
           ]),
         ),
       });

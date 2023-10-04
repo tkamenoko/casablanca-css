@@ -31,6 +31,7 @@ const test = t.extend<TestContext>({
       server: {
         middlewareMode: true,
         hmr: false,
+        preTransformRequests: false,
       },
       optimizeDeps: {
         disabled: true,
@@ -58,16 +59,19 @@ test('should capture variable names initialized with css tag', async ({
 
   const { capturedVariableNames } = transformResult.stageResult ?? {};
   assert(capturedVariableNames?.size);
-  expect([...capturedVariableNames.entries()]).toEqual([
-    ['style', { shouldRemoveExport: false }],
-    ['notExported', { shouldRemoveExport: true }],
+  expect([...capturedVariableNames.entries()]).toMatchObject([
+    ['style', { originalName: 'style', temporalName: expect.any(String) }],
+    [
+      'notExported',
+      { originalName: 'notExported', temporalName: expect.any(String) },
+    ],
   ]);
   const { transformed } = transformResult;
   expect(transformed).not.toMatch(/css/);
   expect(transformed).not.toMatch(/@macrostyles\/core/);
 
-  for (const capturedVariableName of capturedVariableNames.keys()) {
-    const regexp = new RegExp(`export .+ ${capturedVariableName}`);
+  for (const { temporalName } of capturedVariableNames.values()) {
+    const regexp = new RegExp(`export const ${temporalName}`);
     expect(transformed).toMatch(regexp);
   }
 });

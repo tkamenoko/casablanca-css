@@ -2,10 +2,11 @@ import type { ResolvedModuleId } from '@/types';
 import type { CssLookup } from '@/vite/types';
 
 type ReplaceUuidToStylesArgs = {
-  ownedVariablesToStyles: Map<
+  ownedClassNamesToStyles: Map<
     string,
     {
-      variableName: string;
+      temporalVariableName: string;
+      originalName: string;
       style: string;
     }
   >;
@@ -20,14 +21,15 @@ type ReplaceUuidToStylesArgs = {
 };
 type ReplaceUuidToStylesReturn = {
   composedStyles: {
-    variableName: string;
+    temporalVariableName: string;
+    originalName: string;
     style: string;
   }[];
 };
 
 export function replaceUuidToStyles({
   cssLookup,
-  ownedVariablesToStyles,
+  ownedClassNamesToStyles,
   uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
   const uuids = Array.from(uuidToClassNamesMap.keys());
@@ -46,12 +48,13 @@ export function replaceUuidToStyles({
             {
               uuid,
               className,
+
               style,
               dependsOn: new Set<string>(),
             },
           ] as const;
         }
-        const style = ownedVariablesToStyles.get(className)?.style;
+        const style = ownedClassNamesToStyles.get(className)?.style;
         if (!style) {
           throw new Error('Broken composition');
         }
@@ -91,13 +94,13 @@ export function replaceUuidToStyles({
     }
     resolvedUuidToStyles.set(uuid, { className, dependsOn, style: s, uuid });
   });
-  const result = Array.from(ownedVariablesToStyles.values()).map(
-    ({ style, variableName }) => {
+  const result = Array.from(ownedClassNamesToStyles.values()).map(
+    ({ style, originalName, temporalVariableName }) => {
       let s = style;
       for (const { style, uuid } of resolvedUuidToStyles.values()) {
         s = s.replaceAll(uuid, style);
       }
-      return { style: s, variableName };
+      return { style: s, temporalVariableName, originalName };
     },
   );
   return { composedStyles: result };

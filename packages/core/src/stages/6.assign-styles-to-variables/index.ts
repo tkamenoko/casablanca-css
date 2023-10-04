@@ -1,4 +1,4 @@
-import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
+import type { PluginObj, PluginPass } from '@babel/core';
 import { transformSync } from '@babel/core';
 import type babel from '@babel/core';
 
@@ -9,16 +9,17 @@ import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
 type AssignStylesToCapturedVariablesArgs = {
   code: string;
-  variableNames: CapturedVariableNames;
+  temporalVariableNames: CapturedVariableNames;
+  originalToTemporalMap: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
-  options?: { babelOptions: TransformOptions };
 };
 type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
 };
 
 type Options = {
-  variableNames: CapturedVariableNames;
+  temporalVariableNames: CapturedVariableNames;
+  originalToTemporalMap: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
 };
 
@@ -49,12 +50,13 @@ function assignStylesPlugin({
           );
         },
       },
+
       VariableDeclaration: {
         enter: (path, state) => {
           if (!isTopLevelStatement(path)) {
             return;
           }
-          const { variableNames } = state.opts;
+          const { temporalVariableNames, originalToTemporalMap } = state.opts;
           const stylesId = t.identifier(state.importIdName);
           for (const declaration of path.get('declarations')) {
             const id = declaration.get('id');
@@ -62,19 +64,18 @@ function assignStylesPlugin({
               continue;
             }
             const name = id.node.name;
-            const replaceTarget = variableNames.get(name);
+            const removeTarget = temporalVariableNames.get(name);
+            if (removeTarget && path.parentPath.isExportNamedDeclaration()) {
+              path.parentPath.remove();
+              return;
+            }
+            const replaceTarget = originalToTemporalMap.get(name);
             if (replaceTarget) {
               declaration
                 .get('init')
                 .replaceWith(
                   t.memberExpression(stylesId, t.stringLiteral(name), true),
                 );
-              if (
-                replaceTarget.shouldRemoveExport &&
-                path.parentPath.isExportDeclaration()
-              ) {
-                path.parentPath.replaceWith(path.node);
-              }
             }
           }
         },
@@ -86,13 +87,15 @@ function assignStylesPlugin({
 export function assignStylesToCapturedVariables({
   code,
   cssImportId,
-  variableNames,
-  options,
+  temporalVariableNames,
+  originalToTemporalMap,
 }: AssignStylesToCapturedVariablesArgs): AssignStylesToCapturedVariablesReturn {
-  const { babelOptions } = options ?? {};
-  const pluginOption: Options = { cssImportId, variableNames };
+  const pluginOption: Options = {
+    cssImportId,
+    temporalVariableNames,
+    originalToTemporalMap,
+  };
   const result = transformSync(code, {
-    ...babelOptions,
     plugins: [[assignStylesPlugin, pluginOption]],
     sourceMaps: 'inline',
   });

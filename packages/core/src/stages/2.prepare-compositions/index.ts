@@ -14,7 +14,7 @@ import {
 
 type ProcessCompositionsArgs = {
   code: string;
-  variableNames: string[];
+  temporalVariableNames: string[];
   importSources: ImportSource[];
   projectRoot: string;
   resolve: (id: string) => Promise<string | null>;
@@ -32,7 +32,7 @@ type ProcessCompositionsReturn = {
 
 export async function prepareCompositions({
   code,
-  variableNames,
+  temporalVariableNames,
   importSources,
   projectRoot,
   resolve,
@@ -69,7 +69,7 @@ export async function prepareCompositions({
     }
   >();
   const pluginOption: Options = {
-    variableNames,
+    temporalVariableNames,
     embeddedToClassNameMap,
     uuidToStylesMap,
   };

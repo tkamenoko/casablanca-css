@@ -21,7 +21,7 @@ type CaptureTaggedStylesArgs = {
 
 export type CapturedVariableNames = Map<
   string,
-  { shouldRemoveExport: boolean }
+  { originalName: string; temporalName: string }
 >;
 
 export type ImportSource = {
@@ -165,21 +165,33 @@ function captureVariableNamesPlugin({
             if (!id.isIdentifier()) {
               return;
             }
-            const name = id.node.name;
+            const originalName = id.node.name;
+            const temporalId = path.scope.generateUidIdentifier(
+              `temporal_${originalName}`,
+            );
 
-            const captured = { name, shouldRemoveExport: false };
-
-            init.replaceWith(init.get('quasi').node);
-
-            if (
-              !path.parentPath.isExportNamedDeclaration() &&
-              !state.opts.exportedNames.includes(name)
-            ) {
-              path.replaceWith(t.exportNamedDeclaration(path.node));
-              captured.shouldRemoveExport = true;
+            if (path.parentPath.isExportNamedDeclaration()) {
+              path.parentPath.insertBefore(
+                t.exportNamedDeclaration(
+                  t.variableDeclaration('const', [
+                    t.variableDeclarator(temporalId, init.get('quasi').node),
+                  ]),
+                ),
+              );
+            } else {
+              path.insertBefore(
+                t.exportNamedDeclaration(
+                  t.variableDeclaration('const', [
+                    t.variableDeclarator(temporalId, init.get('quasi').node),
+                  ]),
+                ),
+              );
             }
-            state.opts.capturedVariableNames.set(captured.name, {
-              shouldRemoveExport: captured.shouldRemoveExport,
+            init.replaceWith(t.stringLiteral(originalName));
+
+            state.opts.capturedVariableNames.set(originalName, {
+              originalName,
+              temporalName: temporalId.name,
             });
           }
         },
