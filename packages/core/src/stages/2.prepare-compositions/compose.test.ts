@@ -1,17 +1,23 @@
 import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
 
+import type { ResolvedModuleId } from '@/types';
+
 import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
-
-import type { CapturedVariableNames, ImportSource } from '.';
 
 type TestContext = {
   server: ViteDevServer;
   transformResult: Partial<
     TransformResult<{
-      capturedVariableNames: CapturedVariableNames;
-      importSources: ImportSource[];
+      composedCode: string;
+      uuidToStylesMap: Map<
+        string,
+        {
+          resolvedId: ResolvedModuleId | null;
+          className: string;
+        }
+      >;
     }>
   >;
 };
@@ -21,7 +27,7 @@ const test = t.extend<TestContext>({
     const server = await createServer({
       plugins: [
         partialPlugin({
-          stage: 1,
+          stage: 2,
           onExit: async (p) => {
             Object.assign(transformResult, p);
           },
@@ -44,30 +50,22 @@ const test = t.extend<TestContext>({
   },
 });
 
-test('should capture variable names initialized with css tag', async ({
+test('should replace `compose` call with `composes: ...;` expressions', async ({
   expect,
   server,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/static.tsx',
+    relativePath: './fixtures/composing.ts',
     root: import.meta.url,
   });
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { capturedVariableNames } = transformResult.stageResult ?? {};
-  assert(capturedVariableNames?.size);
-  expect([...capturedVariableNames.entries()]).toEqual([
-    ['style', { shouldRemoveExport: false }],
-    ['notExported', { shouldRemoveExport: true }],
-  ]);
   const { transformed } = transformResult;
-  expect(transformed).not.toMatch(/css/);
-  expect(transformed).not.toMatch(/@macrostyles\/core/);
-
-  for (const capturedVariableName of capturedVariableNames.keys()) {
-    const regexp = new RegExp(`export .+ ${capturedVariableName}`);
-    expect(transformed).toMatch(regexp);
-  }
+  assert(transformed);
+  expect(transformed).not.toMatch(/compose\(imported\)/);
+  expect(transformed).toMatch(
+    /([0-9a-f]{8})-([0-9a-f]{4})-(4[0-9a-f]{3})-([0-9a-f]{4})-([0-9a-f]{12})/,
+  );
 });

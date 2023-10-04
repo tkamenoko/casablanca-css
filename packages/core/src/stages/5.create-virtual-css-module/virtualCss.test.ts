@@ -1,17 +1,17 @@
-import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
+import { createServer, type ViteDevServer } from 'vite';
+
+import type { VirtualModuleId } from '@/types';
 
 import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
-
-import type { CapturedVariableNames, ImportSource } from '.';
 
 type TestContext = {
   server: ViteDevServer;
   transformResult: Partial<
     TransformResult<{
-      capturedVariableNames: CapturedVariableNames;
-      importSources: ImportSource[];
+      importId: VirtualModuleId;
+      style: string;
     }>
   >;
 };
@@ -21,7 +21,7 @@ const test = t.extend<TestContext>({
     const server = await createServer({
       plugins: [
         partialPlugin({
-          stage: 1,
+          stage: 5,
           onExit: async (p) => {
             Object.assign(transformResult, p);
           },
@@ -44,30 +44,20 @@ const test = t.extend<TestContext>({
   },
 });
 
-test('should capture variable names initialized with css tag', async ({
+test('should create css string from partial styles and importer id', async ({
   expect,
-  server,
   transformResult,
+  server,
 }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/static.tsx',
+    relativePath: './fixtures/styles.ts',
     root: import.meta.url,
   });
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { capturedVariableNames } = transformResult.stageResult ?? {};
-  assert(capturedVariableNames?.size);
-  expect([...capturedVariableNames.entries()]).toEqual([
-    ['style', { shouldRemoveExport: false }],
-    ['notExported', { shouldRemoveExport: true }],
-  ]);
-  const { transformed } = transformResult;
-  expect(transformed).not.toMatch(/css/);
-  expect(transformed).not.toMatch(/@macrostyles\/core/);
+  const { importId, style } = transformResult.stageResult ?? {};
 
-  for (const capturedVariableName of capturedVariableNames.keys()) {
-    const regexp = new RegExp(`export .+ ${capturedVariableName}`);
-    expect(transformed).toMatch(regexp);
-  }
+  assert(importId && style);
+  expect(style).toMatch(/\.foo *\{/);
 });

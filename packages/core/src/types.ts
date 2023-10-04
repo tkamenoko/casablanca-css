@@ -10,6 +10,10 @@ export type PluginOption = {
 
 export const moduleIdPrefix = 'virtual:macrostyles/';
 export type ModuleIdPrefix = typeof moduleIdPrefix;
-export const resolvedPrefix = '\0';
-export type ResolvedPrefix = typeof resolvedPrefix;
-export type ResolvedModuleId = `${ResolvedPrefix}${ModuleIdPrefix}${string}`;
+export type VirtualModuleId = `${ModuleIdPrefix}${string}`;
+
+export type ResolvedModuleId = `\0${VirtualModuleId}`;
+
+export type TaggedStyle<T> = T & {
+  __tagged: never;
+};

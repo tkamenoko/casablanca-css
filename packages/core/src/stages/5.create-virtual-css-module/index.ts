@@ -1,7 +1,8 @@
-import { moduleIdPrefix, type ModuleIdPrefix } from '../../types';
+import type { VirtualModuleId } from '@/types';
+import { buildCssImportId } from '@/vite/helpers/buildCssImportId';
 
 type CreateVirtualCssModuleArgs = {
-  importerId: string;
+  importerPath: string;
   projectRoot: string;
   evaluatedStyles: {
     variableName: string;
@@ -10,23 +11,12 @@ type CreateVirtualCssModuleArgs = {
 };
 type CreateVirtualCssModuleReturn = {
   style: string;
-  importId: `${ModuleIdPrefix}${string}`;
+  importId: VirtualModuleId;
 };
-
-function buildImportId({
-  importerId,
-  projectRoot,
-}: {
-  importerId: string;
-  projectRoot: string;
-}): `${ModuleIdPrefix}${string}` {
-  const replaced = importerId.replace(projectRoot, '').replace(/^\//, '');
-  return `${moduleIdPrefix}${replaced}.module.css`;
-}
 
 export function createVirtualCssModule({
   evaluatedStyles,
-  importerId,
+  importerPath,
   projectRoot,
 }: CreateVirtualCssModuleArgs): CreateVirtualCssModuleReturn {
   const styles = evaluatedStyles.map(({ style, variableName }) => {
@@ -35,7 +25,7 @@ export function createVirtualCssModule({
 `;
   });
   return {
-    importId: buildImportId({ importerId, projectRoot }),
+    importId: buildCssImportId({ importerPath, projectRoot }),
     style: styles.join(''),
   };
 }

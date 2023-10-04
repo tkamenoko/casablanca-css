@@ -12,11 +12,13 @@ export default defineConfig({
       },
       formats: ['es'],
     },
+    minify: true,
   },
   plugins: [
     { ...nodeExternals(), enforce: 'pre' },
     dts({
       insertTypesEntry: true,
+      rollupTypes: true,
     }),
     tsconfigPaths(),
   ],

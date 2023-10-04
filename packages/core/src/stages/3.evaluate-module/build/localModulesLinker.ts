@@ -5,13 +5,13 @@ import vm from 'node:vm';
 import { normalizePath } from 'vite';
 
 export const localModulesLinker: (params: {
-  moduleId: string;
+  modulePath: string;
   load: (id: string) => Promise<string>;
 }) => ModuleLinker =
-  ({ load, moduleId }) =>
+  ({ load, modulePath }) =>
   async (specifier, referencingModule) => {
     const path = normalizePath(
-      resolve(moduleId.split('/').slice(0, -1).join('/'), specifier),
+      resolve(modulePath.split('/').slice(0, -1).join('/'), specifier),
     );
     const code = await load(path);
     const m = new vm.SourceTextModule(code, {

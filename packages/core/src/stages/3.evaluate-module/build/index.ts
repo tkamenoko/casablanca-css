@@ -11,7 +11,7 @@ type VariableName = string;
 
 type EvaluateModuleArgs = {
   code: string;
-  moduleId: string;
+  modulePath: string;
   variableNames: string[];
   load: (id: string) => Promise<string>;
 };
@@ -26,7 +26,7 @@ ${unregisterGlobals}
 
 export async function evaluateModule({
   code,
-  moduleId,
+  modulePath,
   variableNames,
   load,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
@@ -45,7 +45,7 @@ export async function evaluateModule({
     } catch (error) {
       const m = await localModulesLinker({
         load,
-        moduleId,
+        modulePath,
       })(specifier, referencingModule, extra);
       return m;
     }

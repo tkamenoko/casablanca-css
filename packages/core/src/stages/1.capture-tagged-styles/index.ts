@@ -1,9 +1,16 @@
-import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
+import type {
+  PluginObj,
+  PluginPass,
+  TransformOptions,
+  types,
+  NodePath,
+} from '@babel/core';
 import type babel from '@babel/core';
 import { transformSync } from '@babel/core';
-import { isMacrostylesCssTemplate } from 'src/helpers/isMacrostylesCssTemplate';
-import { isMacrostylesImport } from 'src/helpers/isMacrostylesImport';
-import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
+
+import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
+import { isMacrostylesImport } from '@/stages/helpers/isMacrostylesImport';
+import { isMacrostylesCssTemplate } from '@/stages/helpers/isMacrostylesCssTemplate';
 
 type CaptureTaggedStylesArgs = {
   code: string;
@@ -17,13 +24,20 @@ export type CapturedVariableNames = Map<
   { shouldRemoveExport: boolean }
 >;
 
+export type ImportSource = {
+  names: { className: string; localName: string }[];
+  source: string;
+};
+
 type CaptureTaggedStylesReturn = {
   transformed: string;
   capturedVariableNames: CapturedVariableNames;
+  importSources: ImportSource[];
 };
 
 type Options = {
   capturedVariableNames: CapturedVariableNames;
+  importSources: ImportSource[];
   exportedNames: string[];
 };
 
@@ -42,6 +56,7 @@ function captureVariableNamesPlugin({
 
           if (!found) {
             path.stop();
+            return;
           }
           // memory already-exported variables
           path.traverse(
@@ -112,6 +127,29 @@ function captureVariableNamesPlugin({
           });
         },
       },
+      ImportDeclaration: {
+        enter: (path, state) => {
+          const source = path.get('source').node.value;
+          const names = path
+            .get('specifiers')
+            .filter((s): s is NodePath<types.ImportSpecifier> =>
+              s.isImportSpecifier(),
+            )
+            .map((i) => {
+              const imported = i.get('imported');
+              const className = imported.isIdentifier()
+                ? imported.node.name
+                : null;
+              if (!className) {
+                return;
+              }
+              const localName = i.get('local').node.name;
+              return { className, localName };
+            })
+            .filter((x): x is ImportSource['names'][number] => !!x);
+          state.opts.importSources.push({ names, source });
+        },
+      },
       VariableDeclaration: {
         enter: (path, state) => {
           if (!isTopLevelStatement(path)) {
@@ -160,6 +198,7 @@ export function captureTaggedStyles({
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
     exportedNames: [],
+    importSources: [],
   };
   const result = transformSync(code, {
     ...babelOptions,
@@ -176,5 +215,6 @@ export function captureTaggedStyles({
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
     transformed,
+    importSources: pluginOption.importSources,
   };
 }

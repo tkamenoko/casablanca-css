@@ -1,7 +1,7 @@
 import type { NodePath, types } from '@babel/core';
 
 export function isMacrostylesImport(
-  path: NodePath<types.Node>
+  path: NodePath<types.Node>,
 ): path is NodePath<types.ImportDeclaration> {
   if (!path.isImportDeclaration()) {
     return false;

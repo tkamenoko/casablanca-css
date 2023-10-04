@@ -1,34 +1,49 @@
 import { build } from 'vite';
-import { test as rawTest } from 'vitest';
+import { assert, test as t } from 'vitest';
 
+import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import * as assetModuleExports from './fixtures/useAssetFile';
-import * as localModuleExports from './fixtures/useLocalFile';
-import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as simpleModuleExports from './fixtures/simple';
-import { partialPlugin } from './fixtures/plugin';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
+import * as thirdPartyModuleExports from './fixtures/thirdParty';
+import * as localModuleExports from './fixtures/useLocalFile';
 
 type TestContext = {
-  mapOfVariableNamesToStyles: Map<
-    string,
-    {
-      variableName: string;
-      style: string;
-    }
+  plugin: ReturnType<typeof partialPlugin>;
+  transformResult: Partial<
+    TransformResult<{
+      mapOfVariableNamesToStyles: Map<
+        string,
+        {
+          variableName: string;
+          style: string;
+        }
+      >;
+    }>
   >;
 };
 
-const test = rawTest.extend<TestContext>({
-  mapOfVariableNamesToStyles: async ({ task: _task }, use) => {
-    await use(new Map());
+const test = t.extend<TestContext>({
+  plugin: async ({ transformResult }, use) => {
+    const plugin = partialPlugin({
+      stage: 3,
+      onExit: async (p) => {
+        Object.assign(transformResult, p);
+      },
+    });
+    await use(plugin);
+  },
+  transformResult: async ({ task: _ }, use) => {
+    await use({});
   },
 });
 
 test('should evaluate module to get exported styles', async ({
   expect,
-  mapOfVariableNamesToStyles,
+  plugin,
+  transformResult,
 }) => {
   const variableNames = ['staticStyle', 'embedded', 'functionCall'] as const;
   const moduleId = buildModuleId({
@@ -38,7 +53,7 @@ test('should evaluate module to get exported styles', async ({
 
   await build({
     configFile: false,
-    plugins: [partialPlugin({ mapOfVariableNamesToStyles })],
+    plugins: [plugin],
     build: {
       write: false,
       rollupOptions: {
@@ -47,6 +62,9 @@ test('should evaluate module to get exported styles', async ({
     },
     optimizeDeps: { disabled: true },
   });
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
@@ -58,7 +76,8 @@ test('should evaluate module to get exported styles', async ({
 
 test('should evaluate module using third party modules', async ({
   expect,
-  mapOfVariableNamesToStyles,
+  plugin,
+  transformResult,
 }) => {
   const variableNames = ['styleWithPolished'] as const;
   const moduleId = buildModuleId({
@@ -67,7 +86,7 @@ test('should evaluate module using third party modules', async ({
   });
   await build({
     configFile: false,
-    plugins: [partialPlugin({ mapOfVariableNamesToStyles })],
+    plugins: [plugin],
     build: {
       write: false,
       rollupOptions: {
@@ -76,6 +95,9 @@ test('should evaluate module using third party modules', async ({
     },
     optimizeDeps: { disabled: true },
   });
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
 
   testObjectHasEvaluatedStyles({
     expect,
@@ -87,7 +109,8 @@ test('should evaluate module using third party modules', async ({
 
 test<TestContext>('should evaluate module using local modules', async ({
   expect,
-  mapOfVariableNamesToStyles,
+  plugin,
+  transformResult,
 }) => {
   const variableNames = ['styleWithLocalModule'] as const;
   const moduleId = buildModuleId({
@@ -97,7 +120,7 @@ test<TestContext>('should evaluate module using local modules', async ({
 
   await build({
     configFile: false,
-    plugins: [partialPlugin({ mapOfVariableNamesToStyles })],
+    plugins: [plugin],
     build: {
       write: false,
       rollupOptions: {
@@ -106,6 +129,10 @@ test<TestContext>('should evaluate module using local modules', async ({
     },
     optimizeDeps: { disabled: true },
   });
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,
@@ -116,7 +143,8 @@ test<TestContext>('should evaluate module using local modules', async ({
 
 test('should evaluate module using non-script modules', async ({
   expect,
-  mapOfVariableNamesToStyles,
+  plugin,
+  transformResult,
 }) => {
   const variableNames = ['className'] as const;
   const moduleId = buildModuleId({
@@ -126,7 +154,7 @@ test('should evaluate module using non-script modules', async ({
 
   await build({
     configFile: false,
-    plugins: [partialPlugin({ mapOfVariableNamesToStyles })],
+    plugins: [plugin],
     build: {
       write: false,
       rollupOptions: {
@@ -135,6 +163,10 @@ test('should evaluate module using non-script modules', async ({
     },
     optimizeDeps: { disabled: true },
   });
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,

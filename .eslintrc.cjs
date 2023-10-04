@@ -5,7 +5,19 @@ const config = {
   root: true,
   extends: ['eslint:recommended', 'plugin:import/recommended', 'prettier'],
   rules: {
-    'import/order': ['error', { 'newlines-between': 'always' }],
+    'import/order': [
+      'error',
+      {
+        'newlines-between': 'always',
+        pathGroups: [
+          {
+            pattern: '@/**',
+            group: 'external',
+            position: 'after',
+          },
+        ],
+      },
+    ],
     'import/no-unresolved': 'off',
   },
   parserOptions: {

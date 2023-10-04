@@ -1,45 +1,61 @@
 import { createServer, type ViteDevServer } from 'vite';
-import { assert, beforeEach, test } from 'vitest';
+import { assert, test as t } from 'vitest';
 
+import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import * as simpleModuleExports from './fixtures/simple';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
 import * as assetModuleExports from './fixtures/useAssetFile';
-import { partialPlugin } from './fixtures/plugin';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 
 type TestContext = {
   server: ViteDevServer;
-  mapOfVariableNamesToStyles: Map<
-    string,
-    { variableName: string; style: string }
+  transformResult: Partial<
+    TransformResult<{
+      mapOfVariableNamesToStyles: Map<
+        string,
+        {
+          variableName: string;
+          style: string;
+        }
+      >;
+    }>
   >;
 };
 
-beforeEach<TestContext>(async (ctx) => {
-  ctx.mapOfVariableNamesToStyles = new Map();
-  const server = await createServer({
-    plugins: [
-      partialPlugin({
-        mapOfVariableNamesToStyles: ctx.mapOfVariableNamesToStyles,
-      }),
-    ],
-    optimizeDeps: { disabled: true },
-    server: { middlewareMode: true, hmr: false },
-    appType: 'custom',
-  });
-
-  ctx.server = server;
-  return async () => {
-    await ctx.server.close();
-  };
+const test = t.extend<TestContext>({
+  server: async ({ transformResult }, use) => {
+    const server = await createServer({
+      plugins: [
+        partialPlugin({
+          stage: 3,
+          onExit: async (p) => {
+            Object.assign(transformResult, p);
+          },
+        }),
+      ],
+      appType: 'custom',
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
+      optimizeDeps: {
+        disabled: true,
+      },
+    });
+    await use(server);
+    return server.close();
+  },
+  transformResult: async ({ task: _ }, use) => {
+    await use({});
+  },
 });
 
-test<TestContext>('should evaluate module to get exported styles', async ({
+test('should evaluate module to get exported styles', async ({
   expect,
-  mapOfVariableNamesToStyles,
+  transformResult,
   server,
 }) => {
   const variableNames = ['staticStyle', 'embedded', 'functionCall'] as const;
@@ -51,6 +67,9 @@ test<TestContext>('should evaluate module to get exported styles', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,
@@ -59,10 +78,10 @@ test<TestContext>('should evaluate module to get exported styles', async ({
   });
 });
 
-test<TestContext>('should evaluate module using third party modules', async ({
+test('should evaluate module using third party modules', async ({
   expect,
   server,
-  mapOfVariableNamesToStyles,
+  transformResult,
 }) => {
   const variableNames = ['styleWithPolished'] as const;
   const moduleId = buildModuleId({
@@ -71,8 +90,11 @@ test<TestContext>('should evaluate module using third party modules', async ({
   });
 
   const result = await server.transformRequest(moduleId);
-
   assert(result);
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,
@@ -81,10 +103,10 @@ test<TestContext>('should evaluate module using third party modules', async ({
   });
 });
 
-test<TestContext>('should evaluate module using local modules', async ({
+test('should evaluate module using local modules', async ({
   expect,
   server,
-  mapOfVariableNamesToStyles,
+  transformResult,
 }) => {
   const variableNames = ['styleWithLocalModule'] as const;
   const moduleId = buildModuleId({
@@ -94,6 +116,10 @@ test<TestContext>('should evaluate module using local modules', async ({
 
   const result = await server.transformRequest(moduleId);
   assert(result);
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,
@@ -102,10 +128,10 @@ test<TestContext>('should evaluate module using local modules', async ({
   });
 });
 
-test<TestContext>('should evaluate module using non-script modules', async ({
+test('should evaluate module using non-script modules', async ({
   expect,
   server,
-  mapOfVariableNamesToStyles,
+  transformResult,
 }) => {
   const variableNames = ['className'] as const;
   const moduleId = buildModuleId({
@@ -115,6 +141,10 @@ test<TestContext>('should evaluate module using non-script modules', async ({
 
   const result = await server.transformRequest(moduleId);
   assert(result);
+
+  const { mapOfVariableNamesToStyles } = transformResult.stageResult ?? {};
+  assert(mapOfVariableNamesToStyles);
+
   testObjectHasEvaluatedStyles({
     expect,
     mapOfVariableNamesToStyles,

@@ -1,38 +1,55 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
-import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
-import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
-import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
-import type { ResolvedModuleId, PluginOption, VirtualModuleId } from '@/types';
+import type { PluginOption } from '@/types';
+import type { CssLookup, JsToCssLookup } from '@/vite/types';
+import { extractPathAndParamsFromId } from '@/vite/helpers/extractPathAndQueriesFromId';
+import { resolveCssId } from '@/vite/hooks/resolveCssId';
+import { loadCss } from '@/vite/hooks/loadCss';
+import { buildResolvedIdFromVirtualId } from '@/vite/helpers/buildResolvedIdFromVirtualId';
+
+import { captureTaggedStyles } from '../1.capture-tagged-styles';
+import { prepareCompositions } from '../2.prepare-compositions';
+import type { EvaluateModuleReturn } from '../3.evaluate-module';
 import {
   evaluateForProductionBuild,
   evaluateWithServer,
-} from '@/stages/3.evaluate-module';
-import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
-import { prepareCompositions } from '@/stages/2.prepare-compositions';
-import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+} from '../3.evaluate-module';
+import { replaceUuidToStyles } from '../4.assign-composed-styles-to-uuid';
+import { createVirtualCssModule } from '../5.create-virtual-css-module';
+import { assignStylesToCapturedVariables } from '../6.assign-styles-to-variables';
 
-import { loadCss } from './hooks/loadCss';
-import { resolveCssId } from './hooks/resolveCssId';
-import { extractPathAndParamsFromId } from './helpers/extractPathAndQueriesFromId';
-import type { CssLookup } from './types';
-import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
+export type TransformResult<T extends Record<string, unknown>> = {
+  id: string;
+  transformed: string;
+  cssLookup: CssLookup;
+  jsToCssLookup: JsToCssLookup;
+  stageResult?: T;
+};
 
-export function macrostyles(options?: Partial<PluginOption>): Plugin {
+export function partialPlugin(
+  options?: Partial<PluginOption> & {
+    stage: 1 | 2 | 3 | 4 | 5 | 6;
+    onExit?: <T extends Record<string, unknown>>(
+      params: TransformResult<T>,
+    ) => Promise<void>;
+  },
+): Plugin {
   const cssLookup: CssLookup = new Map();
-  const jsToCssLookup = new Map<
-    string,
-    { virtualId: VirtualModuleId; resolvedId: ResolvedModuleId; style: string }
-  >();
+  const jsToCssLookup: JsToCssLookup = new Map();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
-  const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
-    options ?? {};
-  const include = new Set(options?.includes ?? []);
+  const {
+    babelOptions = {},
+    extensions = ['.js', '.jsx', '.ts', '.tsx'],
+    stage,
+    includes,
+    onExit = async () => {},
+  } = options ?? {};
+  const include = new Set(includes ?? []);
 
   return {
-    name: 'macrostyles',
+    name: 'macrostyles:partial',
     async transform(code, id) {
       if (!config) {
         throw new Error('Vite config is not resolved');
@@ -92,6 +109,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
                 if (!server) {
                   throw new Error('Server is not configured.');
                 }
+
                 const r = await server.ssrLoadModule(importingId);
                 return r;
               },
@@ -155,6 +173,7 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
       });
 
       const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
+
       cssLookup.set(resolvedId, {
         style,
         classNameToStyleMap: new Map(
@@ -174,6 +193,75 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
         }
       }
 
+      switch (stage) {
+        case 1: {
+          await onExit({
+            id,
+            cssLookup,
+            jsToCssLookup,
+            transformed: capturedCode,
+            stageResult: { capturedVariableNames, importSources },
+          });
+          break;
+        }
+        case 2: {
+          await onExit({
+            cssLookup,
+            id,
+            jsToCssLookup,
+            transformed: composedCode,
+            stageResult: { composedCode, uuidToStylesMap },
+          });
+          break;
+        }
+        case 3: {
+          await onExit({
+            cssLookup,
+            id,
+            jsToCssLookup,
+            transformed: composedCode,
+            stageResult: { mapOfVariableNamesToStyles },
+          });
+          break;
+        }
+        case 4: {
+          await onExit({
+            cssLookup,
+            id,
+            jsToCssLookup,
+            transformed: composedCode,
+            stageResult: {
+              composedStyles,
+            },
+          });
+          break;
+        }
+        case 5: {
+          await onExit({
+            cssLookup,
+            id,
+            jsToCssLookup,
+            transformed: composedCode,
+            stageResult: {
+              importId,
+              style,
+            },
+          });
+          break;
+        }
+
+        default: {
+          await onExit({
+            cssLookup,
+            id,
+            jsToCssLookup,
+            transformed: resultCode,
+            stageResult: { resultCode },
+          });
+          break;
+        }
+      }
+
       return {
         code: resultCode,
       };
@@ -189,26 +277,6 @@ export function macrostyles(options?: Partial<PluginOption>): Plugin {
     },
     load(id) {
       return loadCss({ cssLookup, id });
-    },
-    handleHotUpdate({ modules, server }) {
-      const affectedModules = modules.flatMap((m) => {
-        const { id } = m;
-        if (!id) {
-          return m;
-        }
-        const { path } = extractPathAndParamsFromId(id);
-        const css = jsToCssLookup.get(path);
-        if (!css) {
-          return m;
-        }
-        const cssModule = server.moduleGraph.getModuleById(css.resolvedId);
-        if (!cssModule) {
-          return m;
-        }
-        return [m, cssModule];
-      });
-
-      return affectedModules;
     },
   };
 }

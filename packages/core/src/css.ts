@@ -1,11 +1,15 @@
+import type { TaggedStyle } from './types';
+
 export function css(
   strings: TemplateStringsArray,
   ...vars: (string | number)[]
-): string {
+): TaggedStyle<string> {
   if (import.meta.env.DEV) {
-    return strings.reduce((prev, current, index) => {
+    const s = strings.reduce((prev, current, index) => {
       return prev + current + (vars[index] ?? '');
     }, '');
+
+    return s as TaggedStyle<string>;
   }
   throw new Error('This function is not for runtime execution.');
 }

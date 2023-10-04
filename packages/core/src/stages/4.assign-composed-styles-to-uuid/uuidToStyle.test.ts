@@ -4,14 +4,14 @@ import { assert, test as t } from 'vitest';
 import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
-import type { CapturedVariableNames, ImportSource } from '.';
-
 type TestContext = {
   server: ViteDevServer;
   transformResult: Partial<
     TransformResult<{
-      capturedVariableNames: CapturedVariableNames;
-      importSources: ImportSource[];
+      composedStyles: {
+        variableName: string;
+        style: string;
+      }[];
     }>
   >;
 };
@@ -21,7 +21,7 @@ const test = t.extend<TestContext>({
     const server = await createServer({
       plugins: [
         partialPlugin({
-          stage: 1,
+          stage: 4,
           onExit: async (p) => {
             Object.assign(transformResult, p);
           },
@@ -44,30 +44,34 @@ const test = t.extend<TestContext>({
   },
 });
 
-test('should capture variable names initialized with css tag', async ({
-  expect,
-  server,
-  transformResult,
-}) => {
+test('should compose styles', async ({ expect, server, transformResult }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/static.tsx',
+    relativePath: './fixtures/composing.ts',
     root: import.meta.url,
   });
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { capturedVariableNames } = transformResult.stageResult ?? {};
-  assert(capturedVariableNames?.size);
-  expect([...capturedVariableNames.entries()]).toEqual([
-    ['style', { shouldRemoveExport: false }],
-    ['notExported', { shouldRemoveExport: true }],
-  ]);
-  const { transformed } = transformResult;
-  expect(transformed).not.toMatch(/css/);
-  expect(transformed).not.toMatch(/@macrostyles\/core/);
+  const { composedStyles } = transformResult.stageResult ?? {};
+  assert(composedStyles?.length);
+  for (const { style, variableName } of composedStyles) {
+    switch (variableName) {
+      case 'styleA': {
+        expect(style).toMatch(/color: red;/);
+        expect(style).not.toMatch(/font-size: .+;/);
+        break;
+      }
+      case 'styleB': {
+        expect(style).toMatch(/color: red;/);
+        expect(style).toMatch(/font-size: .+;/);
+        expect(style).toMatch(/display: flex;/);
+        expect(style).toMatch(/border: .+;/);
+        break;
+      }
 
-  for (const capturedVariableName of capturedVariableNames.keys()) {
-    const regexp = new RegExp(`export .+ ${capturedVariableName}`);
-    expect(transformed).toMatch(regexp);
+      default: {
+        throw new Error(`Unknown className ${variableName}`);
+      }
+    }
   }
 });

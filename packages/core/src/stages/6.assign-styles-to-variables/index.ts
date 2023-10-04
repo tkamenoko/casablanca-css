@@ -1,9 +1,10 @@
 import type { PluginObj, PluginPass, TransformOptions } from '@babel/core';
 import { transformSync } from '@babel/core';
 import type babel from '@babel/core';
-import { isTopLevelStatement } from 'src/helpers/isTopLevelStatement';
 
-import type { ModuleIdPrefix } from '../../types';
+import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
+import type { ModuleIdPrefix } from '@/types';
+
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
 type AssignStylesToCapturedVariablesArgs = {

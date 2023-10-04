@@ -1,7 +1,10 @@
 import { type Plugin, type ResolvedConfig, type ViteDevServer } from 'vite';
 
-import { captureTaggedStyles } from '../../1.capture-tagged-styles';
-import type { PluginOption } from '../../../types';
+import { prepareCompositions } from '@/stages/2.prepare-compositions';
+import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
+import type { PluginOption } from '@/types';
+import { extractPathAndParamsFromId } from '@/vite/helpers/extractPathAndQueriesFromId';
+
 import type { EvaluateModuleReturn } from '../types';
 import { evaluateForProductionBuild, evaluateWithServer } from '..';
 
@@ -18,6 +21,8 @@ export function partialPlugin(
   let config: ResolvedConfig | null = null;
   const { babelOptions = {}, extensions = ['.js', '.jsx', '.ts', '.tsx'] } =
     options ?? {};
+  const include = new Set(options?.includes ?? []);
+
   return {
     name: 'macrostyles:partial',
 
@@ -26,19 +31,42 @@ export function partialPlugin(
         throw new Error('Vite config is not resolved');
       }
 
-      if (!extensions.some((e) => id.endsWith(e))) {
-        return;
-      }
-      if (/\/node_modules\//.test(id)) {
+      const { path, queries } = extractPathAndParamsFromId(id);
+      if (queries.has('raw')) {
         return;
       }
 
-      const { capturedVariableNames, transformed: capturedCode } =
-        captureTaggedStyles({ code, options: { babelOptions } });
+      if (!(include.has(path) || extensions.some((e) => path.endsWith(e)))) {
+        // ignore module that is not JS/TS code
+        return;
+      }
+      if (/\/node_modules\//.test(path)) {
+        // ignore third party packages
+        return;
+      }
+      const {
+        capturedVariableNames,
+        transformed: capturedCode,
+        importSources,
+      } = captureTaggedStyles({ code, options: { babelOptions } });
 
       if (!capturedVariableNames.size) {
         return;
       }
+
+      const variableNames = [...capturedVariableNames.keys()];
+
+      // replace `compose` calls
+      const { transformed: composedCode } = await prepareCompositions({
+        code: capturedCode,
+        variableNames,
+        importSources,
+        projectRoot: config.root,
+        resolve: async (importSource) => {
+          const resolved = await this.resolve(importSource, id);
+          return resolved?.id ?? null;
+        },
+      });
 
       const evaluateModule: (params: {
         code: string;
@@ -48,7 +76,7 @@ export function partialPlugin(
         ? async ({ code, moduleId, variableNames }) => {
             const result = await evaluateWithServer({
               code,
-              moduleId,
+              modulePath: moduleId,
               variableNames,
               load: async (importingId) => {
                 if (!server) {
@@ -70,7 +98,7 @@ export function partialPlugin(
         : async ({ code, moduleId, variableNames }) => {
             const result = await evaluateForProductionBuild({
               code,
-              moduleId,
+              modulePath: moduleId,
               variableNames,
               load: async (importingId) => {
                 const resolved = await this.resolve(importingId);
@@ -93,7 +121,7 @@ export function partialPlugin(
           };
 
       const { mapOfVariableNamesToStyles } = await evaluateModule({
-        code: capturedCode,
+        code: composedCode,
         variableNames: [...capturedVariableNames.keys()],
         moduleId: id,
       });

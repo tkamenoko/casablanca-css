@@ -4,7 +4,7 @@ import type { TaggedTemplateExpression } from '@babel/types';
 import { isMacrostylesImport } from './isMacrostylesImport';
 
 export function isMacrostylesCssTemplate(
-  path: NodePath<types.Expression | null | undefined>
+  path: NodePath<types.Expression | null | undefined>,
 ): path is NodePath<TaggedTemplateExpression> {
   if (!path.isTaggedTemplateExpression()) {
     return false;
