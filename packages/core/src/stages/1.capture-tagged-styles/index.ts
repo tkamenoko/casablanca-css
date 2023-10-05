@@ -179,7 +179,7 @@ function captureVariableNamesPlugin({
                 ),
               );
             } else {
-              path.insertBefore(
+              path.insertAfter(
                 t.exportNamedDeclaration(
                   t.variableDeclaration('const', [
                     t.variableDeclarator(temporalId, init.get('quasi').node),
