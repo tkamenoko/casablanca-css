@@ -1,29 +1,22 @@
 import { assert, test as t } from 'vitest';
 import { createServer, type ViteDevServer } from 'vite';
 
-import type { VirtualModuleId } from '@/types';
+import { plugin, type TransformResult } from '@/vite/plugin';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      importId: VirtualModuleId;
-      style: string;
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 5,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -57,7 +50,9 @@ test('should create css string from partial styles and importer id', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { importId, style } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { importId, style } = r.stages[5] ?? {};
 
   assert(importId && style);
   expect(style).toMatch(/\.foo *\{/);

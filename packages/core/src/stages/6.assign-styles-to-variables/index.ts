@@ -13,7 +13,7 @@ type AssignStylesToCapturedVariablesArgs = {
   originalToTemporalMap: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
 };
-type AssignStylesToCapturedVariablesReturn = {
+export type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
 };
 

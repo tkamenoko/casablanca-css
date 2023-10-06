@@ -19,7 +19,7 @@ type ReplaceUuidToStylesArgs = {
   >;
   cssLookup: CssLookup;
 };
-type ReplaceUuidToStylesReturn = {
+export type ReplaceUuidToStylesReturn = {
   composedStyles: {
     temporalVariableName: string;
     originalName: string;

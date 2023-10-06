@@ -1,7 +1,9 @@
 import { build } from 'vite';
 import { assert, test as t } from 'vitest';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
+import type { TransformResult } from '@/vite/plugin';
+import { plugin as plugin_ } from '@/vite/plugin';
+
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import * as assetModuleExports from './fixtures/useAssetFile';
@@ -11,27 +13,15 @@ import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
 
 type TestContext = {
-  plugin: ReturnType<typeof partialPlugin>;
-  transformResult: Partial<
-    TransformResult<{
-      mapOfClassNamesToStyles: Map<
-        string,
-        {
-          temporalVariableName: string;
-          originalName: string;
-          style: string;
-        }
-      >;
-    }>
-  >;
+  plugin: ReturnType<typeof plugin_>;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   plugin: async ({ transformResult }, use) => {
-    const plugin = partialPlugin({
-      stage: 3,
-      onExit: async (p) => {
-        Object.assign(transformResult, p);
+    const plugin = plugin_({
+      onExitTransform: async (p) => {
+        transformResult[p.id] = p;
       },
     });
     await use(plugin);
@@ -62,7 +52,9 @@ test('should evaluate module to get exported styles', async ({
     optimizeDeps: { disabled: true },
   });
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -93,7 +85,9 @@ test('should evaluate module using third party modules', async ({
     optimizeDeps: { disabled: true },
   });
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -125,7 +119,9 @@ test<TestContext>('should evaluate module using local modules', async ({
     optimizeDeps: { disabled: true },
   });
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -157,7 +153,9 @@ test('should evaluate module using non-script modules', async ({
     optimizeDeps: { disabled: true },
   });
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({

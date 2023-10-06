@@ -29,7 +29,7 @@ export type ImportSource = {
   source: string;
 };
 
-type CaptureTaggedStylesReturn = {
+export type CaptureTaggedStylesReturn = {
   transformed: string;
   capturedVariableNames: CapturedVariableNames;
   importSources: ImportSource[];

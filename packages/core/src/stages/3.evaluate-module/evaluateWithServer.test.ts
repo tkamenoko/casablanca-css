@@ -1,7 +1,8 @@
 import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
+import { plugin, type TransformResult } from '@/vite/plugin';
+
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import * as simpleModuleExports from './fixtures/simple';
@@ -12,28 +13,16 @@ import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      mapOfClassNamesToStyles: Map<
-        string,
-        {
-          temporalVariableName: string;
-          originalName: string;
-          style: string;
-        }
-      >;
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 3,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -69,7 +58,9 @@ test('should evaluate module to get exported styles', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -94,7 +85,9 @@ test('should evaluate module using third party modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -119,7 +112,9 @@ test('should evaluate module using local modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({
@@ -144,7 +139,9 @@ test('should evaluate module using non-script modules', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { mapOfClassNamesToStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles);
 
   testObjectHasEvaluatedStyles({

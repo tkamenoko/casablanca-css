@@ -1,37 +1,48 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 
+import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
+import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
+import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
+import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
+import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
 import type { PluginOption } from '@/types';
-import type { CssLookup, JsToCssLookup } from '@/vite/types';
-import { extractPathAndParamsFromId } from '@/vite/helpers/extractPathAndQueriesFromId';
-import { resolveCssId } from '@/vite/hooks/resolveCssId';
-import { loadCss } from '@/vite/hooks/loadCss';
-import { buildResolvedIdFromVirtualId } from '@/vite/helpers/buildResolvedIdFromVirtualId';
-
-import { captureTaggedStyles } from '../1.capture-tagged-styles';
-import { prepareCompositions } from '../2.prepare-compositions';
-import type { EvaluateModuleReturn } from '../3.evaluate-module';
 import {
   evaluateForProductionBuild,
   evaluateWithServer,
-} from '../3.evaluate-module';
-import { replaceUuidToStyles } from '../4.assign-composed-styles-to-uuid';
-import { createVirtualCssModule } from '../5.create-virtual-css-module';
-import { assignStylesToCapturedVariables } from '../6.assign-styles-to-variables';
+} from '@/stages/3.evaluate-module';
+import type { CaptureTaggedStylesReturn } from '@/stages/1.capture-tagged-styles';
+import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
+import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions';
+import { prepareCompositions } from '@/stages/2.prepare-compositions';
+import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
+import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
-export type TransformResult<T extends Record<string, unknown>> = {
+import { loadCss } from './hooks/loadCss';
+import { resolveCssId } from './hooks/resolveCssId';
+import { extractPathAndParamsFromId } from './helpers/extractPathAndQueriesFromId';
+import type { CssLookup, JsToCssLookup } from './types';
+import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
+
+export type TransformResult = {
   id: string;
   transformed: string;
   cssLookup: CssLookup;
   jsToCssLookup: JsToCssLookup;
-  stageResult?: T;
+  stages: {
+    1?: CaptureTaggedStylesReturn;
+    2?: PrepareCompositionsReturn;
+    3?: EvaluateModuleReturn;
+    4?: ReplaceUuidToStylesReturn;
+    5?: CreateVirtualCssModuleReturn;
+    6?: AssignStylesToCapturedVariablesReturn;
+  };
 };
 
-export function partialPlugin(
+type OnExitTransform = (params: TransformResult) => Promise<void>;
+
+export function plugin(
   options?: Partial<PluginOption> & {
-    stage: 1 | 2 | 3 | 4 | 5 | 6;
-    onExit?: <T extends Record<string, unknown>>(
-      params: TransformResult<T>,
-    ) => Promise<void>;
+    onExitTransform?: OnExitTransform;
   },
 ): Plugin {
   const cssLookup: CssLookup = new Map();
@@ -42,14 +53,12 @@ export function partialPlugin(
   const {
     babelOptions = {},
     extensions = ['.js', '.jsx', '.ts', '.tsx'],
-    stage,
-    includes,
-    onExit = async () => {},
+    onExitTransform,
   } = options ?? {};
-  const include = new Set(includes ?? []);
+  const include = new Set(options?.includes ?? []);
 
   return {
-    name: 'macrostyles:partial',
+    name: 'macrostyles',
     async transform(code, id) {
       if (!config) {
         throw new Error('Vite config is not resolved');
@@ -180,7 +189,6 @@ export function partialPlugin(
       });
 
       const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
-
       cssLookup.set(resolvedId, {
         style,
         classNameToStyleMap: new Map(
@@ -200,77 +208,29 @@ export function partialPlugin(
         }
       }
 
-      switch (stage) {
-        case 1: {
-          await onExit({
-            id,
-            cssLookup,
-            jsToCssLookup,
-            transformed: capturedCode,
-            stageResult: {
+      if (onExitTransform) {
+        await onExitTransform({
+          cssLookup,
+          id,
+          jsToCssLookup,
+          stages: {
+            '1': {
               capturedVariableNames,
-              transformed: capturedCode,
               importSources,
+              transformed: capturedCode,
             },
-          });
-          break;
-        }
-        case 2: {
-          await onExit({
-            cssLookup,
-            id,
-            jsToCssLookup,
-            transformed: composedCode,
-            stageResult: { composedCode, uuidToStylesMap },
-          });
-          break;
-        }
-        case 3: {
-          await onExit({
-            cssLookup,
-            id,
-            jsToCssLookup,
-            transformed: composedCode,
-            stageResult: { mapOfClassNamesToStyles },
-          });
-          break;
-        }
-        case 4: {
-          await onExit({
-            cssLookup,
-            id,
-            jsToCssLookup,
-            transformed: composedCode,
-            stageResult: {
+            '2': { transformed: composedCode, uuidToStylesMap },
+            '3': {
+              mapOfClassNamesToStyles,
+            },
+            '4': {
               composedStyles,
             },
-          });
-          break;
-        }
-        case 5: {
-          await onExit({
-            cssLookup,
-            id,
-            jsToCssLookup,
-            transformed: composedCode,
-            stageResult: {
-              importId,
-              style,
-            },
-          });
-          break;
-        }
-
-        default: {
-          await onExit({
-            cssLookup,
-            id,
-            jsToCssLookup,
-            transformed: resultCode,
-            stageResult: { resultCode },
-          });
-          break;
-        }
+            '5': { importId, style },
+            '6': { transformed: resultCode },
+          },
+          transformed: resultCode,
+        });
       }
 
       return {
@@ -288,6 +248,26 @@ export function partialPlugin(
     },
     load(id) {
       return loadCss({ cssLookup, id });
+    },
+    handleHotUpdate({ modules, server }) {
+      const affectedModules = modules.flatMap((m) => {
+        const { id } = m;
+        if (!id) {
+          return m;
+        }
+        const { path } = extractPathAndParamsFromId(id);
+        const css = jsToCssLookup.get(path);
+        if (!css) {
+          return m;
+        }
+        const cssModule = server.moduleGraph.getModuleById(css.resolvedId);
+        if (!cssModule) {
+          return m;
+        }
+        return [m, cssModule];
+      });
+
+      return affectedModules;
     },
   };
 }

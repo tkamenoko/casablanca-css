@@ -1,29 +1,23 @@
 import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
-import { buildModuleId } from '../fixtures/buildModuleId';
+import type { TransformResult } from '@/vite/plugin';
+import { plugin } from '@/vite/plugin';
 
-import type { CapturedVariableNames, ImportSource } from '.';
+import { buildModuleId } from '../fixtures/buildModuleId';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      capturedVariableNames: CapturedVariableNames;
-      importSources: ImportSource[];
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 1,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -57,7 +51,9 @@ test('should capture variable names initialized with css tag', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { capturedVariableNames } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { capturedVariableNames, transformed } = r.stages[1] ?? {};
   assert(capturedVariableNames?.size);
   expect([...capturedVariableNames.entries()]).toMatchObject([
     ['style', { originalName: 'style', temporalName: expect.any(String) }],
@@ -66,7 +62,8 @@ test('should capture variable names initialized with css tag', async ({
       { originalName: 'notExported', temporalName: expect.any(String) },
     ],
   ]);
-  const { transformed } = transformResult;
+
+  assert(transformed);
   expect(transformed).not.toMatch(/css/);
   expect(transformed).not.toMatch(/@macrostyles\/core/);
 

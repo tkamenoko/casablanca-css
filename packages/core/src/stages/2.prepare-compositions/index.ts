@@ -12,14 +12,15 @@ import {
   type Options,
 } from './replaceEmbeddedValues';
 
-type ProcessCompositionsArgs = {
+type PrepareCompositionsArgs = {
   code: string;
   temporalVariableNames: string[];
   importSources: ImportSource[];
   projectRoot: string;
   resolve: (id: string) => Promise<string | null>;
 };
-type ProcessCompositionsReturn = {
+
+export type PrepareCompositionsReturn = {
   transformed: string;
   uuidToStylesMap: Map<
     string,
@@ -36,7 +37,7 @@ export async function prepareCompositions({
   importSources,
   projectRoot,
   resolve,
-}: ProcessCompositionsArgs): Promise<ProcessCompositionsReturn> {
+}: PrepareCompositionsArgs): Promise<PrepareCompositionsReturn> {
   // create embeddedName-to-className+resolvedId map
   const embeddedToClassNameMap = new Map<
     string,

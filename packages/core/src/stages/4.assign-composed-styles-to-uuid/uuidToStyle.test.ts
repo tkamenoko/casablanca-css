@@ -1,30 +1,22 @@
 import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
+import { plugin, type TransformResult } from '@/vite/plugin';
+
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      composedStyles: {
-        temporalVariableName: string;
-        originalName: string;
-        style: string;
-      }[];
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 4,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -54,7 +46,9 @@ test('should compose styles', async ({ expect, server, transformResult }) => {
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { composedStyles } = transformResult.stageResult ?? {};
+  const r = transformResult[moduleId];
+  assert(r);
+  const { composedStyles } = r.stages[4] ?? {};
   assert(composedStyles?.length);
   for (const { style, originalName } of composedStyles) {
     switch (originalName) {

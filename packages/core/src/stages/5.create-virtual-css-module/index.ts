@@ -10,7 +10,7 @@ type CreateVirtualCssModuleArgs = {
     style: string;
   }[];
 };
-type CreateVirtualCssModuleReturn = {
+export type CreateVirtualCssModuleReturn = {
   style: string;
   importId: VirtualModuleId;
 };

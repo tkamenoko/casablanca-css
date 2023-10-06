@@ -2,29 +2,24 @@ import { assert, test as t } from 'vitest';
 import { createServer, type ViteDevServer } from 'vite';
 
 import { buildCssImportId } from '@/vite/helpers/buildCssImportId';
+import { plugin, type TransformResult } from '@/vite/plugin';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 import { notCss, styleA } from './fixtures/simple';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      resultCode: string;
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 6,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -58,7 +53,7 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { transformed } = transformResult;
+  const { transformed } = transformResult[moduleId] ?? {};
   assert(transformed);
 
   assert(transformed);

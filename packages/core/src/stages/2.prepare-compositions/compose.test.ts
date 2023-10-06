@@ -1,35 +1,22 @@
 import { createServer, type ViteDevServer } from 'vite';
 import { assert, test as t } from 'vitest';
 
-import type { ResolvedModuleId } from '@/types';
+import { plugin, type TransformResult } from '@/vite/plugin';
 
-import { partialPlugin, type TransformResult } from '../fixtures/plugin';
 import { buildModuleId } from '../fixtures/buildModuleId';
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Partial<
-    TransformResult<{
-      composedCode: string;
-      uuidToStylesMap: Map<
-        string,
-        {
-          resolvedId: ResolvedModuleId | null;
-          className: string;
-        }
-      >;
-    }>
-  >;
+  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
   server: async ({ transformResult }, use) => {
     const server = await createServer({
       plugins: [
-        partialPlugin({
-          stage: 2,
-          onExit: async (p) => {
-            Object.assign(transformResult, p);
+        plugin({
+          onExitTransform: async (p) => {
+            transformResult[p.id] = p;
           },
         }),
       ],
@@ -63,7 +50,10 @@ test('should replace `compose` call with `composes: ...;` expressions', async ({
   const result = await server.transformRequest(moduleId);
   assert(result);
 
-  const { transformed } = transformResult;
+  const r = transformResult[moduleId];
+  assert(r);
+
+  const { transformed } = r.stages[2] ?? {};
   assert(transformed);
   expect(transformed).not.toMatch(/compose\(imported\)/);
   expect(transformed).toMatch(
