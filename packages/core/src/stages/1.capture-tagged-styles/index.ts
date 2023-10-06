@@ -1,5 +1,5 @@
-import type { TransformOptions } from '@babel/core';
-import { transformSync } from '@babel/core';
+import type { TransformOptions, types } from '@babel/core';
+import { transformAsync } from '@babel/core';
 
 import type { ImportSource, Options } from './captureVariables';
 import { captureVariableNamesPlugin } from './captureVariables';
@@ -18,37 +18,40 @@ export type CapturedVariableNames = Map<
 
 export type CaptureTaggedStylesReturn = {
   transformed: string;
+  ast: types.File;
   capturedVariableNames: CapturedVariableNames;
   importSources: ImportSource[];
 };
 
 // find tagged templates, then remove all tags.
 // enforce variables to export.
-export function captureTaggedStyles({
+export async function captureTaggedStyles({
   code,
   options,
-}: CaptureTaggedStylesArgs): CaptureTaggedStylesReturn {
+}: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
   const { babelOptions } = options ?? {};
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
     exportedNames: [],
     importSources: [],
   };
-  const result = transformSync(code, {
+  const result = await transformAsync(code, {
     ...babelOptions,
     plugins: [[captureVariableNamesPlugin, pluginOption]],
     sourceMaps: 'inline',
+    ast: true,
   });
   if (!result) {
     throw new Error('Failed');
   }
-  const { code: transformed } = result;
-  if (!transformed) {
+  const { code: transformed, ast } = result;
+  if (!(transformed && ast)) {
     throw new Error('Failed');
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
     transformed,
+    ast,
     importSources: pluginOption.importSources,
   };
 }

@@ -1,4 +1,4 @@
-import { transformSync } from '@babel/core';
+import { transformFromAstAsync, types } from '@babel/core';
 
 import type { ModuleIdPrefix } from '@/types';
 
@@ -8,7 +8,8 @@ import type { Options } from './assignStyles';
 import { assignStylesPlugin } from './assignStyles';
 
 type AssignStylesToCapturedVariablesArgs = {
-  code: string;
+  replaced: types.File;
+  originalCode: string;
   temporalVariableNames: CapturedVariableNames;
   originalToTemporalMap: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
@@ -17,21 +18,26 @@ export type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
 };
 
-export function assignStylesToCapturedVariables({
-  code,
+export async function assignStylesToCapturedVariables({
+  replaced,
+  originalCode,
   cssImportId,
   temporalVariableNames,
   originalToTemporalMap,
-}: AssignStylesToCapturedVariablesArgs): AssignStylesToCapturedVariablesReturn {
+}: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
     cssImportId,
     temporalVariableNames,
     originalToTemporalMap,
   };
-  const result = transformSync(code, {
-    plugins: [[assignStylesPlugin, pluginOption]],
-    sourceMaps: 'inline',
-  });
+  const result = await transformFromAstAsync(
+    types.cloneNode(replaced),
+    originalCode,
+    {
+      plugins: [[assignStylesPlugin, pluginOption]],
+      sourceMaps: 'inline',
+    },
+  );
   if (!result) {
     throw new Error('Failed');
   }

@@ -22,5 +22,5 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  test: { testTimeout: 10000 },
+  test: {},
 });

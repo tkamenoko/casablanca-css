@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { transformAsync } from '@babel/core';
+import { types, transformFromAstAsync } from '@babel/core';
 
 import type { ResolvedModuleId } from '@/types';
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
@@ -13,16 +13,17 @@ import {
 } from './replaceEmbeddedValues';
 
 type PrepareCompositionsArgs = {
+  captured: types.File;
   code: string;
   temporalVariableNames: string[];
   importSources: ImportSource[];
-
   projectRoot: string;
   resolve: (id: string) => Promise<string | null>;
 };
 
 export type PrepareCompositionsReturn = {
   transformed: string;
+  ast: types.File;
   uuidToStylesMap: Map<
     string,
     {
@@ -33,6 +34,7 @@ export type PrepareCompositionsReturn = {
 };
 
 export async function prepareCompositions({
+  captured,
   code,
   temporalVariableNames,
   importSources,
@@ -75,17 +77,18 @@ export async function prepareCompositions({
     embeddedToClassNameMap,
     uuidToStylesMap,
   };
-  const result = await transformAsync(code, {
+  const result = await transformFromAstAsync(types.cloneNode(captured), code, {
     plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
     sourceMaps: 'inline',
+    ast: true,
   });
   if (!result) {
     throw new Error('Failed');
   }
-  const { code: transformed } = result;
-  if (!transformed) {
+  const { code: transformed, ast } = result;
+  if (!(transformed && ast)) {
     throw new Error('Failed');
   }
 
-  return { transformed, uuidToStylesMap };
+  return { transformed, uuidToStylesMap, ast };
 }

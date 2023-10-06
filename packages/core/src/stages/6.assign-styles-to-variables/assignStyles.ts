@@ -1,4 +1,4 @@
-import type { PluginObj, PluginPass } from '@babel/core';
+import { type PluginObj, type PluginPass } from '@babel/core';
 import type babel from '@babel/core';
 
 import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';

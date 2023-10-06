@@ -83,8 +83,9 @@ export function plugin(
       const {
         capturedVariableNames,
         transformed: capturedCode,
+        ast: capturedAst,
         importSources,
-      } = captureTaggedStyles({ code, options: { babelOptions } });
+      } = await captureTaggedStyles({ code, options: { babelOptions } });
       if (!capturedVariableNames.size) {
         return;
       }
@@ -94,17 +95,21 @@ export function plugin(
       );
 
       // replace `compose` calls to temporal strings
-      const { transformed: composedCode, uuidToStylesMap } =
-        await prepareCompositions({
-          code: capturedCode,
-          temporalVariableNames: [...temporalVariableNames.keys()],
-          importSources,
-          projectRoot: config.root,
-          resolve: async (importSource) => {
-            const resolved = await this.resolve(importSource, path);
-            return resolved?.id ?? null;
-          },
-        });
+      const {
+        transformed: replacedCode,
+        uuidToStylesMap,
+        ast: replacedAst,
+      } = await prepareCompositions({
+        captured: capturedAst,
+        code: capturedCode,
+        temporalVariableNames: [...temporalVariableNames.keys()],
+        importSources,
+        projectRoot: config.root,
+        resolve: async (importSource) => {
+          const resolved = await this.resolve(importSource, path);
+          return resolved?.id ?? null;
+        },
+      });
 
       const evaluateModule: (params: {
         code: string;
@@ -164,7 +169,7 @@ export function plugin(
           };
 
       const { mapOfClassNamesToStyles } = await evaluateModule({
-        code: composedCode,
+        code: replacedCode,
         temporalVariableNames,
         modulePath: path,
       });
@@ -181,12 +186,15 @@ export function plugin(
         projectRoot: config.root,
       });
 
-      const { transformed: resultCode } = assignStylesToCapturedVariables({
-        temporalVariableNames,
-        originalToTemporalMap: capturedVariableNames,
-        code: composedCode,
-        cssImportId: importId,
-      });
+      const { transformed: resultCode } = await assignStylesToCapturedVariables(
+        {
+          temporalVariableNames,
+          originalToTemporalMap: capturedVariableNames,
+          originalCode: code,
+          replaced: replacedAst,
+          cssImportId: importId,
+        },
+      );
 
       const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
       cssLookup.set(resolvedId, {
@@ -218,8 +226,13 @@ export function plugin(
               capturedVariableNames,
               importSources,
               transformed: capturedCode,
+              ast: capturedAst,
             },
-            '2': { transformed: composedCode, uuidToStylesMap },
+            '2': {
+              transformed: replacedCode,
+              ast: replacedAst,
+              uuidToStylesMap,
+            },
             '3': {
               mapOfClassNamesToStyles,
             },
