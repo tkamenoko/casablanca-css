@@ -5,7 +5,7 @@ import { transformAsync } from '@babel/core';
 import type { ResolvedModuleId } from '@/types';
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
 
-import type { ImportSource } from '../1.capture-tagged-styles';
+import type { ImportSource } from '../1.capture-tagged-styles/captureVariables';
 
 import {
   replaceEmbeddedValuesPlugin,
@@ -16,6 +16,7 @@ type PrepareCompositionsArgs = {
   code: string;
   temporalVariableNames: string[];
   importSources: ImportSource[];
+
   projectRoot: string;
   resolve: (id: string) => Promise<string | null>;
 };
