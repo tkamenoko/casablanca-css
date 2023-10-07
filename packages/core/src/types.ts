@@ -14,6 +14,9 @@ export type VirtualModuleId = `${ModuleIdPrefix}${string}`;
 
 export type ResolvedModuleId = `\0${VirtualModuleId}`;
 
+export type CompositionMarker = string & {
+  __compose: never;
+};
 export type TaggedStyle<T> = T & {
-  __tagged: never;
+  __compose__: CompositionMarker;
 };

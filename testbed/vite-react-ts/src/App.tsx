@@ -1,4 +1,4 @@
-import { compose, css } from '@macrostyles/core';
+import { css } from '@macrostyles/core';
 import type { FC, ReactElement } from 'react';
 import { useState } from 'react';
 
@@ -11,7 +11,7 @@ import { composed, divBackGround, fontSize } from './values';
 
 const h1Size = css`
   font-size: ${fontSize};
-  ${compose(composed)}
+  ${composed.__compose__}
 `;
 
 const Counter: FC = () => {

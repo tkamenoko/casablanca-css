@@ -1,5 +1,5 @@
 import { modularScale } from 'polished';
-import { css, compose } from '@macrostyles/core';
+import { css } from '@macrostyles/core';
 
 import { composedStyle } from './composed';
 import { composedStyle as anotherComposedStyle } from './deps/composed';
@@ -10,7 +10,7 @@ export const styleA = css`
 
 export const styleB = css`
   font-size: ${modularScale(3)};
-  ${compose(styleA, composedStyle, anotherComposedStyle)}
+  ${styleA.__compose__}
+  ${composedStyle.__compose__}
+  ${anotherComposedStyle.__compose__}
 `;
-
-// export const v = modularScale(1);
