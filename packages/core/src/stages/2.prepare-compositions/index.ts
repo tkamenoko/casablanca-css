@@ -15,6 +15,7 @@ import {
 type PrepareCompositionsArgs = {
   captured: types.File;
   code: string;
+  isDev: boolean;
   temporalVariableNames: string[];
   importSources: ImportSource[];
   projectRoot: string;
@@ -40,6 +41,7 @@ export async function prepareCompositions({
   importSources,
   projectRoot,
   resolve,
+  isDev,
 }: PrepareCompositionsArgs): Promise<PrepareCompositionsReturn> {
   // create embeddedName-to-className+resolvedId map
   const embeddedToClassNameMap = new Map<
@@ -79,7 +81,7 @@ export async function prepareCompositions({
   };
   const result = await transformFromAstAsync(types.cloneNode(captured), code, {
     plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
-    sourceMaps: 'inline',
+    sourceMaps: isDev ? 'inline' : false,
     ast: true,
   });
   if (!result) {

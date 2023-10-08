@@ -1,14 +1,13 @@
-import type { TransformOptions, types } from '@babel/core';
-import { transformAsync } from '@babel/core';
+import type { types } from '@babel/core';
+import { transformFromAstAsync } from '@babel/core';
 
 import type { ImportSource, Options } from './captureVariables';
 import { captureVariableNamesPlugin } from './captureVariables';
 
 type CaptureTaggedStylesArgs = {
   code: string;
-  options?: {
-    babelOptions: TransformOptions;
-  };
+  ast: types.File;
+  isDev: boolean;
 };
 
 export type CapturedVariableNames = Map<
@@ -27,31 +26,30 @@ export type CaptureTaggedStylesReturn = {
 // enforce variables to export.
 export async function captureTaggedStyles({
   code,
-  options,
+  ast,
+  isDev,
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
-  const { babelOptions } = options ?? {};
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
     exportedNames: [],
     importSources: [],
   };
-  const result = await transformAsync(code, {
-    ...babelOptions,
+  const result = await transformFromAstAsync(ast, code, {
     plugins: [[captureVariableNamesPlugin, pluginOption]],
-    sourceMaps: 'inline',
+    sourceMaps: isDev ? 'inline' : false,
     ast: true,
   });
   if (!result) {
     throw new Error('Failed');
   }
-  const { code: transformed, ast } = result;
-  if (!(transformed && ast)) {
+  const { code: transformed, ast: capturedAst } = result;
+  if (!(transformed && capturedAst)) {
     throw new Error('Failed');
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
     transformed,
-    ast,
+    ast: capturedAst,
     importSources: pluginOption.importSources,
   };
 }

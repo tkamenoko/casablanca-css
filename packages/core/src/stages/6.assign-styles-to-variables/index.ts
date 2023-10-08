@@ -13,6 +13,7 @@ type AssignStylesToCapturedVariablesArgs = {
   temporalVariableNames: CapturedVariableNames;
   originalToTemporalMap: CapturedVariableNames;
   cssImportId: `${ModuleIdPrefix}${string}`;
+  isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
@@ -24,6 +25,7 @@ export async function assignStylesToCapturedVariables({
   cssImportId,
   temporalVariableNames,
   originalToTemporalMap,
+  isDev,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
     cssImportId,
@@ -35,7 +37,7 @@ export async function assignStylesToCapturedVariables({
     originalCode,
     {
       plugins: [[assignStylesPlugin, pluginOption]],
-      sourceMaps: 'inline',
+      sourceMaps: isDev ? 'inline' : false,
     },
   );
   if (!result) {

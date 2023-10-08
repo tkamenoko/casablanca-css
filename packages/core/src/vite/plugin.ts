@@ -1,4 +1,5 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
+import { parseAsync } from '@babel/core';
 
 import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
 import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
@@ -77,6 +78,18 @@ export function plugin(
         return;
       }
 
+      const isDev = config.mode === 'development';
+
+      const parsed = await parseAsync(code, {
+        ...babelOptions,
+        ast: true,
+        sourceMaps: isDev ? 'inline' : false,
+      });
+
+      if (!parsed) {
+        return;
+      }
+
       // TODO: library-specific hooks
 
       // find tagged templates, then remove all tags.
@@ -85,7 +98,7 @@ export function plugin(
         transformed: capturedCode,
         ast: capturedAst,
         importSources,
-      } = await captureTaggedStyles({ code, options: { babelOptions } });
+      } = await captureTaggedStyles({ code, ast: parsed, isDev });
       if (!capturedVariableNames.size) {
         return;
       }
@@ -105,6 +118,7 @@ export function plugin(
         temporalVariableNames: [...temporalVariableNames.keys()],
         importSources,
         projectRoot: config.root,
+        isDev,
         resolve: async (importSource) => {
           const resolved = await this.resolve(importSource, path);
           return resolved?.id ?? null;
@@ -193,6 +207,7 @@ export function plugin(
           originalCode: code,
           replaced: replacedAst,
           cssImportId: importId,
+          isDev,
         },
       );
 
