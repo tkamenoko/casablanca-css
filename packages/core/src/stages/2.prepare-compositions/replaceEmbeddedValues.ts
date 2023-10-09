@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import type babel from '@babel/core';
-import type { PluginObj, PluginPass } from '@babel/core';
+import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
 
 import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
 import type { ResolvedModuleId } from '@/types';
@@ -48,35 +48,50 @@ export function replaceEmbeddedValuesPlugin({
             if (!init.isTemplateLiteral()) {
               continue;
             }
+            const expressions = init.get('expressions');
+            const quasis = init.get('quasis');
+            for (const [i, quasi] of quasis.entries()) {
+              const expression = expressions.at(i);
+              if (!expression) {
+                continue;
+              }
+              const ids = expression.isArrayExpression()
+                ? expression
+                    .get('elements')
+                    .filter((e): e is NodePath<types.Identifier> =>
+                      e.isIdentifier(),
+                    )
+                : expression.isIdentifier()
+                ? [expression]
+                : [];
+              if (!ids.length) {
+                continue;
+              }
+              const style = quasi.node.value.raw;
+              if (!style.match(/(?:;|\s)composes:\s*$/)) {
+                continue;
+              }
+              const uuids: string[] = [];
+              for (const id of ids) {
+                const name = id.node.name;
+                const {
+                  className,
+                  cssId,
+                  uuid = randomUUID(),
+                } = state.opts.embeddedToClassNameMap.get(name) ?? {};
+                state.opts.uuidToStylesMap.set(uuid, {
+                  className: className ?? name,
+                  resolvedId: cssId ?? null,
+                });
+                uuids.push(uuid);
+              }
 
-            for (const expression of init.get('expressions')) {
-              if (!expression.isMemberExpression()) {
-                continue;
-              }
-              const property = expression.get('property');
-              if (
-                !(
-                  property.isIdentifier() &&
-                  property.node.name === '__compose__'
-                )
-              ) {
-                continue;
-              }
-              const o = expression.get('object');
-              if (!o.isIdentifier()) {
-                continue;
-              }
-              const name = o.node.name;
-              const {
-                className,
-                cssId,
-                uuid = randomUUID(),
-              } = state.opts.embeddedToClassNameMap.get(name) ?? {};
-              state.opts.uuidToStylesMap.set(uuid, {
-                className: className ?? name,
-                resolvedId: cssId ?? null,
-              });
-              expression.replaceWith(t.stringLiteral(uuid));
+              expression.replaceWith(t.stringLiteral(uuids.join('\n')));
+              const removedCompose = style.replace(
+                /(?<prev>;|\s)composes:\s*$/,
+                '$<prev>',
+              );
+              quasi.node.value.raw = removedCompose;
             }
           }
         },

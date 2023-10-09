@@ -2,7 +2,7 @@ import type { TaggedStyle } from './types';
 
 export function css(
   strings: TemplateStringsArray,
-  ...vars: (string | number)[]
+  ...vars: (string | number | TaggedStyle<unknown>[])[]
 ): TaggedStyle<string> {
   if (import.meta.env.DEV) {
     const s = strings.reduce((prev, current, index) => {

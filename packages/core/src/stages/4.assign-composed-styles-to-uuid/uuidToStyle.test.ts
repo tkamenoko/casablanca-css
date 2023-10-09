@@ -50,6 +50,8 @@ test('should compose styles', async ({ expect, server, transformResult }) => {
   assert(r);
   const { composedStyles } = r.stages[4] ?? {};
   assert(composedStyles?.length);
+  console.log(composedStyles);
+
   for (const { style, originalName } of composedStyles) {
     switch (originalName) {
       case 'styleA': {

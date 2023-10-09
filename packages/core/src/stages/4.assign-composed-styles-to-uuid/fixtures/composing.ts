@@ -10,7 +10,5 @@ export const styleA = css`
 
 export const styleB = css`
   font-size: ${modularScale(3)};
-  ${styleA.__compose__}
-  ${composedStyle.__compose__}
-  ${anotherComposedStyle.__compose__}
+  composes: ${[styleA, composedStyle, anotherComposedStyle]};
 `;

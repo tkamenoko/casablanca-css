@@ -4,6 +4,6 @@ import { modularScale } from 'polished';
 import { styleA as imported } from './composed';
 
 export const styleB = css`
-  ${imported.__compose__}
+  composes: ${imported};
   font-size: ${modularScale(2)};
 `;

@@ -4,5 +4,5 @@ import { anotherComposedStyle } from './deps/composed';
 
 export const composedStyle = css`
   display: flex;
-  ${anotherComposedStyle.__compose__}
+  composes: ${anotherComposedStyle};
 `;

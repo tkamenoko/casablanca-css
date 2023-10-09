@@ -11,7 +11,7 @@ import { composed, divBackGround, fontSize } from './values';
 
 const h1Size = css`
   font-size: ${fontSize};
-  ${composed.__compose__}
+  composes: ${composed};
 `;
 
 const Counter: FC = () => {

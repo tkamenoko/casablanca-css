@@ -38,7 +38,7 @@ const test = t.extend<TestContext>({
   },
 });
 
-test('should replace `__compose__` call with uuid', async ({
+test('should replace `compose: ...` with uuid', async ({
   expect,
   server,
   transformResult,
@@ -55,7 +55,7 @@ test('should replace `__compose__` call with uuid', async ({
 
   const { transformed } = r.stages[2] ?? {};
   assert(transformed);
-  expect(transformed).not.toMatch(/\.__compose__/);
+  expect(transformed).not.toMatch(/compose:/);
   expect(transformed).toMatch(
     /([0-9a-f]{8})-([0-9a-f]{4})-(4[0-9a-f]{3})-([0-9a-f]{4})-([0-9a-f]{12})/,
   );
