@@ -9,9 +9,23 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import { composed, divBackGround, fontSize } from './values';
 
+const spanStyle = css`
+  font-style: italic;
+  @media screen and (width > 1500px) {
+    font-size: 2em;
+  }
+`;
+
 const h1Size = css`
   font-size: ${fontSize};
   composes: ${composed};
+`;
+
+const cardStyle = css`
+  & .${spanStyle} {
+    font-weight: bold;
+    color: green;
+  }
 `;
 
 const Counter: FC = () => {
@@ -19,7 +33,7 @@ const Counter: FC = () => {
 
   return (
     <button onClick={() => setCount((count) => count + 1)}>
-      count is {count}
+      <span className={spanStyle}>count is {count}</span>
     </button>
   );
 };
@@ -36,7 +50,7 @@ function App(): ReactElement {
         </a>
       </div>
       <h1 className={h1Size}>Vite + React</h1>
-      <div className="card">
+      <div className={`card ${cardStyle}`}>
         <Counter />
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
