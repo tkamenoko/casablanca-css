@@ -1,35 +1,46 @@
 {
   "name": "macrostyles",
+  "description": "Zero-Runtime CSS-in-JS powered by vite.",
   "version": "0.0.1",
-  "description": "Zero-Runtime CSS-in-JS powered by vite and typed-macro.",
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
+  "devDependencies": {
+    "@styled/typescript-styled-plugin": "^1.0.0",
+    "@tsconfig/strictest": "^2.0.2",
+    "@types/eslint": "^8.44.4",
+    "@types/eslint-config-prettier": "^6.11.1",
+    "@types/prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "prettier": "^3.0.3",
+    "rollup-plugin-node-externals": "^6.1.2",
+    "syncpack": "^11.2.1",
+    "typescript": "^5.2.2",
+    "typesync": "^0.11.1",
+    "vite-plugin-dts": "^3.6.0",
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^0.34.6",
+    "wireit": "^0.14.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
+  "license": "MIT",
+  "prettier": {
+    "singleQuote": true
+  },
   "private": true,
-  "type": "module",
-  "workspaces": [
-    "./packages/*"
-  ],
-  "packageManager": "npm@9.2.0",
+  "repository": "tkamenoko/macrostyles.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tkamenoko/macrostyles.git"
-  },
-  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tkamenoko/macrostyles/issues"
-  },
-  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
-  "devDependencies": {
-    "eslint": "^8.31.0",
-    "eslint-config-prettier": "^8.6.0",
-    "prettier": "^2.8.1",
-    "taze": "^0.8.5",
-    "typesync": "^0.9.2",
-    "wireit": "^0.9.3"
-  },
-  "prettier": {
-    "singleQuote": true
-  }
+  "type": "module",
+  "workspaces": [
+    "./packages/*",
+    "./testbed/*"
+  ]
 }
