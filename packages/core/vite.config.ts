@@ -12,7 +12,8 @@ export default defineConfig({
       },
       formats: ['es'],
     },
-    minify: true,
+    target: ['node18'],
+    minify: false,
   },
   plugins: [
     { ...nodeExternals(), enforce: 'pre' },
