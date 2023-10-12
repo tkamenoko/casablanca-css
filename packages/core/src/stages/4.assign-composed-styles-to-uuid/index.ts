@@ -1,4 +1,6 @@
-import type { CssLookup, ResolvedModuleId } from '@/vite/types';
+import type { CssLookup } from '@/vite/types';
+
+import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
 type ReplaceUuidToStylesArgs = {
   ownedClassNamesToStyles: Map<
@@ -9,13 +11,7 @@ type ReplaceUuidToStylesArgs = {
       style: string;
     }
   >;
-  uuidToClassNamesMap: Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >;
+  uuidToStylesMap: UuidToStylesMap;
   cssLookup: CssLookup;
 };
 export type ReplaceUuidToStylesReturn = {
@@ -29,12 +25,15 @@ export type ReplaceUuidToStylesReturn = {
 export function replaceUuidToStyles({
   cssLookup,
   ownedClassNamesToStyles,
-  uuidToClassNamesMap,
+  uuidToStylesMap: uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
   const uuids = Array.from(uuidToClassNamesMap.keys());
   const uuidToStyles = new Map(
     Array.from(uuidToClassNamesMap.entries())
-      .map(([uuid, { className, resolvedId }]) => {
+      .map(([uuid, { className, resolvedId, varName }]) => {
+        if (!className) {
+          throw new Error(`className for ${varName} is not defined.`);
+        }
         if (resolvedId) {
           const style = cssLookup
             .get(resolvedId)
@@ -74,12 +73,11 @@ export function replaceUuidToStyles({
     string,
     {
       uuid: string;
-      className: string;
       style: string;
       dependsOn: Set<string>;
     }
   > = new Map();
-  uuidToStyles.forEach(({ className, dependsOn, style, uuid }) => {
+  uuidToStyles.forEach(({ dependsOn, style, uuid }) => {
     let s = style;
     for (const depsUuid of dependsOn) {
       const d =
@@ -91,7 +89,7 @@ export function replaceUuidToStyles({
       dependsOn.delete(depsUuid);
       d.dependsOn.forEach((dd) => dependsOn.add(dd));
     }
-    resolvedUuidToStyles.set(uuid, { className, dependsOn, style: s, uuid });
+    resolvedUuidToStyles.set(uuid, { dependsOn, style: s, uuid });
   });
   const result = Array.from(ownedClassNamesToStyles.values()).map(
     ({ style, originalName, temporalVariableName }) => {

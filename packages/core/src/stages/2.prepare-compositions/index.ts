@@ -11,6 +11,7 @@ import {
   replaceEmbeddedValuesPlugin,
   type Options,
 } from './replaceEmbeddedValues';
+import type { UuidToStylesMap } from './types';
 
 type PrepareCompositionsArgs = {
   captured: types.File;
@@ -25,13 +26,7 @@ type PrepareCompositionsArgs = {
 export type PrepareCompositionsReturn = {
   transformed: string;
   ast: types.File;
-  uuidToStylesMap: Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >;
+  uuidToStylesMap: UuidToStylesMap;
 };
 
 export async function prepareCompositions({
@@ -67,13 +62,7 @@ export async function prepareCompositions({
   );
 
   // replace `compose` calls with `composes: ...;` expressions.
-  const uuidToStylesMap = new Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >();
+  const uuidToStylesMap: UuidToStylesMap = new Map();
   const pluginOption: Options = {
     temporalVariableNames,
     embeddedToClassNameMap,

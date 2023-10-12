@@ -190,7 +190,7 @@ export function plugin(
       const { composedStyles } = replaceUuidToStyles({
         cssLookup,
         ownedClassNamesToStyles: mapOfClassNamesToStyles,
-        uuidToClassNamesMap: uuidToStylesMap,
+        uuidToStylesMap,
       });
 
       const { importId, style } = createVirtualCssModule({

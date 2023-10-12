@@ -6,19 +6,15 @@ import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
 import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
 import type { ResolvedModuleId } from '@/vite/types';
 
+import type { UuidToStylesMap } from './types';
+
 export type Options = {
   temporalVariableNames: string[];
   embeddedToClassNameMap: Map<
     string,
     { className: string; cssId: ResolvedModuleId; uuid: string }
   >;
-  uuidToStylesMap: Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >;
+  uuidToStylesMap: UuidToStylesMap;
 };
 
 type BabelState = {
@@ -55,6 +51,7 @@ export function replaceEmbeddedValuesPlugin({
               if (!expression) {
                 continue;
               }
+              // TODO: __composeInternal({uuid,varName,className?,value,resolvedId})
               const ids = expression.isArrayExpression()
                 ? expression
                     .get('elements')
@@ -80,6 +77,7 @@ export function replaceEmbeddedValuesPlugin({
                   uuid = randomUUID(),
                 } = state.opts.embeddedToClassNameMap.get(name) ?? {};
                 state.opts.uuidToStylesMap.set(uuid, {
+                  varName: className ?? name,
                   className: className ?? name,
                   resolvedId: cssId ?? null,
                 });
