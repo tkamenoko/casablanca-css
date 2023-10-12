@@ -6,7 +6,6 @@ import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-st
 import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
 import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
 import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
-import type { PluginOption } from '@/types';
 import {
   evaluateForProductionBuild,
   evaluateWithServer,
@@ -21,7 +20,7 @@ import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 import { loadCss } from './hooks/loadCss';
 import { resolveCssId } from './hooks/resolveCssId';
 import { extractPathAndParamsFromId } from './helpers/extractPathAndQueriesFromId';
-import type { CssLookup, JsToCssLookup } from './types';
+import type { CssLookup, JsToCssLookup, PluginOption } from './types';
 import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
 
 export type TransformResult = {

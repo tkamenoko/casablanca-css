@@ -1,5 +1,5 @@
-import type { VirtualModuleId } from '@/types';
 import { buildCssImportId } from '@/vite/helpers/buildCssImportId';
+import type { VirtualModuleId } from '@/vite/types';
 
 type CreateVirtualCssModuleArgs = {
   importerPath: string;

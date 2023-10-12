@@ -4,7 +4,7 @@ import type babel from '@babel/core';
 import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
 
 import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
-import type { ResolvedModuleId } from '@/types';
+import type { ResolvedModuleId } from '@/vite/types';
 
 export type Options = {
   temporalVariableNames: string[];

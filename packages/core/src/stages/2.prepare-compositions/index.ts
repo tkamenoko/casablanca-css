@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import { types, transformFromAstAsync } from '@babel/core';
 
-import type { ResolvedModuleId } from '@/types';
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
+import type { ResolvedModuleId } from '@/vite/types';
 
 import type { ImportSource } from '../1.capture-tagged-styles/captureVariables';
 

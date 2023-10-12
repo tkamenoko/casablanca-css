@@ -1,6 +1,6 @@
 import { transformFromAstAsync, types } from '@babel/core';
 
-import type { ModuleIdPrefix } from '@/types';
+import type { ModuleIdPrefix } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 

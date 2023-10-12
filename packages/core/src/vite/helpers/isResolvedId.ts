@@ -1,4 +1,4 @@
-import { type ResolvedModuleId } from '@/types';
+import type { ResolvedModuleId } from '../types';
 
 import { extractPathAndParamsFromId } from './extractPathAndQueriesFromId';
 import { isVirtualModuleId } from './isVirtualModuleId';

@@ -1,5 +1,6 @@
-import type { ResolvedModuleId } from '@/types';
 import { buildCssImportId } from '@/vite/helpers/buildCssImportId';
+
+import type { ResolvedModuleId } from '../types';
 
 import { extractPathAndParamsFromId } from './extractPathAndQueriesFromId';
 import { buildResolvedIdFromVirtualId } from './buildResolvedIdFromVirtualId';

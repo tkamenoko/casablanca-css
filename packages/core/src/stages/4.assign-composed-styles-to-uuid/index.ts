@@ -1,5 +1,4 @@
-import type { ResolvedModuleId } from '@/types';
-import type { CssLookup } from '@/vite/types';
+import type { CssLookup, ResolvedModuleId } from '@/vite/types';
 
 type ReplaceUuidToStylesArgs = {
   ownedClassNamesToStyles: Map<
