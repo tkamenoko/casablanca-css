@@ -32,12 +32,13 @@ const test = t.extend<TestContext>({
         hmr: false,
         preTransformRequests: false,
       },
+      configFile: false,
       optimizeDeps: {
         disabled: true,
       },
     });
     await use(server);
-    return server.close();
+    await server.close();
   },
   transformResult: async ({ task: _ }, use) => {
     await use({});

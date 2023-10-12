@@ -1,35 +1,14 @@
 import { build } from 'vite';
-import { assert, test as t } from 'vitest';
-
-import type { TransformResult } from '@/vite/plugin';
-import { plugin as plugin_ } from '@/vite/plugin';
+import { assert } from 'vitest';
 
 import { buildModuleId } from '../fixtures/buildModuleId';
+import { test } from '../fixtures/extendedTest';
 
 import * as assetModuleExports from './fixtures/useAssetFile';
 import * as simpleModuleExports from './fixtures/simple';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
-
-type TestContext = {
-  plugin: ReturnType<typeof plugin_>;
-  transformResult: Record<string, TransformResult>;
-};
-
-const test = t.extend<TestContext>({
-  plugin: async ({ transformResult }, use) => {
-    const plugin = plugin_({
-      onExitTransform: async (p) => {
-        transformResult[p.id] = p;
-      },
-    });
-    await use(plugin);
-  },
-  transformResult: async ({ task: _ }, use) => {
-    await use({});
-  },
-});
 
 test('should evaluate module to get exported styles', async ({
   expect,
@@ -44,6 +23,7 @@ test('should evaluate module to get exported styles', async ({
 
   await build({
     configFile: false,
+    appType: 'custom',
     plugins: [plugin],
     build: {
       write: false,
@@ -98,7 +78,7 @@ test('should evaluate module using third party modules', async ({
   });
 });
 
-test<TestContext>('should evaluate module using local modules', async ({
+test('should evaluate module using local modules', async ({
   expect,
   plugin,
   transformResult,
