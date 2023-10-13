@@ -1,36 +1,26 @@
 {
-  "name": "@macrostyles/core",
-  "description": "Zero-Runtime CSS-in-JS powered by vite.",
+  "name": "@macrostyles/utils",
+  "description": "Common utilities for macrostyles.",
   "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
-    "@babel/core": "^7.23.2",
-    "@happy-dom/global-registrator": "^12.9.1",
-    "@macrostyles/utils": "npm:utils@0.0.1"
+    "@babel/core": "^7.23.2"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.20.2",
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "polished": "^4.2.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@types/babel__core": "^7.20.2"
   },
   "exports": {
     ".": {
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./vite": {
-      "default": "./dist/vite.js",
-      "types": "./dist/vite.d.ts"
     }
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
   "module": "./dist/index.js",
   "peerDependencies": {
+    "@macrostyles/core": "npm:core@0.0.1",
     "vite": "^4.4.11"
   },
   "repository": "tkamenoko/macrostyles.git",
@@ -51,9 +41,6 @@
   "wireit": {
     "build": {
       "command": "vite build",
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
@@ -68,11 +55,8 @@
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
-        "./src/**/*.{ts,tsx}",
+        "./src/**/*.ts",
         "./tsconfig.json",
         "./vite.config.ts"
       ],
@@ -80,9 +64,6 @@
     },
     "types": {
       "command": "tsc --noEmit",
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",

@@ -5,7 +5,8 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
-    "@babel/core": "^7.23.2"
+    "@babel/core": "^7.23.2",
+    "@macrostyles/utils": "npm:utils@0.0.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
@@ -15,12 +16,22 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./vite": {
+      "default": "./dist/vite.js",
+      "types": "./dist/vite.d.ts"
+    }
+  },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "vite": "^4.4.11",
-    "@macrostyles/core": "npm:core@0.0.1"
+    "@macrostyles/core": "npm:core@0.0.1",
+    "vite": "^4.4.11"
   },
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
@@ -40,6 +51,9 @@
   "wireit": {
     "build": {
       "command": "vite build",
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
@@ -51,6 +65,9 @@
     },
     "test": {
       "command": "vitest run",
+      "dependencies": [
+        "../utils:build"
+      ],
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
@@ -63,6 +80,9 @@
     },
     "types": {
       "command": "tsc --noEmit",
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",

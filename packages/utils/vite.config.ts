@@ -8,7 +8,6 @@ export default defineConfig({
     lib: {
       entry: {
         index: './src/index.ts',
-        vite: './src/vite/index.ts',
       },
       formats: ['es'],
     },

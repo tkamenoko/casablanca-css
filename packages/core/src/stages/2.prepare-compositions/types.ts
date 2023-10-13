@@ -1,4 +1,5 @@
-import type { TaggedStyle } from '@/types';
+import type { TaggedStyle } from '@macrostyles/utils';
+
 import type { ResolvedModuleId } from '@/vite/types';
 
 export type UuidToStylesMap = Map<

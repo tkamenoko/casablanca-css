@@ -10,7 +10,6 @@ export type PluginOption = {
 export const moduleIdPrefix = 'virtual:macrostyles/';
 export type ModuleIdPrefix = typeof moduleIdPrefix;
 export type VirtualModuleId = `${ModuleIdPrefix}${string}`;
-
 export type ResolvedModuleId = `\0${VirtualModuleId}`;
 
 export type CssLookup = Map<
