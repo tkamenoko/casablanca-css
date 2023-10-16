@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import type babel from '@babel/core';
 import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
+import { isTopLevelStatement } from '@macrostyles/utils';
 
-import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
 import type { ResolvedModuleId } from '@/vite/types';
 
 import type { UuidToStylesMap } from './types';

@@ -1,8 +1,7 @@
-import type { InlineConfig, ResolvedConfig, TransformOptions } from 'vite';
+import type { TransformOptions } from 'vite';
 
 export type PluginOption = {
   babelOptions: TransformOptions;
-  internalServerConfig: (c: ResolvedConfig) => InlineConfig;
   extensions: `.${string}`[];
   includes: string[];
 };

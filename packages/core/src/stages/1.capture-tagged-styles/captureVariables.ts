@@ -1,8 +1,7 @@
 import type { PluginObj, PluginPass, types, NodePath } from '@babel/core';
 import type babel from '@babel/core';
+import { isMacrostylesImport, isTopLevelStatement } from '@macrostyles/utils';
 
-import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
-import { isMacrostylesImport } from '@/stages/helpers/isMacrostylesImport';
 import { isMacrostylesCssTemplate } from '@/stages/helpers/isMacrostylesCssTemplate';
 
 export type CapturedVariableNames = Map<
@@ -32,7 +31,11 @@ export function captureVariableNamesPlugin({
     visitor: {
       Program: {
         enter: (path, state) => {
-          const found = path.get('body').find(isMacrostylesImport);
+          const found = path
+            .get('body')
+            .find((p): p is NodePath<types.ImportDeclaration> =>
+              isMacrostylesImport(p, 'core'),
+            );
 
           if (!found) {
             path.stop();
@@ -78,7 +81,7 @@ export function captureVariableNamesPlugin({
           path.traverse({
             ImportDeclaration: {
               enter: (p) => {
-                if (!isMacrostylesImport(p)) {
+                if (!isMacrostylesImport(p, 'core')) {
                   return;
                 }
 
@@ -96,7 +99,7 @@ export function captureVariableNamesPlugin({
                 }
               },
               exit: (path) => {
-                if (!isMacrostylesImport(path)) {
+                if (!isMacrostylesImport(path, 'core')) {
                   return;
                 }
                 if (!path.get('specifiers').length) {
@@ -150,22 +153,15 @@ export function captureVariableNamesPlugin({
               `temporal_${originalName}`,
             );
 
+            const exportingTemporalNode = t.exportNamedDeclaration(
+              t.variableDeclaration('const', [
+                t.variableDeclarator(temporalId, init.get('quasi').node),
+              ]),
+            );
             if (path.parentPath.isExportNamedDeclaration()) {
-              path.parentPath.insertBefore(
-                t.exportNamedDeclaration(
-                  t.variableDeclaration('const', [
-                    t.variableDeclarator(temporalId, init.get('quasi').node),
-                  ]),
-                ),
-              );
+              path.parentPath.insertAfter(exportingTemporalNode);
             } else {
-              path.insertAfter(
-                t.exportNamedDeclaration(
-                  t.variableDeclaration('const', [
-                    t.variableDeclarator(temporalId, init.get('quasi').node),
-                  ]),
-                ),
-              );
+              path.insertAfter(exportingTemporalNode);
             }
             init.replaceWith(t.stringLiteral(originalName));
 

@@ -1,5 +1,6 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { parseAsync } from '@babel/core';
+import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
 import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
 import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
@@ -19,7 +20,6 @@ import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
 import { loadCss } from './hooks/loadCss';
 import { resolveCssId } from './hooks/resolveCssId';
-import { extractPathAndParamsFromId } from './helpers/extractPathAndQueriesFromId';
 import type { CssLookup, JsToCssLookup, PluginOption } from './types';
 import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
 
