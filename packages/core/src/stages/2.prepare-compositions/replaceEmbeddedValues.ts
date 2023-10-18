@@ -7,6 +7,7 @@ import { isTopLevelStatement } from '@macrostyles/utils';
 import type { ResolvedModuleId } from '@/vite/types';
 
 import type { UuidToStylesMap } from './types';
+import { markImportedSelectorsAsGlobal } from './markImportedSelectorsAsGlobal';
 
 export type Options = {
   temporalVariableNames: string[];
@@ -44,6 +45,10 @@ export function replaceEmbeddedValuesPlugin({
             if (!init.isTemplateLiteral()) {
               continue;
             }
+            // raw classNames are replaced with unique classNames even if it is already modified.
+            // imported classNames are already evaluated. This avoids duplication of replacing classNames.
+            markImportedSelectorsAsGlobal({ templateLiteralPath: init });
+            // fix `composes: ...` property
             const expressions = init.get('expressions');
             const quasis = init.get('quasis');
             for (const [i, quasi] of quasis.entries()) {

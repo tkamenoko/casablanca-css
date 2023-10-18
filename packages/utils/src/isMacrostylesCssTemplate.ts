@@ -1,6 +1,7 @@
 import type { NodePath, types } from '@babel/core';
 import type { TaggedTemplateExpression } from '@babel/types';
-import { isMacrostylesImport } from '@macrostyles/utils';
+
+import { isMacrostylesImport } from './isMacrostylesImport';
 
 export function isMacrostylesCssTemplate(
   path: NodePath<types.Expression | null | undefined>,

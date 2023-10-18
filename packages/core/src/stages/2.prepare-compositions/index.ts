@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { types, transformFromAstAsync } from '@babel/core';
+import type { types } from '@babel/core';
+import { transformFromAstAsync } from '@babel/core';
 
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
 import type { ResolvedModuleId } from '@/vite/types';
@@ -68,7 +69,7 @@ export async function prepareCompositions({
     embeddedToClassNameMap,
     uuidToStylesMap,
   };
-  const result = await transformFromAstAsync(types.cloneNode(captured), code, {
+  const result = await transformFromAstAsync(captured, code, {
     plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
     sourceMaps: isDev ? 'inline' : false,
     ast: true,

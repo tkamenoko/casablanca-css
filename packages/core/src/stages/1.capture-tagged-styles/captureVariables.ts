@@ -1,8 +1,10 @@
 import type { PluginObj, PluginPass, types, NodePath } from '@babel/core';
 import type babel from '@babel/core';
-import { isMacrostylesImport, isTopLevelStatement } from '@macrostyles/utils';
-
-import { isMacrostylesCssTemplate } from '@/stages/helpers/isMacrostylesCssTemplate';
+import {
+  isMacrostylesImport,
+  isTopLevelStatement,
+  isMacrostylesCssTemplate,
+} from '@macrostyles/utils';
 
 export type CapturedVariableNames = Map<
   string,

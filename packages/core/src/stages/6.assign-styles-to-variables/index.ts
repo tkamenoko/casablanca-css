@@ -1,4 +1,5 @@
-import { transformFromAstAsync, types } from '@babel/core';
+import type { types } from '@babel/core';
+import { transformFromAstAsync } from '@babel/core';
 
 import type { ModuleIdPrefix } from '@/vite/types';
 
@@ -32,14 +33,10 @@ export async function assignStylesToCapturedVariables({
     temporalVariableNames,
     originalToTemporalMap,
   };
-  const result = await transformFromAstAsync(
-    types.cloneNode(replaced),
-    originalCode,
-    {
-      plugins: [[assignStylesPlugin, pluginOption]],
-      sourceMaps: isDev ? 'inline' : false,
-    },
-  );
+  const result = await transformFromAstAsync(replaced, originalCode, {
+    plugins: [[assignStylesPlugin, pluginOption]],
+    sourceMaps: isDev ? 'inline' : false,
+  });
   if (!result) {
     throw new Error('Failed');
   }
