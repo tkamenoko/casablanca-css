@@ -70,7 +70,7 @@ export function createClassNamesPlugin({
               .get('specifiers')
               .find(
                 (s) =>
-                  s.isImportSpecifier() && s.get('local').get('name') === 'css',
+                  s.isImportSpecifier() && s.get('local').node.name === 'css',
               );
             if (!hasCssImport) {
               p.pushContainer('specifiers', t.importSpecifier(css, css));

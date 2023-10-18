@@ -4,7 +4,7 @@ import { assert } from 'vitest';
 import { buildModuleId } from '../fixtures/buildModuleId';
 import { test } from '../fixtures/extendedTest';
 
-test('should create css-tagged styles from styled-tagged components', async ({
+test('should replace embedded component ids to property access in css-tagged styles', async ({
   expect,
   plugin,
   transformResult,
@@ -26,9 +26,11 @@ test('should create css-tagged styles from styled-tagged components', async ({
 
   assert(transformResult);
   const { stages } = transformResult[moduleId] ?? {};
-  const { code } = stages?.[1] ?? {};
+  const { code } = stages?.[2] ?? {};
   assert(code);
   expect(code).not.toMatch(`import { styled } from '@macrostyles/react';`);
-  expect(code).toMatch('macrostyles/core');
-  expect(code).not.toMatch('NotExportedComponent = styled');
+  expect(code).not.toMatch('{TaggedComponent}');
+  expect(code).toMatch('{TaggedComponent.__rawClassName}');
+  expect(code).not.toMatch(':global(.${TaggedComponent.__rawClassName})');
+  expect(code).toMatch(':global(.${StyledDiv.__modularizedClassName})');
 });
