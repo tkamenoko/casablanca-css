@@ -1,29 +1,30 @@
-import type { JSX, ComponentType, FC, ComponentProps, HTMLProps } from 'react';
+import type { FC, JSX, ComponentType } from 'react';
 import type { TaggedStyle } from '@macrostyles/utils';
 
-type TagFunction<T> = (
+type TagFunction<T> = <P = Record<never, never>>(
   strings: TemplateStringsArray,
-  ...vars: (string | number | TaggedStyle<unknown> | TaggedStyle<unknown>[])[]
-) => TaggedStyle<T>;
+  ...vars: (
+    | string
+    | number
+    | ((props: T extends ComponentType<infer C> ? C & P : never) => string)
+    | TaggedStyle<unknown>
+    | TaggedStyle<unknown>[]
+  )[]
+) => TaggedStyle<T extends ComponentType<infer C> ? FC<C & P> : T>;
 
-type BuiltinElement = keyof JSX.IntrinsicElements;
-type CustomElement = `${string}-${string}`;
+type StyleComponent = <C = ComponentType>(
+  component: C,
+) => C extends ComponentType<infer P> ? TagFunction<ComponentType<P>> : never;
+type StyleElement = <C extends keyof JSX.IntrinsicElements>(
+  component: C,
+) => TagFunction<FC<JSX.IntrinsicElements[C]>>;
 
-type Styled = <C>(
-  component: C extends ComponentType<infer P>
-    ? ComponentType<P>
-    : C extends BuiltinElement | CustomElement
-    ? C
-    : never,
-) => C extends BuiltinElement
-  ? TagFunction<FC<ComponentProps<C>>>
-  : C extends CustomElement
-  ? TagFunction<FC<HTMLProps<Element>>>
-  : TagFunction<C>;
+type Styled = StyleElement & StyleComponent;
 
-export const styled = ((component) => {
+export const styled = (<C>(component: C) => {
   if (import.meta.env.DEV) {
-    const f = () => component;
+    const f = (): TaggedStyle<typeof component> =>
+      component as TaggedStyle<typeof component>;
     return f;
   }
   throw new Error('This function is not for runtime execution.');
