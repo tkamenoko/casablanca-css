@@ -140,6 +140,7 @@ export function plugin(
               code,
               modulePath,
               temporalVariableNames,
+              uuidToStylesMap,
               load: async (importingId) => {
                 if (!server) {
                   throw new Error('Server is not configured.');
@@ -162,6 +163,7 @@ export function plugin(
               code,
               modulePath,
               temporalVariableNames,
+              uuidToStylesMap,
               load: async (importingId) => {
                 const resolved = await this.resolve(importingId);
                 if (!resolved?.id) {

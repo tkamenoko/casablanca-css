@@ -26,7 +26,7 @@ export type TransformResult = {
 type OnExitTransform = (params: TransformResult) => Promise<void>;
 
 export function plugin(
-  options: Partial<PluginOption> & {
+  options?: Partial<PluginOption> & {
     onExitTransform?: OnExitTransform;
   },
 ): Plugin {

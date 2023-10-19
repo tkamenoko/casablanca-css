@@ -66,13 +66,14 @@
     "test": {
       "command": "vitest run",
       "dependencies": [
-        "../utils:build"
+        "../utils:build",
+        "../core:build"
       ],
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "files": [
-        "./src/**/*.ts",
+        "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
         "./vite.config.ts"
       ],

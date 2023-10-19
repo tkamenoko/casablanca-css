@@ -6,6 +6,8 @@ import { isTopLevelStatement } from '@macrostyles/utils';
 
 import type { ResolvedModuleId } from '@/vite/types';
 
+import type { ComposeInternalArg } from '../3.evaluate-module/createComposeInternal';
+
 import type { UuidToStylesMap } from './types';
 import { markImportedSelectorsAsGlobal } from './markImportedSelectorsAsGlobal';
 
@@ -56,7 +58,6 @@ export function replaceEmbeddedValuesPlugin({
               if (!expression) {
                 continue;
               }
-              // TODO: __composeInternal({uuid,varName,className?,value,resolvedId})
               const ids = expression.isArrayExpression()
                 ? expression
                     .get('elements')
@@ -73,7 +74,9 @@ export function replaceEmbeddedValuesPlugin({
               if (!style.match(/(?:;|\s)composes:\s*$/)) {
                 continue;
               }
-              const uuids: string[] = [];
+              const composeArgs: (Omit<ComposeInternalArg, 'value'> & {
+                valueId: types.Identifier;
+              })[] = [];
               for (const id of ids) {
                 const name = id.node.name;
                 const {
@@ -81,20 +84,56 @@ export function replaceEmbeddedValuesPlugin({
                   cssId,
                   uuid = randomUUID(),
                 } = state.opts.embeddedToClassNameMap.get(name) ?? {};
+                const resolvedId = cssId ?? null;
+                const varName = name;
                 state.opts.uuidToStylesMap.set(uuid, {
-                  varName: className ?? name,
+                  varName,
                   className: className ?? name,
-                  resolvedId: cssId ?? null,
+                  resolvedId,
                 });
-                uuids.push(uuid);
+                composeArgs.push({
+                  resolvedId,
+                  uuid,
+                  varName,
+                  valueId: id.node,
+                });
               }
-
-              expression.replaceWith(t.stringLiteral(uuids.join('\n')));
+              expression.replaceWith(
+                t.callExpression(
+                  t.identifier('__composeInternal'),
+                  composeArgs.map(({ resolvedId, uuid, valueId, varName }) => {
+                    const resolvedIdProperty = t.objectProperty(
+                      t.identifier('resolvedId'),
+                      resolvedId
+                        ? t.stringLiteral(resolvedId)
+                        : t.nullLiteral(),
+                    );
+                    const uuidProperty = t.objectProperty(
+                      t.identifier('uuid'),
+                      t.stringLiteral(uuid),
+                    );
+                    const valueProperty = t.objectProperty(
+                      t.identifier('value'),
+                      valueId,
+                    );
+                    const varNameProperty = t.objectProperty(
+                      t.identifier('varName'),
+                      t.stringLiteral(varName),
+                    );
+                    return t.objectExpression([
+                      resolvedIdProperty,
+                      uuidProperty,
+                      valueProperty,
+                      varNameProperty,
+                    ]);
+                  }),
+                ),
+              );
               const removedCompose = style.replace(
                 /(?<prev>;|\s)composes:\s*$/,
                 '$<prev>',
               );
-              quasi.node.value.raw = removedCompose;
+              quasi.replaceWith(t.templateElement({ raw: removedCompose }));
             }
           }
         },
