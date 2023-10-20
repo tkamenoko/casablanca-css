@@ -1,12 +1,14 @@
 import type { FC, JSX, ComponentType } from 'react';
 import type { TaggedStyle } from '@macrostyles/utils';
 
-type TagFunction<T> = <P = Record<never, never>>(
+type TagFunction<T> = <P extends object = Record<never, never>>(
   strings: TemplateStringsArray,
   ...vars: (
     | string
     | number
-    | ((props: T extends ComponentType<infer C> ? C & P : never) => string)
+    | ((
+        props: T extends ComponentType<infer C> ? C & P : never,
+      ) => string | number)
     | TaggedStyle<unknown>
     | TaggedStyle<unknown>[]
   )[]

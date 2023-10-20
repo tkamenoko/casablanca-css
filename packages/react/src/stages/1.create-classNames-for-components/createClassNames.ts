@@ -122,6 +122,33 @@ export function createClassNamesPlugin({
             } else {
               path.insertBefore(cssNode);
             }
+            // extract functions from template for dynamic styling
+            const arrowFunctions = cssTemplate
+              .get('expressions')
+              .filter((e): e is NodePath<types.ArrowFunctionExpression> =>
+                e.isArrowFunctionExpression(),
+              );
+            const cssDynamicVars: {
+              functionId: types.Identifier;
+              cssVarName: `--${string}`;
+            }[] = [];
+            for (const arrowFunction of arrowFunctions) {
+              const functionId = path.scope.generateUidIdentifier();
+              const cssVarName = `--${functionId.name}` as const;
+              // move function to the top level
+              const outerFunction = t.variableDeclaration('const', [
+                t.variableDeclarator(functionId, arrowFunction.node),
+              ]);
+              if (path.parentPath.isExportDeclaration()) {
+                path.parentPath.insertBefore(outerFunction);
+              } else {
+                path.insertBefore(outerFunction);
+              }
+              // replace embedded functions with `var(--varName)`
+              arrowFunction.replaceWith(t.stringLiteral(`var(${cssVarName})`));
+
+              cssDynamicVars.push({ cssVarName, functionId });
+            }
             // replace component with new function component that has created className
             const tag = init.get('tag');
             if (!tag.isCallExpression()) {
@@ -170,6 +197,18 @@ export function createClassNamesPlugin({
                 cssTaggedId,
               ],
             );
+
+            const inlineStyleId =
+              path.scope.generateUidIdentifier('inlineStyle');
+            const inlineStyleProperties = cssDynamicVars.map(
+              ({ cssVarName, functionId }) => {
+                return t.objectProperty(
+                  t.stringLiteral(cssVarName),
+                  t.callExpression(functionId, [propsId]),
+                );
+              },
+            );
+
             const innerJsxElement = t.jsxElement(
               t.jsxOpeningElement(
                 jsxId,
@@ -179,16 +218,27 @@ export function createClassNamesPlugin({
                     t.jsxIdentifier('className'),
                     t.jsxExpressionContainer(newClassNameId),
                   ),
+                  t.jsxAttribute(
+                    t.jsxIdentifier('style'),
+                    t.jsxExpressionContainer(inlineStyleId),
+                  ),
                 ],
                 true,
               ),
               null,
               [],
             );
+
             const componentBlockStatement = t.blockStatement([
               extractGivenClassName,
               t.variableDeclaration('const', [
                 t.variableDeclarator(newClassNameId, newClassNameTemplate),
+              ]),
+              t.variableDeclaration('const', [
+                t.variableDeclarator(
+                  inlineStyleId,
+                  t.objectExpression(inlineStyleProperties),
+                ),
               ]),
               t.returnStatement(innerJsxElement),
             ]);
