@@ -1,6 +1,7 @@
-import type { ResolvedModuleId, VirtualModuleId } from '@/types';
+import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
-import { extractPathAndParamsFromId } from './extractPathAndQueriesFromId';
+import type { ResolvedModuleId, VirtualModuleId } from '../types';
+
 import { isVirtualModuleId } from './isVirtualModuleId';
 
 export function buildResolvedIdFromVirtualId({

@@ -1,0 +1,75 @@
+{
+  "name": "@macrostyles/utils",
+  "description": "Common utilities for macrostyles.",
+  "version": "0.0.1",
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
+  "dependencies": {
+    "@babel/core": "^7.23.2"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.2"
+  },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
+  "license": "MIT",
+  "module": "./dist/index.js",
+  "peerDependencies": {
+    "@macrostyles/core": "npm:core@0.0.1",
+    "vite": "^4.4.11"
+  },
+  "repository": "tkamenoko/macrostyles.git",
+  "scripts": {
+    "build": "wireit",
+    "test": "wireit",
+    "types": "wireit"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*.d.ts"
+      ]
+    }
+  },
+  "wireit": {
+    "build": {
+      "command": "vite build",
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/**/*.{js,d.ts}"
+      ]
+    },
+    "test": {
+      "command": "vitest run",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    },
+    "types": {
+      "command": "tsc --noEmit",
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    }
+  }
+}

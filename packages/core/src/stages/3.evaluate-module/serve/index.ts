@@ -1,8 +1,11 @@
 import type { ModuleLinker } from 'node:vm';
 import vm from 'node:vm';
 
+import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
+
 import type { EvaluateModuleReturn } from '../types';
 import { registerGlobals, unregisterGlobals } from '../registerGlobals';
+import { createComposeInternal } from '../createComposeInternal';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
@@ -13,6 +16,7 @@ type VariableName = string;
 type EvaluateModuleArgs = {
   code: string;
   modulePath: string;
+  uuidToStylesMap: UuidToStylesMap;
   temporalVariableNames: Map<
     string,
     {
@@ -47,10 +51,13 @@ export async function evaluateModule({
   code,
   modulePath,
   temporalVariableNames,
+  uuidToStylesMap,
   load,
   resolveId,
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
-  const contextifiedObject = vm.createContext({});
+  const contextifiedObject = vm.createContext({
+    __composeInternal: createComposeInternal(uuidToStylesMap),
+  });
 
   const targetLinker: ModuleLinker = async (
     specifier,

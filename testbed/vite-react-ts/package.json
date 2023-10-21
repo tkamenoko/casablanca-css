@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@macrostyles/core": "npm:core@0.0.1",
+    "@macrostyles/react": "npm:react@0.0.1",
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
@@ -34,7 +35,8 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/react:build"
       ]
     },
     "dev": {
@@ -44,7 +46,8 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/react:build"
       ]
     },
     "preview": {

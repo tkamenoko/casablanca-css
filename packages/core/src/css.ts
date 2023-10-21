@@ -1,8 +1,8 @@
-import type { TaggedStyle } from './types';
+import type { TaggedStyle } from '@macrostyles/utils';
 
 export function css(
   strings: TemplateStringsArray,
-  ...vars: (string | number | TaggedStyle<unknown>[])[]
+  ...vars: (string | number | TaggedStyle<unknown> | TaggedStyle<unknown>[])[]
 ): TaggedStyle<string> {
   if (import.meta.env.DEV) {
     const s = strings.reduce((prev, current, index) => {

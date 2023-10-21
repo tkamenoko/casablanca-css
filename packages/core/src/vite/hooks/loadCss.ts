@@ -1,4 +1,5 @@
-import { extractPathAndParamsFromId } from '../helpers/extractPathAndQueriesFromId';
+import { extractPathAndParamsFromId } from '@macrostyles/utils';
+
 import { isResolvedId } from '../helpers/isResolvedId';
 import type { CssLookup } from '../types';
 

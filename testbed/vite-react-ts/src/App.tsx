@@ -1,4 +1,5 @@
 import { css } from '@macrostyles/core';
+import { styled } from '@macrostyles/react';
 import type { FC, ReactElement } from 'react';
 import { useState } from 'react';
 
@@ -16,9 +17,13 @@ const spanStyle = css`
   }
 `;
 
-const h1Size = css`
+const H1Size = styled('h1')`
   font-size: ${fontSize};
   composes: ${composed};
+`;
+
+const ButtonColor = styled('button')<{ color: string }>`
+  color: ${(p) => p.color};
 `;
 
 const cardStyle = css`
@@ -32,9 +37,12 @@ const Counter: FC = () => {
   const [count, setCount] = useState(0);
 
   return (
-    <button onClick={() => setCount((count) => count + 1)}>
+    <ButtonColor
+      color={count % 2 === 0 ? 'red' : 'green'}
+      onClick={() => setCount((count) => count + 1)}
+    >
       <span className={spanStyle}>count is {count}</span>
-    </button>
+    </ButtonColor>
   );
 };
 
@@ -49,7 +57,7 @@ function App(): ReactElement {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1 className={h1Size}>Vite + React</h1>
+      <H1Size>Vite + React</H1Size>
       <div className={`card ${cardStyle}`}>
         <Counter />
         <p>

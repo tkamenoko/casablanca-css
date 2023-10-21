@@ -1,8 +1,8 @@
 import { type PluginObj, type PluginPass } from '@babel/core';
 import type babel from '@babel/core';
+import { isTopLevelStatement } from '@macrostyles/utils';
 
-import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
-import type { ModuleIdPrefix } from '@/types';
+import type { ModuleIdPrefix } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 

@@ -1,5 +1,6 @@
-import type { ResolvedModuleId } from '@/types';
 import type { CssLookup } from '@/vite/types';
+
+import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
 type ReplaceUuidToStylesArgs = {
   ownedClassNamesToStyles: Map<
@@ -10,13 +11,7 @@ type ReplaceUuidToStylesArgs = {
       style: string;
     }
   >;
-  uuidToClassNamesMap: Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >;
+  uuidToStylesMap: UuidToStylesMap;
   cssLookup: CssLookup;
 };
 export type ReplaceUuidToStylesReturn = {
@@ -30,7 +25,7 @@ export type ReplaceUuidToStylesReturn = {
 export function replaceUuidToStyles({
   cssLookup,
   ownedClassNamesToStyles,
-  uuidToClassNamesMap,
+  uuidToStylesMap: uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
   const uuids = Array.from(uuidToClassNamesMap.keys());
   const uuidToStyles = new Map(
@@ -41,14 +36,13 @@ export function replaceUuidToStyles({
             .get(resolvedId)
             ?.classNameToStyleMap.get(className)?.style;
           if (!style) {
-            throw new Error('Broken composition');
+            throw new Error(`Broken composition of ${className}`);
           }
           return [
             uuid,
             {
               uuid,
               className,
-
               style,
               dependsOn: new Set<string>(),
             },
@@ -56,7 +50,7 @@ export function replaceUuidToStyles({
         }
         const style = ownedClassNamesToStyles.get(className)?.style;
         if (!style) {
-          throw new Error('Broken composition');
+          throw new Error(`Broken composition of ${className}`);
         }
         const dependencies = uuids.filter((u) => style?.includes(u));
         return [
@@ -75,24 +69,23 @@ export function replaceUuidToStyles({
     string,
     {
       uuid: string;
-      className: string;
       style: string;
       dependsOn: Set<string>;
     }
   > = new Map();
-  uuidToStyles.forEach(({ className, dependsOn, style, uuid }) => {
+  uuidToStyles.forEach(({ dependsOn, style, uuid, className }) => {
     let s = style;
     for (const depsUuid of dependsOn) {
       const d =
         resolvedUuidToStyles.get(depsUuid) ?? uuidToStyles.get(depsUuid);
       if (!d) {
-        throw new Error('Broken composition');
+        throw new Error(`Broken composition of ${className}`);
       }
       s = s.replaceAll(depsUuid, d.style);
       dependsOn.delete(depsUuid);
       d.dependsOn.forEach((dd) => dependsOn.add(dd));
     }
-    resolvedUuidToStyles.set(uuid, { className, dependsOn, style: s, uuid });
+    resolvedUuidToStyles.set(uuid, { dependsOn, style: s, uuid });
   });
   const result = Array.from(ownedClassNamesToStyles.values()).map(
     ({ style, originalName, temporalVariableName }) => {

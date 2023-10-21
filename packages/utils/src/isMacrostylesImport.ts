@@ -2,6 +2,7 @@ import type { NodePath, types } from '@babel/core';
 
 export function isMacrostylesImport(
   path: NodePath<types.Node>,
+  packageName: 'core' | 'react' | 'utils',
 ): path is NodePath<types.ImportDeclaration> {
   if (!path.isImportDeclaration()) {
     return false;
@@ -10,5 +11,5 @@ export function isMacrostylesImport(
   if (!importSource.isStringLiteral()) {
     return false;
   }
-  return importSource.node.value === '@macrostyles/core';
+  return importSource.node.value === `@macrostyles/${packageName}`;
 }

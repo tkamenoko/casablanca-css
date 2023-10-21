@@ -19,7 +19,7 @@ export function isMacrostylesCssTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isMacrostylesImport(importDec))) {
+  if (!(importDec && isMacrostylesImport(importDec, 'core'))) {
     return false;
   }
   const imported = tagBinding.path.get('imported');

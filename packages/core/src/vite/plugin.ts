@@ -1,12 +1,12 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { parseAsync } from '@babel/core';
+import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
 import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
 import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
 import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
 import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
 import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
-import type { PluginOption } from '@/types';
 import {
   evaluateForProductionBuild,
   evaluateWithServer,
@@ -20,8 +20,7 @@ import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
 import { loadCss } from './hooks/loadCss';
 import { resolveCssId } from './hooks/resolveCssId';
-import { extractPathAndParamsFromId } from './helpers/extractPathAndQueriesFromId';
-import type { CssLookup, JsToCssLookup } from './types';
+import type { CssLookup, JsToCssLookup, PluginOption } from './types';
 import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
 
 export type TransformResult = {
@@ -141,6 +140,7 @@ export function plugin(
               code,
               modulePath,
               temporalVariableNames,
+              uuidToStylesMap,
               load: async (importingId) => {
                 if (!server) {
                   throw new Error('Server is not configured.');
@@ -163,6 +163,7 @@ export function plugin(
               code,
               modulePath,
               temporalVariableNames,
+              uuidToStylesMap,
               load: async (importingId) => {
                 const resolved = await this.resolve(importingId);
                 if (!resolved?.id) {
@@ -191,7 +192,7 @@ export function plugin(
       const { composedStyles } = replaceUuidToStyles({
         cssLookup,
         ownedClassNamesToStyles: mapOfClassNamesToStyles,
-        uuidToClassNamesMap: uuidToStylesMap,
+        uuidToStylesMap,
       });
 
       const { importId, style } = createVirtualCssModule({

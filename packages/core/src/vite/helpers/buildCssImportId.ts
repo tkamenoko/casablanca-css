@@ -1,5 +1,5 @@
-import { moduleIdPrefix } from '@/types';
-import type { ModuleIdPrefix } from '@/types';
+import type { ModuleIdPrefix } from '../types';
+import { moduleIdPrefix } from '../types';
 
 export function buildCssImportId({
   importerPath: importerId,

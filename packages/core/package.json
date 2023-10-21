@@ -6,7 +6,8 @@
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
     "@babel/core": "^7.23.2",
-    "@happy-dom/global-registrator": "^12.9.1"
+    "@happy-dom/global-registrator": "^12.9.1",
+    "@macrostyles/utils": "npm:utils@0.0.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.2",
@@ -50,6 +51,9 @@
   "wireit": {
     "build": {
       "command": "vite build",
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
@@ -64,8 +68,11 @@
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
-        "./src/**/*.ts",
+        "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
         "./vite.config.ts"
       ],
@@ -73,6 +80,9 @@
     },
     "types": {
       "command": "tsc --noEmit",
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",

@@ -2,9 +2,14 @@ import { randomUUID } from 'node:crypto';
 
 import type babel from '@babel/core';
 import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
+import { isTopLevelStatement } from '@macrostyles/utils';
 
-import { isTopLevelStatement } from '@/stages/helpers/isTopLevelStatement';
-import type { ResolvedModuleId } from '@/types';
+import type { ResolvedModuleId } from '@/vite/types';
+
+import type { ComposeInternalArg } from '../3.evaluate-module/createComposeInternal';
+
+import type { UuidToStylesMap } from './types';
+import { markImportedSelectorsAsGlobal } from './markImportedSelectorsAsGlobal';
 
 export type Options = {
   temporalVariableNames: string[];
@@ -12,13 +17,7 @@ export type Options = {
     string,
     { className: string; cssId: ResolvedModuleId; uuid: string }
   >;
-  uuidToStylesMap: Map<
-    string,
-    {
-      resolvedId: ResolvedModuleId | null;
-      className: string;
-    }
-  >;
+  uuidToStylesMap: UuidToStylesMap;
 };
 
 type BabelState = {
@@ -48,6 +47,10 @@ export function replaceEmbeddedValuesPlugin({
             if (!init.isTemplateLiteral()) {
               continue;
             }
+            // raw classNames are replaced with unique classNames even if it is already modified.
+            // imported classNames are already evaluated. This avoids duplication of replacing classNames.
+            markImportedSelectorsAsGlobal({ templateLiteralPath: init });
+            // fix `composes: ...` property
             const expressions = init.get('expressions');
             const quasis = init.get('quasis');
             for (const [i, quasi] of quasis.entries()) {
@@ -71,7 +74,9 @@ export function replaceEmbeddedValuesPlugin({
               if (!style.match(/(?:;|\s)composes:\s*$/)) {
                 continue;
               }
-              const uuids: string[] = [];
+              const composeArgs: (Omit<ComposeInternalArg, 'value'> & {
+                valueId: types.Identifier;
+              })[] = [];
               for (const id of ids) {
                 const name = id.node.name;
                 const {
@@ -79,19 +84,56 @@ export function replaceEmbeddedValuesPlugin({
                   cssId,
                   uuid = randomUUID(),
                 } = state.opts.embeddedToClassNameMap.get(name) ?? {};
+                const resolvedId = cssId ?? null;
+                const varName = name;
                 state.opts.uuidToStylesMap.set(uuid, {
+                  varName,
                   className: className ?? name,
-                  resolvedId: cssId ?? null,
+                  resolvedId,
                 });
-                uuids.push(uuid);
+                composeArgs.push({
+                  resolvedId,
+                  uuid,
+                  varName,
+                  valueId: id.node,
+                });
               }
-
-              expression.replaceWith(t.stringLiteral(uuids.join('\n')));
+              expression.replaceWith(
+                t.callExpression(
+                  t.identifier('__composeInternal'),
+                  composeArgs.map(({ resolvedId, uuid, valueId, varName }) => {
+                    const resolvedIdProperty = t.objectProperty(
+                      t.identifier('resolvedId'),
+                      resolvedId
+                        ? t.stringLiteral(resolvedId)
+                        : t.nullLiteral(),
+                    );
+                    const uuidProperty = t.objectProperty(
+                      t.identifier('uuid'),
+                      t.stringLiteral(uuid),
+                    );
+                    const valueProperty = t.objectProperty(
+                      t.identifier('value'),
+                      valueId,
+                    );
+                    const varNameProperty = t.objectProperty(
+                      t.identifier('varName'),
+                      t.stringLiteral(varName),
+                    );
+                    return t.objectExpression([
+                      resolvedIdProperty,
+                      uuidProperty,
+                      valueProperty,
+                      varNameProperty,
+                    ]);
+                  }),
+                ),
+              );
               const removedCompose = style.replace(
                 /(?<prev>;|\s)composes:\s*$/,
                 '$<prev>',
               );
-              quasi.node.value.raw = removedCompose;
+              quasi.replaceWith(t.templateElement({ raw: removedCompose }));
             }
           }
         },

@@ -6,7 +6,7 @@ import { test } from '../fixtures/extendedTest';
 
 test('should compose styles', async ({ expect, plugin, transformResult }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/composing.ts',
+    relativePath: './fixtures/composing.tsx',
     root: import.meta.url,
   });
   await build({
@@ -38,10 +38,6 @@ test('should compose styles', async ({ expect, plugin, transformResult }) => {
         expect(style).toMatch(/display:/);
         expect(style).toMatch(/border:/);
         break;
-      }
-
-      default: {
-        throw new Error(`Unknown className ${originalName}`);
       }
     }
   }
