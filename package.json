@@ -41,6 +41,7 @@
   "type": "module",
   "workspaces": [
     "./packages/*",
-    "./testbed/*"
+    "./testbed/*",
+    "./examples/*"
   ]
 }
