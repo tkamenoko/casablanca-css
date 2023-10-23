@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@macrostyles/core": "npm:core@0.0.1",
+    "@styled/typescript-styled-plugin": "^1.0.0",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.2.2",
     "vite": "^4.4.11"
@@ -25,8 +26,7 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/core:build"
       ]
     },
     "dev": {
@@ -36,8 +36,7 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/core:build"
       ]
     },
     "preview": {
