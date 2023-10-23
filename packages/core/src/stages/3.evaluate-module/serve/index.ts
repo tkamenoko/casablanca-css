@@ -3,8 +3,8 @@ import vm from 'node:vm';
 
 import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
 
+import { createWindowForContext } from '../createWindowForContext';
 import type { EvaluateModuleReturn } from '../types';
-import { registerGlobals, unregisterGlobals } from '../registerGlobals';
 import { createComposeInternal } from '../createComposeInternal';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
@@ -36,14 +36,12 @@ window.$RefreshSig$ = () => (type) => type
 window.__vite_plugin_react_preamble_installed__ = true
 `;
 
-function injectGlobals(code: string): string {
+function injectRefresh(code: string): string {
   return `
-${registerGlobals}
 ${code.replace(
   /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm,
   reactRefreshScriptMock,
 )}
-${unregisterGlobals}
 `;
 }
 
@@ -57,6 +55,7 @@ export async function evaluateModule({
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
   const contextifiedObject = vm.createContext({
     __composeInternal: createComposeInternal(uuidToStylesMap),
+    ...createWindowForContext(),
   });
 
   const targetLinker: ModuleLinker = async (
@@ -80,7 +79,7 @@ export async function evaluateModule({
       return m;
     }
   };
-  const injectedCode = injectGlobals(code);
+  const injectedCode = injectRefresh(code);
 
   // create module
   const targetModule = new vm.SourceTextModule(injectedCode, {

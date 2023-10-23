@@ -4,12 +4,11 @@ import vm from 'node:vm';
 import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
 
 import type { EvaluateModuleReturn } from '../types';
-import { registerGlobals, unregisterGlobals } from '../registerGlobals';
 import { createComposeInternal } from '../createComposeInternal';
+import { createWindowForContext } from '../createWindowForContext';
 
 import { nodeModuleLinker } from './nodeModulesLinker';
 import { localModulesLinker } from './localModulesLinker';
-
 type VariableName = string;
 
 type EvaluateModuleArgs = {
@@ -26,14 +25,6 @@ type EvaluateModuleArgs = {
   load: (id: string) => Promise<string>;
 };
 
-function injectGlobals(code: string): string {
-  return `
-${registerGlobals}
-${code}
-${unregisterGlobals}
-`;
-}
-
 export async function evaluateModule({
   code,
   modulePath,
@@ -43,6 +34,7 @@ export async function evaluateModule({
 }: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
   const contextifiedObject = vm.createContext({
     __composeInternal: createComposeInternal(uuidToStylesMap),
+    ...createWindowForContext(),
   });
 
   const targetLinker: ModuleLinker = async (
@@ -64,7 +56,7 @@ export async function evaluateModule({
     }
   };
 
-  const injectedCode = injectGlobals(code);
+  const injectedCode = code; // injectGlobals(code);
   // create module
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,

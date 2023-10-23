@@ -5,7 +5,6 @@ import { plugin, type TransformResult } from '@/vite/plugin';
 
 import { buildModuleId } from '../fixtures/buildModuleId';
 
-import * as simpleModuleExports from './fixtures/simple';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
 import * as assetModuleExports from './fixtures/useAssetFile';
@@ -67,7 +66,17 @@ test('should evaluate module to get exported styles', async ({
   testObjectHasEvaluatedStyles({
     expect,
     mapOfClassNamesToStyles,
-    moduleExports: simpleModuleExports,
+    moduleExports: {
+      staticStyle: `
+  color: blue;
+`,
+      embedded: `
+  font-size: ${4}em;
+`,
+      functionCall: `
+  font-weight: ${'bold'};
+`,
+    },
     variableNames,
   });
 });

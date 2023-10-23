@@ -5,7 +5,6 @@ import { buildModuleId } from '../fixtures/buildModuleId';
 import { test } from '../fixtures/extendedTest';
 
 import * as assetModuleExports from './fixtures/useAssetFile';
-import * as simpleModuleExports from './fixtures/simple';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
@@ -40,7 +39,17 @@ test('should evaluate module to get exported styles', async ({
   testObjectHasEvaluatedStyles({
     expect,
     mapOfClassNamesToStyles,
-    moduleExports: simpleModuleExports,
+    moduleExports: {
+      staticStyle: `
+  color: blue;
+`,
+      embedded: `
+  font-size: ${4}em;
+`,
+      functionCall: `
+  font-weight: ${'bold'};
+`,
+    },
     variableNames,
   });
 });
