@@ -29,11 +29,11 @@ type EvaluateModuleArgs = {
 };
 
 const reactRefreshScriptMock = `
-import RefreshRuntime from '/@react-refresh'
-RefreshRuntime.injectIntoGlobalHook(window)
-window.$RefreshReg$ = () => {}
-window.$RefreshSig$ = () => (type) => type
-window.__vite_plugin_react_preamble_installed__ = true
+import RefreshRuntime from '/@react-refresh';
+RefreshRuntime.injectIntoGlobalHook(window);
+globalThis.$RefreshReg$ = () => {};
+globalThis.$RefreshSig$ = () => (type) => type;
+globalThis.__vite_plugin_react_preamble_installed__ = true;
 `;
 
 function injectRefresh(code: string): string {
