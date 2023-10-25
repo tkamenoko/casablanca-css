@@ -1,13 +1,17 @@
 {
-  "name": "vanilla-ts",
-  "description": "macrostyles example for vanilla-ts.",
+  "name": "react-ts",
+  "description": "macrostyles example for react-ts.",
   "version": "0.0.0",
   "dependencies": {
-    "polished": "^4.2.2"
+    "polished": "^4.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@macrostyles/core": "npm:core@0.0.1",
+    "@macrostyles/react": "npm:react@0.0.1",
     "@styled/typescript-styled-plugin": "^1.0.0",
+    "@vitejs/plugin-react": "^4.1.0",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.2.2",
     "vite": "^4.4.11"
@@ -26,12 +30,13 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "files": [
-        "./src/**/*.ts",
+        "./src/**/*.{ts,tsx}",
         "./index.html",
         "./vite.config.ts"
       ],
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/react:build"
       ],
       "output": [
         "./dist/**"
@@ -44,7 +49,8 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/react:build"
       ]
     },
     "preview": {
