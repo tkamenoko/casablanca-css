@@ -1,14 +1,14 @@
 import type { Page } from 'rakkasjs';
-import { css } from '@macrostyles/core';
+import { styled } from '@macrostyles/react';
 
-const h1Styles = css`
+const H1Styles = styled('h1')`
   font-size: 2em;
 `;
 
 const HomePage: Page = () => {
   return (
     <main>
-      <h1 className={h1Styles}>Hello world!</h1>
+      <H1Styles>Hello world!</H1Styles>
       <p>Welcome to the Rakkas demo page 💃</p>
       <p>
         Try editing the files in <code>src/routes</code> to get started or go to

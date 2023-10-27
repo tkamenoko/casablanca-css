@@ -1,116 +1,115 @@
-import type { ModuleLinker } from 'node:vm';
+import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
 
-import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
+import type { ViteDevServer } from 'vite';
 
-import { createWindowForContext } from '../createWindowForContext';
-import type { EvaluateModuleReturn } from '../types';
-import { createComposeInternal } from '../createComposeInternal';
+import type { TransformContext } from '../types';
 
-import { nodeModuleLinker } from './nodeModulesLinker';
-import { localModulesLinker } from './localModulesLinker';
-import { baseLinker } from './baseLinker';
-
-type VariableName = string;
-
-type EvaluateModuleArgs = {
-  code: string;
-  modulePath: string;
-  uuidToStylesMap: UuidToStylesMap;
-  temporalVariableNames: Map<
-    string,
-    {
-      originalName: string;
-      temporalName: string;
-    }
-  >;
-  load: (id: string) => Promise<Record<string, unknown>>;
-  resolveId: (id: string) => Promise<string | null>;
-};
-
-const reactRefreshScriptMock = `
-import RefreshRuntime from '/@react-refresh';
-RefreshRuntime.injectIntoGlobalHook(window);
-globalThis.$RefreshReg$ = () => {};
-globalThis.$RefreshSig$ = () => (type) => type;
-globalThis.__vite_plugin_react_preamble_installed__ = true;
-`;
-
-function injectRefresh(code: string): string {
-  return `
-${code.replace(
-  /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm,
-  reactRefreshScriptMock,
-)}
-`;
-}
-
-export async function evaluateModule({
-  code,
+export function createLinker({
   modulePath,
-  temporalVariableNames,
-  uuidToStylesMap,
-  load,
-  resolveId,
-}: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
-  const contextifiedObject = vm.createContext({
-    __composeInternal: createComposeInternal(uuidToStylesMap),
-    ...createWindowForContext(),
-  });
-
-  const targetLinker: ModuleLinker = async (
-    specifier,
-    referencingModule,
-    extra,
-  ) => {
-    const linker = baseLinker(load);
-    try {
-      const m = await nodeModuleLinker({
-        baseLinker: linker,
-        resolveId,
-      })(specifier, referencingModule, extra);
-      return m;
-    } catch (error) {
-      const m = await localModulesLinker({
-        baseLinker: linker,
-        modulePath,
-      })(specifier, referencingModule, extra);
-
-      return m;
-    }
-  };
-  const injectedCode = injectRefresh(code);
-
-  // create module
-  const targetModule = new vm.SourceTextModule(injectedCode, {
-    context: contextifiedObject,
-  });
-  await targetModule.link(targetLinker);
-  // evaluate
-  await targetModule.evaluate();
-  // return captured styles
-  const captured: Record<string, unknown> = { ...targetModule.namespace };
-
-  const mapOfClassNamesToStyles = new Map<
-    VariableName,
+  server,
+  transformContext: ctx,
+}: {
+  modulePath: string;
+  server: ViteDevServer;
+  transformContext: TransformContext;
+}): ModuleLinker {
+  const modulesCache = new Map<string, Module>();
+  const linker: ModuleLinker = async (specifier, referencingModule) => {
     {
-      temporalVariableName: string;
-      originalName: string;
-      style: string;
+      // resolve id as node_module
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+      const imported = await import(specifier).catch(() => null);
+      if (imported) {
+        const exportNames = Object.keys(imported);
+        const m = new vm.SyntheticModule(
+          exportNames,
+          () => {
+            exportNames.forEach((name) => m.setExport(name, imported[name]));
+          },
+          {
+            context: referencingModule.context,
+            identifier: `vm:module<node>(${specifier})`,
+          },
+        );
+        return m;
+      }
     }
-  >();
-
-  for (const { originalName, temporalName } of temporalVariableNames.values()) {
-    const style = captured[temporalName];
-    if (typeof style !== 'string') {
-      throw new Error(`Failed to capture variable ${temporalName}`);
+    {
+      // resolve id as vite-specific module
+      const loaded = await server.ssrLoadModule(specifier).catch(() => null);
+      if (loaded) {
+        const exportNames = Object.keys(loaded);
+        const m = new vm.SyntheticModule(
+          exportNames,
+          () => {
+            exportNames.forEach((name) => m.setExport(name, loaded[name]));
+          },
+          {
+            context: referencingModule.context,
+            identifier: `vm:module<vite>(${specifier})`,
+          },
+        );
+        modulesCache.set(specifier, m);
+        return m;
+      }
     }
-    mapOfClassNamesToStyles.set(originalName, {
-      style,
-      originalName,
-      temporalVariableName: temporalName,
-    });
-  }
-
-  return { mapOfClassNamesToStyles };
+    // resolve id as absolute path
+    const resolvedAbsolutePath = await ctx.resolve(specifier);
+    if (resolvedAbsolutePath) {
+      const cached = modulesCache.get(resolvedAbsolutePath.id);
+      if (cached) {
+        return cached;
+      }
+      const loaded = await server
+        .ssrLoadModule(resolvedAbsolutePath.id)
+        .catch(() => null);
+      if (loaded) {
+        const exportNames = Object.keys(loaded);
+        const m = new vm.SyntheticModule(
+          exportNames,
+          () => {
+            exportNames.forEach((name) => m.setExport(name, loaded[name]));
+          },
+          {
+            context: referencingModule.context,
+            identifier: `vm:module<absolute>(${specifier})`,
+          },
+        );
+        modulesCache.set(resolvedAbsolutePath.id, m);
+        return m;
+      }
+    }
+    // resolve id as relative path
+    const resolvedRelativePath = await ctx.resolve(specifier, modulePath);
+    if (resolvedRelativePath) {
+      const cached = modulesCache.get(resolvedRelativePath.id);
+      if (cached) {
+        return cached;
+      }
+      const loaded = await server
+        .ssrLoadModule(resolvedRelativePath.id)
+        .catch(() => null);
+      if (loaded) {
+        const exportNames = Object.keys(loaded);
+        const m = new vm.SyntheticModule(
+          exportNames,
+          () => {
+            exportNames.forEach((name) => m.setExport(name, loaded[name]));
+          },
+          {
+            context: referencingModule.context,
+            identifier: `vm:module<relative>(${specifier})`,
+          },
+        );
+        modulesCache.set(resolvedRelativePath.id, m);
+        return m;
+      }
+    }
+    throw new Error(`Failed to load "${specifier}" from "${modulePath}"`);
+  };
+  return linker;
 }

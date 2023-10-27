@@ -1,4 +1,4 @@
-import type { TaggedStyle } from '@macrostyles/utils/index';
+import type { TaggedStyle } from '@macrostyles/utils';
 
 import type { ResolvedModuleId } from '@/vite/types';
 

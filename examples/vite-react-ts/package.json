@@ -1,5 +1,5 @@
 {
-  "name": "react-ts",
+  "name": "react-ts-example",
   "description": "macrostyles example for react-ts.",
   "version": "0.0.0",
   "dependencies": {
@@ -30,7 +30,7 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "files": [
-        "./src/**/*.{ts,tsx}",
+        "./src/",
         "./index.html",
         "./vite.config.ts"
       ],
