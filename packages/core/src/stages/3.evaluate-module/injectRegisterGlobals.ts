@@ -5,7 +5,8 @@ export const createGlobalContext = (): Record<string, unknown> => {
   const selfReference = ['self', 'top', 'parent', 'window'];
   const r: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(w)) {
-    if (r[k] === v) {
+    // @ts-expect-error inject globals
+    if (globalThis[k] === v) {
       continue;
     }
     r[k] = v;
