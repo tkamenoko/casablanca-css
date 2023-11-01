@@ -52,7 +52,9 @@ export async function evaluate({
     console,
     process,
   });
-  const injectedCode = injectRegisterGlobals(injectRefresh(code));
+  // build context
+  vm.runInContext(injectRegisterGlobals('()=>{};'), contextifiedObject);
+  const injectedCode = injectRefresh(code);
   // create module
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
