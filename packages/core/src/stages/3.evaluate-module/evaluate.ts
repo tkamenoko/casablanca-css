@@ -1,4 +1,4 @@
-import type { ModuleLinker } from 'node:vm';
+import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
 
 import type { UuidToStylesMap } from '../2.prepare-compositions/types';
@@ -29,6 +29,7 @@ ${code.replace(
 
 type EvaluateArgs = {
   code: string;
+  modulesCache: Map<string, Module>;
   uuidToStylesMap: UuidToStylesMap;
   temporalVariableNames: Map<
     string,
@@ -43,6 +44,7 @@ type EvaluateArgs = {
 export async function evaluate({
   code,
   linker,
+  modulesCache,
   temporalVariableNames,
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
@@ -54,13 +56,27 @@ export async function evaluate({
   });
   // build context
   vm.runInContext(injectRegisterGlobals('()=>{};'), contextifiedObject);
-  const injectedCode = injectRefresh(code);
+
   // create module
+  const injectedCode = injectRefresh(code);
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
-    identifier: `vm:module(target)`,
+    identifier: `vm:module(*target*)`,
   });
   await targetModule.link(linker);
+  // evaluate dependencies
+  const sortedDeps = [...modulesCache.values()].slice().sort((a, b) => {
+    return (
+      (a.dependencySpecifiers?.length || 0) -
+      (b.dependencySpecifiers?.length || 0)
+    );
+  });
+  for (const dep of sortedDeps) {
+    if (dep.status !== 'evaluated') {
+      await dep.evaluate();
+    }
+  }
+
   // evaluate
   const error = await targetModule.evaluate().catch((e) => e);
   if (error) {

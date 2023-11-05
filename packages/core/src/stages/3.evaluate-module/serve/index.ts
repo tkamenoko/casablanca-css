@@ -1,9 +1,15 @@
 import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
+import { isBuiltin } from 'node:module';
 
 import type { ViteDevServer } from 'vite';
 
 import type { TransformContext } from '../types';
+
+type CreateLinkerReturn = {
+  linker: ModuleLinker;
+  modulesCache: Map<string, Module>;
+};
 
 export function createLinker({
   modulePath,
@@ -13,103 +19,162 @@ export function createLinker({
   modulePath: string;
   server: ViteDevServer;
   transformContext: TransformContext;
-}): ModuleLinker {
+}): CreateLinkerReturn {
   const modulesCache = new Map<string, Module>();
   const linker: ModuleLinker = async (specifier, referencingModule) => {
-    {
+    const referencingPath =
+      referencingModule.identifier.match(/\((?<path>.+)\)/)?.groups?.['path'] ??
+      modulePath;
+    const basePath =
+      referencingPath === '*target*' ? modulePath : referencingPath;
+
+    builtin: {
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+      if (!isBuiltin(specifier)) {
+        break builtin;
+      }
+      const normalizedSpecifier = specifier.startsWith('node:')
+        ? specifier
+        : `node:${specifier}`;
+      const imported = await import(normalizedSpecifier).catch(() => null);
+      if (!imported) {
+        break builtin;
+      }
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<builtin>(${specifier})`,
+        },
+      );
+      const shortSpecifier = normalizedSpecifier.slice('node:'.length);
+      modulesCache.set(normalizedSpecifier, m);
+      isBuiltin(shortSpecifier) ? modulesCache.set(shortSpecifier, m) : void 0;
+
+      return m;
+    }
+    node: {
       // resolve id as node_module
       const cached = modulesCache.get(specifier);
       if (cached) {
         return cached;
       }
       const imported = await import(specifier).catch(() => null);
-      if (imported) {
-        const exportNames = Object.keys(imported);
-        const m = new vm.SyntheticModule(
-          exportNames,
-          () => {
-            exportNames.forEach((name) => m.setExport(name, imported[name]));
-          },
-          {
-            context: referencingModule.context,
-            identifier: `vm:module<node>(${specifier})`,
-          },
-        );
-        return m;
+      if (!imported) {
+        break node;
       }
+
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<node>(${specifier})`,
+        },
+      );
+      return m;
     }
-    {
+    vite: {
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+
       // resolve id as vite-specific module
       const loaded = await server.ssrLoadModule(specifier).catch(() => null);
-      if (loaded) {
-        const exportNames = Object.keys(loaded);
-        const m = new vm.SyntheticModule(
-          exportNames,
-          () => {
-            exportNames.forEach((name) => m.setExport(name, loaded[name]));
-          },
-          {
-            context: referencingModule.context,
-            identifier: `vm:module<vite>(${specifier})`,
-          },
-        );
-        modulesCache.set(specifier, m);
-        return m;
+      if (!loaded) {
+        break vite;
       }
+
+      const exportNames = Object.keys(loaded);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, loaded[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<vite>(${specifier})`,
+        },
+      );
+      modulesCache.set(specifier, m);
+      return m;
     }
-    // resolve id as absolute path
-    const resolvedAbsolutePath = await ctx.resolve(specifier);
-    if (resolvedAbsolutePath) {
+    absolute: {
+      // resolve id as absolute path
+      const resolvedAbsolutePath = await ctx.resolve(specifier);
+      if (!resolvedAbsolutePath) {
+        break absolute;
+      }
+
       const cached = modulesCache.get(resolvedAbsolutePath.id);
       if (cached) {
         return cached;
       }
+
       const loaded = await server
         .ssrLoadModule(resolvedAbsolutePath.id)
         .catch(() => null);
-      if (loaded) {
-        const exportNames = Object.keys(loaded);
-        const m = new vm.SyntheticModule(
-          exportNames,
-          () => {
-            exportNames.forEach((name) => m.setExport(name, loaded[name]));
-          },
-          {
-            context: referencingModule.context,
-            identifier: `vm:module<absolute>(${specifier})`,
-          },
-        );
-        modulesCache.set(resolvedAbsolutePath.id, m);
-        return m;
+      if (!loaded) {
+        break absolute;
       }
+
+      const exportNames = Object.keys(loaded);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, loaded[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<absolute>(${resolvedAbsolutePath.id})`,
+        },
+      );
+      modulesCache.set(resolvedAbsolutePath.id, m);
+      return m;
     }
-    // resolve id as relative path
-    const resolvedRelativePath = await ctx.resolve(specifier, modulePath);
-    if (resolvedRelativePath) {
+    relative: {
+      // resolve id as relative path
+      const resolvedRelativePath = await ctx.resolve(specifier, basePath);
+      if (!resolvedRelativePath) {
+        break relative;
+      }
       const cached = modulesCache.get(resolvedRelativePath.id);
       if (cached) {
         return cached;
       }
+
       const loaded = await server
         .ssrLoadModule(resolvedRelativePath.id)
         .catch(() => null);
-      if (loaded) {
-        const exportNames = Object.keys(loaded);
-        const m = new vm.SyntheticModule(
-          exportNames,
-          () => {
-            exportNames.forEach((name) => m.setExport(name, loaded[name]));
-          },
-          {
-            context: referencingModule.context,
-            identifier: `vm:module<relative>(${specifier})`,
-          },
-        );
-        modulesCache.set(resolvedRelativePath.id, m);
-        return m;
+      if (!loaded) {
+        break relative;
       }
+      const exportNames = Object.keys(loaded);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, loaded[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<relative>(${resolvedRelativePath.id})`,
+        },
+      );
+      modulesCache.set(resolvedRelativePath.id, m);
+      return m;
     }
     throw new Error(`Failed to load "${specifier}" from "${modulePath}"`);
   };
-  return linker;
+  return { linker, modulesCache };
 }
