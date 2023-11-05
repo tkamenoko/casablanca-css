@@ -5,14 +5,11 @@ import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
 import type { EvaluateModuleReturn } from './types';
 import { createComposeInternal } from './createComposeInternal';
-import {
-  injectRegisterGlobals,
-  createGlobalContext,
-} from './injectRegisterGlobals';
+import { createGlobalContext } from './injectRegisterGlobals';
 
 const reactRefreshScriptMock = /* js */ `
 import RefreshRuntime from '/@react-refresh';
-RefreshRuntime.injectIntoGlobalHook(globalThis);
+RefreshRuntime.injectIntoGlobalHook(window);
 globalThis.$RefreshReg$ = () => {};
 globalThis.$RefreshSig$ = () => (type) => type;
 globalThis.__vite_plugin_react_preamble_installed__ = true;
@@ -54,9 +51,6 @@ export async function evaluate({
     console,
     process,
   });
-  // build context
-  vm.runInContext(injectRegisterGlobals('()=>{};'), contextifiedObject);
-
   // create module
   const injectedCode = injectRefresh(code);
   const targetModule = new vm.SourceTextModule(injectedCode, {

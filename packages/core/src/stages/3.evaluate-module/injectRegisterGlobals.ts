@@ -1,40 +1,35 @@
 import { GlobalWindow } from 'happy-dom';
 
-export const createGlobalContext = (): Record<string, unknown> => {
-  const w = new GlobalWindow();
-  const selfReference = ['self', 'top', 'parent', 'window'];
-  const r: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(w)) {
-    // @ts-expect-error inject globals
-    if (globalThis[k] === v) {
-      continue;
-    }
-    r[k] = v;
-  }
+const ignores = ['undefined', 'NaN', 'global', 'globalThis'] as const;
+const selfReferences = ['self', 'top', 'parent', 'window'] as const;
 
-  for (const key of selfReference) {
-    r[key] = undefined;
-  }
-  return r;
-};
+type CreateWindowForContextReturn = Omit<
+  typeof window,
+  (typeof ignores)[number] | number
+>;
 
-const registerGlobals = /* js */ `
-{
-  for (const [k,v] of Object.entries(globalThis)) {
-    if (typeof v === "function" && k.at(0).match(/[A-Z]/)) {
-      globalThis[k] = v.bind(globalThis)
-    }
+export function createGlobalContext(): CreateWindowForContextReturn {
+  const window = new GlobalWindow();
+  const entries = Object.entries(window)
+    .filter(
+      (
+        x,
+      ): x is [
+        keyof CreateWindowForContextReturn,
+        CreateWindowForContextReturn[keyof CreateWindowForContextReturn],
+      ] => {
+        const [k] = x;
+        return !(ignores as readonly string[]).includes(k);
+      },
+    )
+    .map(([k, v]) => {
+      if (typeof v === 'function' && !k.at(0)?.match(/[A-Z]/)) {
+        return [k, v.bind(window)];
+      }
+      return [k, v];
+    });
+  for (const key of selfReferences) {
+    entries.push([key, window]);
   }
-  const selfReference = ['self', 'top', 'parent', 'window'];
-  for (const key of selfReference) {
-    globalThis[key] = globalThis;
-  }
-}
-`;
-
-export function injectRegisterGlobals(code: string): string {
-  return `\
-${registerGlobals}
-${code}
-`;
+  return Object.fromEntries(entries);
 }
