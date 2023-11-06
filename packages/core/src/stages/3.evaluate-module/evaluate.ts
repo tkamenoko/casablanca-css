@@ -6,23 +6,7 @@ import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 import type { EvaluateModuleReturn } from './types';
 import { createComposeInternal } from './createComposeInternal';
 import { createGlobalContext } from './injectRegisterGlobals';
-
-const reactRefreshScriptMock = /* js */ `
-import RefreshRuntime from '/@react-refresh';
-RefreshRuntime.injectIntoGlobalHook(window);
-globalThis.$RefreshReg$ = () => {};
-globalThis.$RefreshSig$ = () => (type) => type;
-globalThis.__vite_plugin_react_preamble_installed__ = true;
-`;
-
-function injectRefresh(code: string): string {
-  return `
-${code.replace(
-  /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm,
-  reactRefreshScriptMock,
-)}
-`;
-}
+import { injectReactRefresh } from './injectReaactRefresh';
 
 type EvaluateArgs = {
   code: string;
@@ -48,11 +32,10 @@ export async function evaluate({
   const contextifiedObject = vm.createContext({
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
-    console,
     process,
   });
   // create module
-  const injectedCode = injectRefresh(code);
+  const injectedCode = injectReactRefresh(code);
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
     identifier: `vm:module(*target*)`,
@@ -72,11 +55,7 @@ export async function evaluate({
   }
 
   // evaluate
-  const error = await targetModule.evaluate().catch((e) => e);
-  if (error) {
-    console.error(error);
-    throw error;
-  }
+  await targetModule.evaluate();
 
   // return captured styles
   const captured: Record<string, unknown> = { ...targetModule.namespace };
