@@ -36,7 +36,6 @@ export function createEvaluator({
     const { linker, modulesCache } = createLinkerForServer({
       modulePath,
       server,
-      transformContext,
     });
     const evaluator: Evaluator = async ({
       code,

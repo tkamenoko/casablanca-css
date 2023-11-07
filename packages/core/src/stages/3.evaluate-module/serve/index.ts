@@ -5,7 +5,6 @@ import { pathToFileURL } from 'node:url';
 
 import type { ViteDevServer } from 'vite';
 
-import type { TransformContext } from '../types';
 import { injectReactRefresh } from '../injectReaactRefresh';
 
 import { normalizeSpecifier } from './normalizeSpecifier';
@@ -18,11 +17,9 @@ type CreateLinkerReturn = {
 export function createLinker({
   modulePath,
   server,
-  transformContext: ctx,
 }: {
   modulePath: string;
   server: ViteDevServer;
-  transformContext: TransformContext;
 }): CreateLinkerReturn {
   const modulesCache = new Map<string, Module>();
   const linker: ModuleLinker = async (specifier, referencingModule) => {
@@ -124,7 +121,8 @@ export function createLinker({
     }
     absolute: {
       // resolve id as absolute path
-      const resolvedAbsolutePath = await ctx.resolve(serverSpecifier);
+      const resolvedAbsolutePath =
+        await server.pluginContainer.resolveId(serverSpecifier);
       if (!resolvedAbsolutePath) {
         break absolute;
       }
@@ -166,7 +164,10 @@ export function createLinker({
     }
     relative: {
       // resolve id as relative path
-      const resolvedRelativePath = await ctx.resolve(serverSpecifier, basePath);
+      const resolvedRelativePath = await server.pluginContainer.resolveId(
+        serverSpecifier,
+        basePath,
+      );
       if (!resolvedRelativePath) {
         break relative;
       }
