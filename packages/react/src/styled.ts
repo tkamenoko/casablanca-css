@@ -1,25 +1,23 @@
 import type { FC, JSX, ComponentType } from 'react';
 import type { TaggedStyle } from '@macrostyles/utils';
 
-type TagFunction<T> = <P extends object = Record<never, never>>(
+type TagFunction<T extends object> = <P extends object = T>(
   strings: TemplateStringsArray,
   ...vars: (
     | string
     | number
-    | ((
-        props: T extends ComponentType<infer C> ? C & P : never,
-      ) => string | number)
+    | (<U extends T & P>(props: U) => string | number)
     | TaggedStyle<unknown>
     | TaggedStyle<unknown>[]
   )[]
-) => TaggedStyle<T extends ComponentType<infer C> ? FC<C & P> : T>;
+) => TaggedStyle<FC<T & P>>;
 
 type StyleComponent = <C = ComponentType>(
   component: C,
-) => C extends ComponentType<infer P> ? TagFunction<ComponentType<P>> : never;
+) => C extends ComponentType<infer P extends object> ? TagFunction<P> : never;
 type StyleElement = <C extends keyof JSX.IntrinsicElements>(
   component: C,
-) => TagFunction<FC<JSX.IntrinsicElements[C]>>;
+) => TagFunction<JSX.IntrinsicElements[C]>;
 
 type Styled = StyleElement & StyleComponent;
 

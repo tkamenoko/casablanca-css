@@ -1,100 +1,167 @@
-import type { ModuleLinker } from 'node:vm';
+import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
+import { isBuiltin } from 'node:module';
 
-import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
+import type { TransformContext } from '../types';
 
-import type { EvaluateModuleReturn } from '../types';
-import { registerGlobals, unregisterGlobals } from '../registerGlobals';
-import { createComposeInternal } from '../createComposeInternal';
-
-import { nodeModuleLinker } from './nodeModulesLinker';
-import { localModulesLinker } from './localModulesLinker';
-
-type VariableName = string;
-
-type EvaluateModuleArgs = {
-  code: string;
-  modulePath: string;
-  uuidToStylesMap: UuidToStylesMap;
-  temporalVariableNames: Map<
-    string,
-    {
-      originalName: string;
-      temporalName: string;
-    }
-  >;
-  load: (id: string) => Promise<string>;
+type CreateLinkerReturn = {
+  linker: ModuleLinker;
+  modulesCache: Map<string, Module>;
 };
 
-function injectGlobals(code: string): string {
-  return `
-${registerGlobals}
-${code}
-${unregisterGlobals}
-`;
-}
-
-export async function evaluateModule({
-  code,
+export function createLinker({
   modulePath,
-  temporalVariableNames,
-  uuidToStylesMap,
-  load,
-}: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
-  const contextifiedObject = vm.createContext({
-    __composeInternal: createComposeInternal(uuidToStylesMap),
-  });
+  transformContext: ctx,
+}: {
+  modulePath: string;
+  transformContext: TransformContext;
+}): CreateLinkerReturn {
+  const modulesCache = new Map<string, Module>();
+  const linker: ModuleLinker = async (specifier, referencingModule) => {
+    const referencingPath =
+      referencingModule.identifier.match(/\((?<path>.+)\)/)?.groups?.['path'] ??
+      modulePath;
+    const basePath =
+      referencingPath === '*target*' ? modulePath : referencingPath;
 
-  const targetLinker: ModuleLinker = async (
-    specifier,
-    referencingModule,
-    extra,
-  ) => {
-    try {
-      const m = await nodeModuleLinker({
-        load,
-      })(specifier, referencingModule, extra);
-      return m;
-    } catch (error) {
-      const m = await localModulesLinker({
-        load,
-        modulePath,
-      })(specifier, referencingModule, extra);
+    builtin: {
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+      if (!isBuiltin(specifier)) {
+        break builtin;
+      }
+      const normalizedSpecifier = specifier.startsWith('node:')
+        ? specifier
+        : `node:${specifier}`;
+      const imported = await import(normalizedSpecifier).catch(() => null);
+      if (!imported) {
+        break builtin;
+      }
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<builtin>(${specifier})`,
+        },
+      );
+      const shortSpecifier = normalizedSpecifier.slice('node:'.length);
+      modulesCache.set(normalizedSpecifier, m);
+      isBuiltin(shortSpecifier) ? modulesCache.set(shortSpecifier, m) : void 0;
+
       return m;
     }
+    node: {
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+      // resolve id as node_modules
+      const imported = await import(specifier).catch(() => null);
+      if (!imported) {
+        break node;
+      }
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<node>(${specifier})`,
+        },
+      );
+      modulesCache.set(specifier, m);
+      return m;
+    }
+    vite: {
+      const cached = modulesCache.get(specifier);
+      if (cached) {
+        return cached;
+      }
+      // resolve id as vite-specific module
+      const loaded = await ctx
+        .load({
+          id: specifier,
+          resolveDependencies: true,
+          moduleSideEffects: true,
+        })
+        .catch(() => null);
+      if (!loaded?.code) {
+        break vite;
+      }
+
+      const m = new vm.SourceTextModule(loaded.code, {
+        context: referencingModule.context,
+        identifier: `vm:module<vite>(${specifier})`,
+      });
+      modulesCache.set(specifier, m);
+      return m;
+    }
+    absolute: {
+      // resolve id as absolute path
+      const resolvedAbsolutePath = await ctx.resolve(specifier);
+      if (!resolvedAbsolutePath) {
+        break absolute;
+      }
+      const cached = modulesCache.get(resolvedAbsolutePath.id);
+      if (cached) {
+        return cached;
+      }
+      const loaded = await ctx
+        .load({
+          id: resolvedAbsolutePath.id,
+          resolveDependencies: true,
+          moduleSideEffects: true,
+        })
+        .catch(() => null);
+      if (!loaded?.code) {
+        break absolute;
+      }
+      const m = new vm.SourceTextModule(loaded.code, {
+        context: referencingModule.context,
+        identifier: `vm:module<absolute>(${resolvedAbsolutePath.id})`,
+      });
+      modulesCache.set(resolvedAbsolutePath.id, m);
+      return m;
+    }
+    relative: {
+      // resolve id as relative path
+      const resolvedRelativePath = await ctx.resolve(specifier, basePath);
+      if (!resolvedRelativePath) {
+        break relative;
+      }
+      const cached = modulesCache.get(resolvedRelativePath.id);
+      if (cached) {
+        return cached;
+      }
+      const loaded = await ctx
+        .load({
+          id: resolvedRelativePath.id,
+          resolveDependencies: true,
+          moduleSideEffects: true,
+        })
+        .catch(() => null);
+      if (!loaded?.code) {
+        break relative;
+      }
+
+      const m = new vm.SourceTextModule(loaded.code, {
+        context: referencingModule.context,
+        identifier: `vm:module<relative>(${resolvedRelativePath.id})`,
+      });
+      modulesCache.set(resolvedRelativePath.id, m);
+      return m;
+    }
+    throw new Error(
+      `Failed to load "${specifier}" from "${referencingModule.identifier}"`,
+    );
   };
-
-  const injectedCode = injectGlobals(code);
-  // create module
-  const targetModule = new vm.SourceTextModule(injectedCode, {
-    context: contextifiedObject,
-  });
-  await targetModule.link(targetLinker);
-  // evaluate
-  await targetModule.evaluate();
-  // return captured styles
-  const captured: Record<string, unknown> = { ...targetModule.namespace };
-
-  const mapOfClassNamesToStyles = new Map<
-    VariableName,
-    {
-      temporalVariableName: string;
-      originalName: string;
-      style: string;
-    }
-  >();
-
-  for (const { originalName, temporalName } of temporalVariableNames.values()) {
-    const style = captured[temporalName];
-    if (typeof style !== 'string') {
-      throw new Error(`Failed to capture variable ${temporalName}`);
-    }
-    mapOfClassNamesToStyles.set(originalName, {
-      style,
-      temporalVariableName: temporalName,
-      originalName,
-    });
-  }
-
-  return { mapOfClassNamesToStyles };
+  return { linker, modulesCache };
 }

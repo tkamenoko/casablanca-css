@@ -7,10 +7,7 @@ import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-st
 import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
 import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
 import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
-import {
-  evaluateForProductionBuild,
-  evaluateWithServer,
-} from '@/stages/3.evaluate-module';
+import { createEvaluator } from '@/stages/3.evaluate-module';
 import type { CaptureTaggedStylesReturn } from '@/stages/1.capture-tagged-styles';
 import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
 import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions';
@@ -89,8 +86,6 @@ export function plugin(
         return;
       }
 
-      // TODO: library-specific hooks
-
       // find tagged templates, then remove all tags.
       const {
         capturedVariableNames,
@@ -124,69 +119,16 @@ export function plugin(
         },
       });
 
-      const evaluateModule: (params: {
-        code: string;
-        temporalVariableNames: Map<
-          string,
-          {
-            originalName: string;
-            temporalName: string;
-          }
-        >;
-        modulePath: string;
-      }) => Promise<EvaluateModuleReturn> = server
-        ? async ({ code, modulePath, temporalVariableNames }) => {
-            const result = await evaluateWithServer({
-              code,
-              modulePath,
-              temporalVariableNames,
-              uuidToStylesMap,
-              load: async (importingId) => {
-                if (!server) {
-                  throw new Error('Server is not configured.');
-                }
-                const r = await server.ssrLoadModule(importingId);
-                return r;
-              },
-              resolveId: async (importingId) => {
-                const r = await this.resolve(importingId);
-                if (!r) {
-                  return r;
-                }
-                return r.id;
-              },
-            });
-            return result;
-          }
-        : async ({ code, modulePath, temporalVariableNames }) => {
-            const result = await evaluateForProductionBuild({
-              code,
-              modulePath,
-              temporalVariableNames,
-              uuidToStylesMap,
-              load: async (importingId) => {
-                const resolved = await this.resolve(importingId);
-                if (!resolved?.id) {
-                  throw new Error(`Failed to resolve ${importingId}`);
-                }
-
-                const result = await this.load({
-                  id: resolved.id,
-                  resolveDependencies: true,
-                });
-                if (!result.code) {
-                  throw new Error(`Failed to load ${resolved.id}`);
-                }
-                return result.code;
-              },
-            });
-            return result;
-          };
+      const evaluateModule = createEvaluator({
+        server,
+        transformContext: this,
+        modulePath: path,
+      });
 
       const { mapOfClassNamesToStyles } = await evaluateModule({
         code: replacedCode,
         temporalVariableNames,
-        modulePath: path,
+        uuidToStylesMap,
       });
 
       const { composedStyles } = replaceUuidToStyles({

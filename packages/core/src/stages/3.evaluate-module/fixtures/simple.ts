@@ -19,3 +19,4 @@ export const functionCall = css`
 `;
 
 export const thisIs = `not a target`;
+export const thisIsAlsoIgnored = document.baseURI;

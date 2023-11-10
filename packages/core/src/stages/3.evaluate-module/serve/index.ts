@@ -1,117 +1,209 @@
-import type { ModuleLinker } from 'node:vm';
+import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
+import { isBuiltin } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
-import type { UuidToStylesMap } from '@/stages/2.prepare-compositions/types';
+import type { ViteDevServer } from 'vite';
 
-import type { EvaluateModuleReturn } from '../types';
-import { registerGlobals, unregisterGlobals } from '../registerGlobals';
-import { createComposeInternal } from '../createComposeInternal';
+import { injectReactRefresh } from '../injectReaactRefresh';
 
-import { nodeModuleLinker } from './nodeModulesLinker';
-import { localModulesLinker } from './localModulesLinker';
-import { baseLinker } from './baseLinker';
+import { normalizeSpecifier } from './normalizeSpecifier';
 
-type VariableName = string;
-
-type EvaluateModuleArgs = {
-  code: string;
-  modulePath: string;
-  uuidToStylesMap: UuidToStylesMap;
-  temporalVariableNames: Map<
-    string,
-    {
-      originalName: string;
-      temporalName: string;
-    }
-  >;
-  load: (id: string) => Promise<Record<string, unknown>>;
-  resolveId: (id: string) => Promise<string | null>;
+type CreateLinkerReturn = {
+  linker: ModuleLinker;
+  modulesCache: Map<string, Module>;
 };
 
-const reactRefreshScriptMock = `
-import RefreshRuntime from '/@react-refresh'
-RefreshRuntime.injectIntoGlobalHook(window)
-window.$RefreshReg$ = () => {}
-window.$RefreshSig$ = () => (type) => type
-window.__vite_plugin_react_preamble_installed__ = true
-`;
-
-function injectGlobals(code: string): string {
-  return `
-${registerGlobals}
-${code.replace(
-  /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm,
-  reactRefreshScriptMock,
-)}
-${unregisterGlobals}
-`;
-}
-
-export async function evaluateModule({
-  code,
+export function createLinker({
   modulePath,
-  temporalVariableNames,
-  uuidToStylesMap,
-  load,
-  resolveId,
-}: EvaluateModuleArgs): Promise<EvaluateModuleReturn> {
-  const contextifiedObject = vm.createContext({
-    __composeInternal: createComposeInternal(uuidToStylesMap),
-  });
+  server,
+}: {
+  modulePath: string;
+  server: ViteDevServer;
+}): CreateLinkerReturn {
+  const modulesCache = new Map<string, Module>();
+  const linker: ModuleLinker = async (specifier, referencingModule) => {
+    const referencingPath =
+      referencingModule.identifier.match(/\((?<path>.+)\)/)?.groups?.['path'] ??
+      modulePath;
+    const basePath =
+      referencingPath === '*target*' ? modulePath : referencingPath;
+    const serverSpecifier = normalizeSpecifier(specifier);
 
-  const targetLinker: ModuleLinker = async (
-    specifier,
-    referencingModule,
-    extra,
-  ) => {
-    const linker = baseLinker(load);
-    try {
-      const m = await nodeModuleLinker({
-        baseLinker: linker,
-        resolveId,
-      })(specifier, referencingModule, extra);
-      return m;
-    } catch (error) {
-      const m = await localModulesLinker({
-        baseLinker: linker,
-        modulePath,
-      })(specifier, referencingModule, extra);
+    builtin: {
+      const cached = modulesCache.get(serverSpecifier);
+      if (cached) {
+        return cached;
+      }
+      if (!isBuiltin(serverSpecifier)) {
+        break builtin;
+      }
+      const normalizedSpecifier = serverSpecifier.startsWith('node:')
+        ? serverSpecifier
+        : `node:${serverSpecifier}`;
+      const imported = await import(normalizedSpecifier).catch(() => null);
+      if (!imported) {
+        break builtin;
+      }
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<builtin>(${serverSpecifier})`,
+        },
+      );
+      const shortSpecifier = normalizedSpecifier.slice('node:'.length);
+      modulesCache.set(normalizedSpecifier, m);
+      isBuiltin(shortSpecifier) ? modulesCache.set(shortSpecifier, m) : void 0;
 
       return m;
     }
+    node: {
+      // resolve id as node_module
+      const cached = modulesCache.get(serverSpecifier);
+      if (cached) {
+        return cached;
+      }
+      const imported = await import(serverSpecifier).catch(() => null);
+      if (!imported) {
+        break node;
+      }
+
+      const exportNames = Object.keys(imported);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, imported[name]));
+        },
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<node>(${serverSpecifier})`,
+        },
+      );
+      return m;
+    }
+    vite: {
+      const cached = modulesCache.get(serverSpecifier);
+      if (cached) {
+        return cached;
+      }
+      // resolve id as vite-specific module
+      const resolvedModule = server.moduleGraph.getModuleById(serverSpecifier);
+      if (!resolvedModule) {
+        break vite;
+      }
+      const { url } = resolvedModule;
+      const loaded = await server
+        .transformRequest(url, {
+          html: false,
+          ssr: false,
+        })
+        .catch(() => null);
+      if (!loaded) {
+        break vite;
+      }
+
+      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
+        context: referencingModule.context,
+        identifier: `vm:module<vite>(${serverSpecifier})`,
+        initializeImportMeta: (meta) => {
+          meta.url = url.startsWith('file://')
+            ? url
+            : pathToFileURL(url).toString();
+        },
+      });
+      modulesCache.set(serverSpecifier, m);
+      return m;
+    }
+    absolute: {
+      // resolve id as absolute path
+      const resolvedAbsolutePath =
+        await server.pluginContainer.resolveId(serverSpecifier);
+      if (!resolvedAbsolutePath) {
+        break absolute;
+      }
+
+      const cached = modulesCache.get(resolvedAbsolutePath.id);
+      if (cached) {
+        return cached;
+      }
+
+      const resolvedModule = server.moduleGraph.getModuleById(
+        resolvedAbsolutePath.id,
+      );
+      if (!resolvedModule) {
+        break absolute;
+      }
+      const { url } = resolvedModule;
+
+      const loaded = await server
+        .transformRequest(url, {
+          html: false,
+          ssr: false,
+        })
+        .catch(() => null);
+      if (!loaded) {
+        break absolute;
+      }
+
+      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
+        context: referencingModule.context,
+        identifier: `vm:module<absolute>(${resolvedAbsolutePath.id})`,
+        initializeImportMeta: (meta) => {
+          meta.url = url.startsWith('file://')
+            ? url
+            : pathToFileURL(url).toString();
+        },
+      });
+      modulesCache.set(resolvedAbsolutePath.id, m);
+      return m;
+    }
+    relative: {
+      // resolve id as relative path
+      const resolvedRelativePath = await server.pluginContainer.resolveId(
+        serverSpecifier,
+        basePath,
+      );
+      if (!resolvedRelativePath) {
+        break relative;
+      }
+      const cached = modulesCache.get(resolvedRelativePath.id);
+      if (cached) {
+        return cached;
+      }
+
+      const resolvedModule = server.moduleGraph.getModuleById(
+        resolvedRelativePath.id,
+      );
+      const url = resolvedModule?.url ?? resolvedRelativePath.id;
+
+      const loaded = await server
+        .transformRequest(url, {
+          html: false,
+          ssr: false,
+        })
+        .catch(() => null);
+      if (!loaded) {
+        break relative;
+      }
+
+      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
+        context: referencingModule.context,
+        identifier: `vm:module<relative>(${resolvedRelativePath.id})`,
+        initializeImportMeta: (meta) => {
+          meta.url = url.startsWith('file://')
+            ? url
+            : pathToFileURL(url).toString();
+        },
+      });
+      modulesCache.set(resolvedRelativePath.id, m);
+      return m;
+    }
+    throw new Error(`Failed to load "${serverSpecifier}" from "${modulePath}"`);
   };
-  const injectedCode = injectGlobals(code);
-
-  // create module
-  const targetModule = new vm.SourceTextModule(injectedCode, {
-    context: contextifiedObject,
-  });
-  await targetModule.link(targetLinker);
-  // evaluate
-  await targetModule.evaluate();
-  // return captured styles
-  const captured: Record<string, unknown> = { ...targetModule.namespace };
-
-  const mapOfClassNamesToStyles = new Map<
-    VariableName,
-    {
-      temporalVariableName: string;
-      originalName: string;
-      style: string;
-    }
-  >();
-
-  for (const { originalName, temporalName } of temporalVariableNames.values()) {
-    const style = captured[temporalName];
-    if (typeof style !== 'string') {
-      throw new Error(`Failed to capture variable ${temporalName}`);
-    }
-    mapOfClassNamesToStyles.set(originalName, {
-      style,
-      originalName,
-      temporalVariableName: temporalName,
-    });
-  }
-
-  return { mapOfClassNamesToStyles };
+  return { linker, modulesCache };
 }

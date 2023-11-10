@@ -1,0 +1,65 @@
+{
+  "name": "rakkas-example",
+  "dependencies": {
+    "polished": "^4.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@macrostyles/core": "npm:core@0.0.1",
+    "@macrostyles/react": "npm:react@0.0.1",
+    "@styled/typescript-styled-plugin": "^1.0.0",
+    "@types/react": "^18.2.28",
+    "@types/react-dom": "^18.2.13",
+    "rakkasjs": "0.6.20",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^0.34.6"
+  },
+  "private": true,
+  "scripts": {
+    "build": "wireit",
+    "dev": "wireit",
+    "preview": "wireit"
+  },
+  "type": "module",
+  "wireit": {
+    "dev": {
+      "command": "rakkas",
+      "service": true,
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../../packages/core:build",
+        "../../packages/react:build"
+      ]
+    },
+    "build": {
+      "command": "rakkas build",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../../packages/core:build",
+        "../../packages/react:build"
+      ],
+      "files": [
+        "./src/",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/"
+      ]
+    },
+    "preview": {
+      "command": "rakkas preview",
+      "dependencies": [
+        "build"
+      ],
+      "service": true
+    }
+  }
+}

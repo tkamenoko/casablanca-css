@@ -1,0 +1,61 @@
+{
+  "name": "vanilla-ts-example",
+  "description": "macrostyles example for vanilla-ts.",
+  "version": "0.0.0",
+  "dependencies": {
+    "polished": "^4.2.2"
+  },
+  "devDependencies": {
+    "@macrostyles/core": "npm:core@0.0.1",
+    "@styled/typescript-styled-plugin": "^1.0.0",
+    "postcss-nested": "^6.0.1",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11"
+  },
+  "private": true,
+  "scripts": {
+    "build": "wireit",
+    "dev": "wireit",
+    "preview": "wireit"
+  },
+  "type": "module",
+  "wireit": {
+    "build": {
+      "command": "vite build",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "files": [
+        "./src/",
+        "./index.html",
+        "./vite.config.ts"
+      ],
+      "dependencies": [
+        "../../packages/core:build"
+      ],
+      "output": [
+        "./dist/**"
+      ]
+    },
+    "dev": {
+      "command": "vite",
+      "service": true,
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../../packages/core:build"
+      ]
+    },
+    "preview": {
+      "command": "vite preview",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "service": true,
+      "dependencies": [
+        "build"
+      ]
+    }
+  }
+}
