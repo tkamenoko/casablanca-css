@@ -1,0 +1,38 @@
+{
+  "name": "ladle-example",
+  "dependencies": {
+    "polished": "^4.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@ladle/react": "^3.3.1",
+    "@macrostyles/core": "npm:core@0.0.1",
+    "@macrostyles/react": "npm:react@0.0.1",
+    "@styled/typescript-styled-plugin": "^1.0.0",
+    "@types/react": "^18.2.28",
+    "@types/react-dom": "^18.2.13",
+    "@vitejs/plugin-react": "^4.1.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-tsconfig-paths": "^4.2.1"
+  },
+  "private": true,
+  "scripts": {
+    "serve": "wireit"
+  },
+  "type": "module",
+  "wireit": {
+    "serve": {
+      "command": "ladle serve",
+      "service": true,
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../../packages/core:build",
+        "../../packages/react:build"
+      ]
+    }
+  }
+}
