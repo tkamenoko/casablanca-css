@@ -72,7 +72,6 @@ export function createLinker({
       if (!imported) {
         break node;
       }
-
       const exportNames = Object.keys(imported);
       const m = new vm.SyntheticModule(
         exportNames,
@@ -84,6 +83,7 @@ export function createLinker({
           identifier: `vm:module<node>(${serverSpecifier})`,
         },
       );
+      modulesCache.set(serverSpecifier, m);
       return m;
     }
     vite: {
