@@ -6,7 +6,7 @@ import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 import type { EvaluateModuleReturn } from './types';
 import { createComposeInternal } from './createComposeInternal';
 import { createGlobalContext } from './injectRegisterGlobals';
-import { injectReactRefresh } from './injectReaactRefresh';
+import { injectReactRefresh } from './injectReactRefresh';
 
 type EvaluateArgs = {
   code: string;
@@ -30,9 +30,9 @@ export async function evaluate({
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
   const contextifiedObject = vm.createContext({
+    ...globalThis,
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
-    process,
   });
   // create module
   const injectedCode = injectReactRefresh(code);
@@ -48,6 +48,7 @@ export async function evaluate({
       (b.dependencySpecifiers?.length || 0)
     );
   });
+
   for (const dep of sortedDeps) {
     if (dep.status !== 'evaluated') {
       await dep.evaluate();

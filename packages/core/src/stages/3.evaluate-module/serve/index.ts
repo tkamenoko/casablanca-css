@@ -5,9 +5,10 @@ import { pathToFileURL } from 'node:url';
 
 import type { ViteDevServer } from 'vite';
 
-import { injectReactRefresh } from '../injectReaactRefresh';
+import { injectReactRefresh } from '../injectReactRefresh';
 
 import { normalizeSpecifier } from './normalizeSpecifier';
+import { fixSsrTransform } from './fixSsrTransform';
 
 type CreateLinkerReturn = {
   linker: ModuleLinker;
@@ -100,14 +101,16 @@ export function createLinker({
       const loaded = await server
         .transformRequest(url, {
           html: false,
-          ssr: false,
+          ssr: true,
         })
         .catch(() => null);
       if (!loaded) {
         break vite;
       }
 
-      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
+      const fixed = await fixSsrTransform(loaded.code);
+
+      const m = new vm.SourceTextModule(injectReactRefresh(fixed), {
         context: referencingModule.context,
         identifier: `vm:module<vite>(${serverSpecifier})`,
         initializeImportMeta: (meta) => {
@@ -119,55 +122,13 @@ export function createLinker({
       modulesCache.set(serverSpecifier, m);
       return m;
     }
-    absolute: {
-      // resolve id as absolute path
-      const resolvedAbsolutePath =
-        await server.pluginContainer.resolveId(serverSpecifier);
-      if (!resolvedAbsolutePath) {
-        break absolute;
-      }
-
-      const cached = modulesCache.get(resolvedAbsolutePath.id);
-      if (cached) {
-        return cached;
-      }
-
-      const resolvedModule = server.moduleGraph.getModuleById(
-        resolvedAbsolutePath.id,
-      );
-      if (!resolvedModule) {
-        break absolute;
-      }
-      const { url } = resolvedModule;
-
-      const loaded = await server
-        .transformRequest(url, {
-          html: false,
-          ssr: false,
-        })
-        .catch(() => null);
-      if (!loaded) {
-        break absolute;
-      }
-
-      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
-        context: referencingModule.context,
-        identifier: `vm:module<absolute>(${resolvedAbsolutePath.id})`,
-        initializeImportMeta: (meta) => {
-          meta.url = url.startsWith('file://')
-            ? url
-            : pathToFileURL(url).toString();
-        },
-      });
-      modulesCache.set(resolvedAbsolutePath.id, m);
-      return m;
-    }
     relative: {
       // resolve id as relative path
       const resolvedRelativePath = await server.pluginContainer.resolveId(
         serverSpecifier,
         basePath,
       );
+
       if (!resolvedRelativePath) {
         break relative;
       }
@@ -179,19 +140,22 @@ export function createLinker({
       const resolvedModule = server.moduleGraph.getModuleById(
         resolvedRelativePath.id,
       );
+
       const url = resolvedModule?.url ?? resolvedRelativePath.id;
 
       const loaded = await server
         .transformRequest(url, {
           html: false,
-          ssr: false,
+          ssr: true,
         })
         .catch(() => null);
       if (!loaded) {
         break relative;
       }
 
-      const m = new vm.SourceTextModule(injectReactRefresh(loaded.code), {
+      const fixed = await fixSsrTransform(loaded.code);
+
+      const m = new vm.SourceTextModule(injectReactRefresh(fixed), {
         context: referencingModule.context,
         identifier: `vm:module<relative>(${resolvedRelativePath.id})`,
         initializeImportMeta: (meta) => {
