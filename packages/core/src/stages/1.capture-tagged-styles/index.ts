@@ -31,7 +31,6 @@ export async function captureTaggedStyles({
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
-    exportedNames: [],
     importSources: [],
   };
   const result = await transformFromAstAsync(ast, code, {
