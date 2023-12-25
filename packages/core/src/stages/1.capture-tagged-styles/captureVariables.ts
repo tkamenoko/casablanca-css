@@ -8,7 +8,7 @@ import {
 
 export type CapturedVariableNames = Map<
   string,
-  { originalName: string; temporalName: string }
+  { originalName: string; temporalName: string; tagType: 'css' }
 >;
 
 export type ImportSource = {
@@ -170,6 +170,7 @@ export function captureVariableNamesPlugin({
             state.opts.capturedVariableNames.set(originalName, {
               originalName,
               temporalName: temporalId.name,
+              tagType: 'css',
             });
           }
         },
