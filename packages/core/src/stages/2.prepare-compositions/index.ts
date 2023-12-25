@@ -6,7 +6,7 @@ import { transformFromAstAsync } from '@babel/core';
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
 import type { ResolvedModuleId } from '@/vite/types';
 
-import type { ImportSource } from '../1.capture-tagged-styles/captureVariables';
+import type { ImportSource } from '../1.capture-tagged-styles/types';
 
 import {
   replaceEmbeddedValuesPlugin,

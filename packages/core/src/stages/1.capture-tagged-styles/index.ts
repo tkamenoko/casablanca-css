@@ -1,7 +1,7 @@
 import type { types } from '@babel/core';
 import { transformFromAstAsync } from '@babel/core';
 
-import type { ImportSource, Options } from './captureVariables';
+import type { ImportSource, Options } from './types';
 import { captureVariableNamesPlugin } from './captureVariables';
 
 type CaptureTaggedStylesArgs = {
