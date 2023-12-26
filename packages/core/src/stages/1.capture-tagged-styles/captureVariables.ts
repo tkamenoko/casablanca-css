@@ -26,42 +26,6 @@ export function captureVariableNamesPlugin({
             return;
           }
         },
-        exit: (path, state) => {
-          if (!state.opts.capturedVariableNames.size) {
-            return;
-          }
-          // remove tags importing
-          path.traverse({
-            ImportDeclaration: {
-              enter: (p) => {
-                if (!isMacrostylesImport(p, 'core')) {
-                  return;
-                }
-
-                for (const item of p.get('specifiers')) {
-                  if (!item.isImportSpecifier()) {
-                    continue;
-                  }
-                  const imported = item.get('imported');
-                  if (imported.isIdentifier()) {
-                    const importedName = imported.node.name;
-                    if (importedName === 'css') {
-                      item.remove();
-                    }
-                  }
-                }
-              },
-              exit: (path) => {
-                if (!isMacrostylesImport(path, 'core')) {
-                  return;
-                }
-                if (!path.get('specifiers').length) {
-                  path.remove();
-                }
-              },
-            },
-          });
-        },
       },
       ImportDeclaration: {
         enter: (path, state) => {
