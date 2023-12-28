@@ -6,7 +6,7 @@ import {
   isMacrostylesCssTemplate,
 } from '@macrostyles/utils';
 
-import type { BabelState, ImportSource } from './types';
+import type { BabelState } from './types';
 
 export function captureVariableNamesPlugin({
   types: t,
@@ -25,29 +25,6 @@ export function captureVariableNamesPlugin({
             path.stop();
             return;
           }
-        },
-      },
-      ImportDeclaration: {
-        enter: (path, state) => {
-          const source = path.get('source').node.value;
-          const names = path
-            .get('specifiers')
-            .filter((s): s is NodePath<types.ImportSpecifier> =>
-              s.isImportSpecifier(),
-            )
-            .map((i) => {
-              const imported = i.get('imported');
-              const className = imported.isIdentifier()
-                ? imported.node.name
-                : null;
-              if (!className) {
-                return;
-              }
-              const localName = i.get('local').node.name;
-              return { className, localName };
-            })
-            .filter((x): x is ImportSource['names'][number] => !!x);
-          state.opts.importSources.push({ names, source });
         },
       },
       VariableDeclaration: {

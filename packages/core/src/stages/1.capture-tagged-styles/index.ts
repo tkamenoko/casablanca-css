@@ -4,6 +4,7 @@ import { transformFromAstAsync } from '@babel/core';
 import type { ImportSource, Options } from './types';
 import { captureVariableNamesPlugin } from './captureVariables';
 import { removeImportsPlugin } from './removeImports';
+import { collectImportSourcesPlugin } from './collectImportSources';
 
 type CaptureTaggedStylesArgs = {
   code: string;
@@ -36,6 +37,7 @@ export async function captureTaggedStyles({
   };
   const result = await transformFromAstAsync(ast, code, {
     plugins: [
+      [collectImportSourcesPlugin, pluginOption],
       [captureVariableNamesPlugin, pluginOption],
       [removeImportsPlugin, pluginOption],
     ],
