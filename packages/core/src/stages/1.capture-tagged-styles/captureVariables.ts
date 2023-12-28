@@ -62,7 +62,6 @@ export function captureVariableNamesPlugin({
             state.opts.capturedVariableNames.set(originalName, {
               originalName,
               temporalName: temporalId.name,
-              tagType: 'css',
             });
           }
         },

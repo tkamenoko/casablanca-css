@@ -1,7 +1,9 @@
 export type CapturedVariableNames = Map<
   string,
-  { originalName: string; temporalName: string; tagType: 'css' }
+  { originalName: string; temporalName: string }
 >;
+
+export type CapturedGlobalStyleTempNames = string[];
 
 export type ImportSource = {
   names: { className: string; localName: string }[];
@@ -10,6 +12,7 @@ export type ImportSource = {
 
 export type Options = {
   capturedVariableNames: CapturedVariableNames;
+  capturedGlobalStylesTempNames: CapturedGlobalStyleTempNames;
   importSources: ImportSource[];
 };
 

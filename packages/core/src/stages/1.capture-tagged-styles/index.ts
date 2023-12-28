@@ -33,6 +33,7 @@ export async function captureTaggedStyles({
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
+    capturedGlobalStylesTempNames: [],
     importSources: [],
   };
   const result = await transformFromAstAsync(ast, code, {
