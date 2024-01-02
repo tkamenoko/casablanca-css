@@ -1,5 +1,11 @@
-import { css } from '@macrostyles/core';
+import { css, injectGlobal } from '@macrostyles/core';
 import type { FC } from 'react';
+
+injectGlobal`
+  body {
+    box-sizing: border-box;
+  }  
+`;
 
 export const style = css`
   display: flex;
@@ -14,5 +20,12 @@ const notExported = css`
 export const Component: FC = () => {
   return <button className={notExported}>PUSH!</button>;
 };
+
+
+injectGlobal`
+  img {
+    display: block;
+  }  
+`;
 
 export const notStyleString = ``;

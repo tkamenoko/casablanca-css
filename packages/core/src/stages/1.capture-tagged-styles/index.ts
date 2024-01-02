@@ -5,6 +5,7 @@ import type { ImportSource, Options } from './types';
 import { captureVariableNamesPlugin } from './captureVariables';
 import { removeImportsPlugin } from './removeImports';
 import { collectImportSourcesPlugin } from './collectImportSources';
+import { captureGlobalStylesPlugin } from './captureGlobalStyles';
 
 type CaptureTaggedStylesArgs = {
   code: string;
@@ -21,6 +22,7 @@ export type CaptureTaggedStylesReturn = {
   transformed: string;
   ast: types.File;
   capturedVariableNames: CapturedVariableNames;
+  capturedGlobalStylesTempNames: string[];
   importSources: ImportSource[];
 };
 
@@ -40,6 +42,7 @@ export async function captureTaggedStyles({
     plugins: [
       [collectImportSourcesPlugin, pluginOption],
       [captureVariableNamesPlugin, pluginOption],
+      [captureGlobalStylesPlugin, pluginOption],
       [removeImportsPlugin, pluginOption],
     ],
     sourceMaps: isDev ? 'inline' : false,
@@ -54,6 +57,7 @@ export async function captureTaggedStyles({
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
+    capturedGlobalStylesTempNames: pluginOption.capturedGlobalStylesTempNames,
     transformed,
     ast: capturedAst,
     importSources: pluginOption.importSources,

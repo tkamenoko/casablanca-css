@@ -35,7 +35,7 @@ export function captureVariableNamesPlugin({
           for (const declaration of path.get('declarations')) {
             const init = declaration.get('init');
 
-            if (!isMacrostylesCssTemplate(init)) {
+            if (!isMacrostylesCssTemplate(init, 'css')) {
               return;
             }
             const id = declaration.get('id');

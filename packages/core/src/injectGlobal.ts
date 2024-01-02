@@ -1,6 +1,6 @@
 import type { TaggedStyle } from '@macrostyles/utils';
 
-export function injectGlobals(
+export function injectGlobal(
   _strings: TemplateStringsArray,
   ..._vars: (string | number | TaggedStyle<unknown> | TaggedStyle<unknown>[])[]
 ): void {

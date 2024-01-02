@@ -89,6 +89,7 @@ export function plugin(
       // find tagged templates, then remove all tags.
       const {
         capturedVariableNames,
+        capturedGlobalStylesTempNames,
         transformed: capturedCode,
         ast: capturedAst,
         importSources,
@@ -183,6 +184,7 @@ export function plugin(
             '1': {
               capturedVariableNames,
               importSources,
+              capturedGlobalStylesTempNames,
               transformed: capturedCode,
               ast: capturedAst,
             },
