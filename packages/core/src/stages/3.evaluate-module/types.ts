@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+
 type VariableName = string;
 
 export type EvaluateModuleReturn = {
@@ -10,6 +11,7 @@ export type EvaluateModuleReturn = {
       style: string;
     }
   >;
+  evaluatedGlobalStyles: string[];
 };
 export type TransformContext = ThisParameterType<
   Exclude<NonNullable<Plugin['transform']>, { order?: unknown }>

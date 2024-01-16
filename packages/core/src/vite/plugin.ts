@@ -126,11 +126,13 @@ export function plugin(
         modulePath: path,
       });
 
-      const { mapOfClassNamesToStyles } = await evaluateModule({
-        code: replacedCode,
-        temporalVariableNames,
-        uuidToStylesMap,
-      });
+      const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
+        await evaluateModule({
+          code: replacedCode,
+          temporalVariableNames,
+          temporalGlobalStyles: capturedGlobalStylesTempNames,
+          uuidToStylesMap,
+        });
 
       const { composedStyles } = replaceUuidToStyles({
         cssLookup,
@@ -195,6 +197,7 @@ export function plugin(
             },
             '3': {
               mapOfClassNamesToStyles,
+              evaluatedGlobalStyles,
             },
             '4': {
               composedStyles,

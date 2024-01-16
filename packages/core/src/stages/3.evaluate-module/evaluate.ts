@@ -19,6 +19,7 @@ type EvaluateArgs = {
       temporalName: string;
     }
   >;
+  temporalGlobalStyles: string[];
   linker: ModuleLinker;
 };
 
@@ -27,6 +28,7 @@ export async function evaluate({
   linker,
   modulesCache,
   temporalVariableNames,
+  temporalGlobalStyles,
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
   const contextifiedObject = vm.createContext({
@@ -75,5 +77,9 @@ export async function evaluate({
     });
   }
 
-  return { mapOfClassNamesToStyles };
+  const evaluatedGlobalStyles = temporalGlobalStyles
+    .map((t) => captured[t])
+    .filter((x): x is string => typeof x === 'string');
+
+  return { mapOfClassNamesToStyles, evaluatedGlobalStyles };
 }

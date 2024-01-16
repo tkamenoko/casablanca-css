@@ -8,6 +8,7 @@ import { buildModuleId } from '../fixtures/buildModuleId';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
 import * as localModuleExports from './fixtures/useLocalFile';
 import * as assetModuleExports from './fixtures/useAssetFile';
+import * as globalStyleModuleExports from './fixtures/globalStyles';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 
 type TestContext = {
@@ -158,6 +159,35 @@ test('should evaluate module using non-script modules', async ({
     expect,
     mapOfClassNamesToStyles,
     moduleExports: assetModuleExports,
+    variableNames,
+  });
+});
+
+test('should evaluate module injecting global styles', async ({
+  expect,
+  server,
+  transformResult,
+}) => {
+  const variableNames = ['staticStyle'] as const;
+  const moduleId = buildModuleId({
+    relativePath: './fixtures/globalStyles.ts',
+    root: import.meta.url,
+  });
+
+  const result = await server.transformRequest(moduleId);
+  assert(result);
+
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles, evaluatedGlobalStyles } = r.stages[3] ?? {};
+  assert(mapOfClassNamesToStyles && evaluatedGlobalStyles);
+
+  expect(evaluatedGlobalStyles.at(0)).toMatch('body {');
+
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfClassNamesToStyles,
+    moduleExports: globalStyleModuleExports,
     variableNames,
   });
 });
