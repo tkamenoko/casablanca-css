@@ -8,22 +8,21 @@ export type PluginOption = {
 
 export const moduleIdPrefix = 'virtual:macrostyles/';
 export type ModuleIdPrefix = typeof moduleIdPrefix;
-export type VirtualModuleId = `${ModuleIdPrefix}${string}`;
-export type ResolvedModuleId = `\0${VirtualModuleId}`;
 
-export type CssLookup = Map<
-  ResolvedModuleId,
+export type VirtualCssModuleId = `${ModuleIdPrefix}${string}.module.css`;
+export type ResolvedCssModuleId = `\0${VirtualCssModuleId}`;
+export type CssModulesLookup = Map<
+  ResolvedCssModuleId,
   {
     style: string;
     classNameToStyleMap: Map<string, { style: string }>;
   }
 >;
-
-export type JsToCssLookup = Map<
+export type JsToCssModuleLookup = Map<
   string,
   {
-    virtualId: VirtualModuleId;
-    resolvedId: ResolvedModuleId;
+    virtualId: VirtualCssModuleId;
+    resolvedId: ResolvedCssModuleId;
     style: string;
   }
 >;

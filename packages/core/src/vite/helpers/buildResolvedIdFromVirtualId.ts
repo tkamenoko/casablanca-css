@@ -1,14 +1,14 @@
 import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
-import type { ResolvedModuleId, VirtualModuleId } from '../types';
+import type { ResolvedCssModuleId, VirtualCssModuleId } from '../types';
 
 import { isVirtualModuleId } from './isVirtualModuleId';
 
 export function buildResolvedIdFromVirtualId({
   id,
 }: {
-  id: VirtualModuleId;
-}): ResolvedModuleId {
+  id: VirtualCssModuleId;
+}): ResolvedCssModuleId {
   const { path } = extractPathAndParamsFromId(id);
   if (!isVirtualModuleId(path)) {
     throw new Error(`"${id}" has invalid path`);

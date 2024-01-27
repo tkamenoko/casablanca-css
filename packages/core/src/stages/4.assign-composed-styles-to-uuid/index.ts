@@ -1,4 +1,4 @@
-import type { CssLookup } from '@/vite/types';
+import type { CssModulesLookup } from '@/vite/types';
 
 import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
@@ -12,7 +12,7 @@ type ReplaceUuidToStylesArgs = {
     }
   >;
   uuidToStylesMap: UuidToStylesMap;
-  cssLookup: CssLookup;
+  cssLookup: CssModulesLookup;
 };
 export type ReplaceUuidToStylesReturn = {
   composedStyles: {

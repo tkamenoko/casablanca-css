@@ -1,9 +1,13 @@
 import { isResolvedId } from '../helpers/isResolvedId';
 import { isVirtualModuleId } from '../helpers/isVirtualModuleId';
 import { buildResolvedIdFromVirtualId } from '../helpers/buildResolvedIdFromVirtualId';
-import type { ResolvedModuleId } from '../types';
+import type { ResolvedCssModuleId } from '../types';
 
-export function resolveCssId({ id }: { id: string }): ResolvedModuleId | null {
+export function resolveCssId({
+  id,
+}: {
+  id: string;
+}): ResolvedCssModuleId | null {
   if (isResolvedId(id)) {
     return id;
   }

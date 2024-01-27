@@ -17,14 +17,18 @@ import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
 import { loadCss } from './hooks/loadCss';
 import { resolveCssId } from './hooks/resolveCssId';
-import type { CssLookup, JsToCssLookup, PluginOption } from './types';
+import type {
+  CssModulesLookup,
+  JsToCssModuleLookup,
+  PluginOption,
+} from './types';
 import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
 
 export type TransformResult = {
   id: string;
   transformed: string;
-  cssLookup: CssLookup;
-  jsToCssLookup: JsToCssLookup;
+  cssLookup: CssModulesLookup;
+  jsToCssLookup: JsToCssModuleLookup;
   stages: {
     1?: CaptureTaggedStylesReturn;
     2?: PrepareCompositionsReturn;
@@ -42,8 +46,8 @@ export function plugin(
     onExitTransform?: OnExitTransform;
   },
 ): Plugin {
-  const cssLookup: CssLookup = new Map();
-  const jsToCssLookup: JsToCssLookup = new Map();
+  const cssLookup: CssModulesLookup = new Map();
+  const jsToCssLookup: JsToCssModuleLookup = new Map();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
@@ -220,9 +224,11 @@ export function plugin(
       server = server_;
     },
     resolveId(id) {
+      // TODO: resolve global style
       return resolveCssId({ id });
     },
     load(id) {
+      // TODO: load global style
       return loadCss({ cssLookup, id });
     },
     handleHotUpdate({ modules, server }) {
@@ -232,6 +238,7 @@ export function plugin(
           return m;
         }
         const { path } = extractPathAndParamsFromId(id);
+        // TODO: search global style
         const css = jsToCssLookup.get(path);
         if (!css) {
           return m;

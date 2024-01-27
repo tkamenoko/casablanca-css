@@ -4,7 +4,7 @@ import type { types } from '@babel/core';
 import { transformFromAstAsync } from '@babel/core';
 
 import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
-import type { ResolvedModuleId } from '@/vite/types';
+import type { ResolvedCssModuleId } from '@/vite/types';
 
 import type { ImportSource } from '../1.capture-tagged-styles/types';
 
@@ -42,7 +42,7 @@ export async function prepareCompositions({
   // create embeddedName-to-className+resolvedId map
   const embeddedToClassNameMap = new Map<
     string,
-    { className: string; cssId: ResolvedModuleId; uuid: string }
+    { className: string; cssId: ResolvedCssModuleId; uuid: string }
   >();
   await Promise.all(
     importSources.map(async ({ names, source }) => {

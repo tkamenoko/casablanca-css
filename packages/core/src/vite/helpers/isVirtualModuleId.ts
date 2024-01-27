@@ -1,6 +1,6 @@
-import type { VirtualModuleId } from '../types';
+import type { VirtualCssModuleId } from '../types';
 import { moduleIdPrefix } from '../types';
 
-export function isVirtualModuleId(p: string): p is VirtualModuleId {
+export function isVirtualModuleId(p: string): p is VirtualCssModuleId {
   return p.startsWith(moduleIdPrefix);
 }

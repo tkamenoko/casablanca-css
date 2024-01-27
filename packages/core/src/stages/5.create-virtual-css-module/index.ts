@@ -1,5 +1,5 @@
-import { buildCssImportId } from '@/vite/helpers/buildCssImportId';
-import type { VirtualModuleId } from '@/vite/types';
+import { buildCssModuleImportId } from '@/vite/helpers/buildCssImportId';
+import type { VirtualCssModuleId } from '@/vite/types';
 
 type CreateVirtualCssModuleArgs = {
   importerPath: string;
@@ -12,7 +12,7 @@ type CreateVirtualCssModuleArgs = {
 };
 export type CreateVirtualCssModuleReturn = {
   style: string;
-  importId: VirtualModuleId;
+  importId: VirtualCssModuleId;
 };
 
 export function createVirtualCssModule({
@@ -26,7 +26,7 @@ export function createVirtualCssModule({
 `;
   });
   return {
-    importId: buildCssImportId({ importerPath, projectRoot }),
+    importId: buildCssModuleImportId({ importerPath, projectRoot }),
     style: styles.join(''),
   };
 }
