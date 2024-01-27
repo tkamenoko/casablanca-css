@@ -2,14 +2,14 @@ import { type PluginObj, type PluginPass } from '@babel/core';
 import type babel from '@babel/core';
 import { isTopLevelStatement } from '@macrostyles/utils';
 
-import type { ModuleIdPrefix } from '@/vite/types';
+import type { CssModuleIdPrefix } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
 export type Options = {
   temporalVariableNames: CapturedVariableNames;
   originalToTemporalMap: CapturedVariableNames;
-  cssImportId: `${ModuleIdPrefix}${string}`;
+  cssImportId: `${CssModuleIdPrefix}${string}`;
 };
 
 type BabelState = {

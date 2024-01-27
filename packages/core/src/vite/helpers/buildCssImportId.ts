@@ -1,5 +1,5 @@
 import type { VirtualCssModuleId } from '../types';
-import { moduleIdPrefix } from '../types';
+import { cssModuleIdPrefix } from '../types';
 
 export function buildCssModuleImportId({
   importerPath: importerId,
@@ -9,5 +9,5 @@ export function buildCssModuleImportId({
   projectRoot: string;
 }): VirtualCssModuleId {
   const replaced = importerId.replace(projectRoot, '').replace(/^\//, '');
-  return `${moduleIdPrefix}${replaced}.module.css`;
+  return `${cssModuleIdPrefix}${replaced}.module.css`;
 }
