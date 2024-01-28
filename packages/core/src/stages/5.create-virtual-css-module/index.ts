@@ -1,4 +1,4 @@
-import { buildCssModuleImportId } from '@/vite/helpers/buildCssImportId';
+import { buildCssModuleImportId } from '@/vite/helpers/buildCssModuleImportId';
 import type { VirtualCssModuleId } from '@/vite/types';
 
 type CreateVirtualCssModuleArgs = {

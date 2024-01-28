@@ -2,12 +2,12 @@ import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
 import type { ResolvedCssModuleId } from '../types';
 
-import { isVirtualModuleId } from './isVirtualModuleId';
+import { isVirtualCssModuleId } from './isVirtualCssModuleId';
 
-export function isResolvedId(id: string): id is ResolvedCssModuleId {
+export function isResolvedCssModuleId(id: string): id is ResolvedCssModuleId {
   const { path } = extractPathAndParamsFromId(id);
   if (!path.startsWith('\0')) {
     return false;
   }
-  return isVirtualModuleId(path.slice(1));
+  return isVirtualCssModuleId(path.slice(1));
 }

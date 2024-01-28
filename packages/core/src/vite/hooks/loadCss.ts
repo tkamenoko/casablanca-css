@@ -1,6 +1,6 @@
 import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
-import { isResolvedId } from '../helpers/isResolvedId';
+import { isResolvedCssModuleId } from '../helpers/isResolvedCssModuleId';
 import type { CssModulesLookup } from '../types';
 
 export function loadCss({
@@ -11,7 +11,7 @@ export function loadCss({
   cssLookup: CssModulesLookup;
 }): string | null {
   const { path } = extractPathAndParamsFromId(id);
-  if (!isResolvedId(path)) {
+  if (!isResolvedCssModuleId(path)) {
     return null;
   }
 
