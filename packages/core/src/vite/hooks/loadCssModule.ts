@@ -3,7 +3,7 @@ import { extractPathAndParamsFromId } from '@macrostyles/utils';
 import { isResolvedCssModuleId } from '../helpers/isResolvedCssModuleId';
 import type { CssModulesLookup } from '../types';
 
-export function loadCss({
+export function loadCssModule({
   cssLookup,
   id,
 }: {

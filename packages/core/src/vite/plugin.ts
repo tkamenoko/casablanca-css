@@ -15,7 +15,7 @@ import { prepareCompositions } from '@/stages/2.prepare-compositions';
 import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
 import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
-import { loadCss } from './hooks/loadCss';
+import { loadCssModule } from './hooks/loadCssModule';
 import { resolveCssModuleId } from './hooks/resolveCssModuleId';
 import type {
   CssModulesLookup,
@@ -231,7 +231,7 @@ export function plugin(
     },
     load(id) {
       // TODO: load global style
-      return loadCss({ cssLookup, id });
+      return loadCssModule({ cssLookup, id });
     },
     handleHotUpdate({ modules, server }) {
       const affectedModules = modules.flatMap((m) => {
