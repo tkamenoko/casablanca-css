@@ -16,13 +16,13 @@ import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-style
 import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
 import { loadCssModule } from './hooks/loadCssModule';
-import { resolveCssModuleId } from './hooks/resolveCssModuleId';
 import type {
   CssModulesLookup,
   JsToCssModuleLookup,
   PluginOption,
 } from './types';
 import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './helpers/buildResolvedCssModuleIdFromVirtualCssModuleId';
+import { resolveCssId } from './hooks/resolveCss';
 
 export type TransformResult = {
   id: string;
@@ -226,8 +226,7 @@ export function plugin(
       server = server_;
     },
     resolveId(id) {
-      // TODO: resolve global style
-      return resolveCssModuleId({ id });
+      return resolveCssId({ id });
     },
     load(id) {
       // TODO: load global style
