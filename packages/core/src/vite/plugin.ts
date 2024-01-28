@@ -170,7 +170,6 @@ export function plugin(
       );
 
       // TODO: register global style
-      // TODO: if no styles found, remove from lookup
       const resolvedCssModuleId =
         buildResolvedCssModuleIdFromVirtualCssModuleId({
           id: importId,
