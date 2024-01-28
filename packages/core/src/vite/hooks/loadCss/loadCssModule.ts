@@ -1,21 +1,21 @@
 import { extractPathAndParamsFromId } from '@macrostyles/utils';
 
-import { isResolvedCssModuleId } from '../helpers/isResolvedCssModuleId';
-import type { CssModulesLookup } from '../types';
+import { isResolvedCssModuleId } from '../../helpers/isResolvedCssModuleId';
+import type { CssModulesLookup } from '../../types';
 
 export function loadCssModule({
-  cssLookup,
+  cssModulesLookup,
   id,
 }: {
   id: string;
-  cssLookup: CssModulesLookup;
+  cssModulesLookup: CssModulesLookup;
 }): string | null {
   const { path } = extractPathAndParamsFromId(id);
   if (!isResolvedCssModuleId(path)) {
     return null;
   }
 
-  const found = cssLookup.get(path);
+  const found = cssModulesLookup.get(path);
   if (!found) {
     return null;
   }

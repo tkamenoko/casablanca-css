@@ -26,13 +26,13 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
     optimizeDeps: { disabled: true },
   });
 
-  const { transformed, jsToCssLookup } = transformResult[moduleId] ?? {};
-  assert(transformed && jsToCssLookup);
+  const { transformed, jsToCssModuleLookup } = transformResult[moduleId] ?? {};
+  assert(transformed && jsToCssModuleLookup);
 
   assert(transformed);
   expect(transformed).not.toMatch(styleA);
   expect(transformed).not.toMatch('export const styleB');
   expect(transformed).toMatch(notCss);
 
-  assert(jsToCssLookup.has(moduleId));
+  assert(jsToCssModuleLookup.has(moduleId));
 });

@@ -12,7 +12,7 @@ type ReplaceUuidToStylesArgs = {
     }
   >;
   uuidToStylesMap: UuidToStylesMap;
-  cssLookup: CssModulesLookup;
+  cssModulesLookup: CssModulesLookup;
 };
 export type ReplaceUuidToStylesReturn = {
   composedStyles: {
@@ -23,7 +23,7 @@ export type ReplaceUuidToStylesReturn = {
 };
 
 export function replaceUuidToStyles({
-  cssLookup,
+  cssModulesLookup,
   ownedClassNamesToStyles,
   uuidToStylesMap: uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
@@ -32,7 +32,7 @@ export function replaceUuidToStyles({
     Array.from(uuidToClassNamesMap.entries())
       .map(([uuid, { className, resolvedId }]) => {
         if (resolvedId) {
-          const style = cssLookup
+          const style = cssModulesLookup
             .get(resolvedId)
             ?.classNameToStyleMap.get(className)?.style;
           if (!style) {

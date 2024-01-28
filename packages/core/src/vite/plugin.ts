@@ -15,20 +15,26 @@ import { prepareCompositions } from '@/stages/2.prepare-compositions';
 import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
 import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 
-import { loadCssModule } from './hooks/loadCssModule';
+import { loadCssModule } from './hooks/loadCss/loadCssModule';
 import type {
   CssModulesLookup,
+  GlobalStylesLookup,
   JsToCssModuleLookup,
+  JsToGlobalStyleLookup,
   PluginOption,
 } from './types';
 import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './helpers/buildResolvedCssModuleIdFromVirtualCssModuleId';
-import { resolveCssId } from './hooks/resolveCss';
+import { resolveCssModuleId } from './hooks/resolveCss/resolveCssModuleId';
+import { resolveGlobalStyleId } from './hooks/resolveCss/resolveGlobalStyleId';
+import { loadGlobalStyle } from './hooks/loadCss/loadGlobalStyle';
 
 export type TransformResult = {
   id: string;
   transformed: string;
-  cssLookup: CssModulesLookup;
-  jsToCssLookup: JsToCssModuleLookup;
+  cssModulesLookup: CssModulesLookup;
+  jsToCssModuleLookup: JsToCssModuleLookup;
+  globalStylesLookup: GlobalStylesLookup;
+  jsToGlobalStyleLookup: JsToGlobalStyleLookup;
   stages: {
     1?: CaptureTaggedStylesReturn;
     2?: PrepareCompositionsReturn;
@@ -46,8 +52,11 @@ export function plugin(
     onExitTransform?: OnExitTransform;
   },
 ): Plugin {
-  const cssLookup: CssModulesLookup = new Map();
-  const jsToCssLookup: JsToCssModuleLookup = new Map();
+  const cssModulesLookup: CssModulesLookup = new Map();
+  const jsToCssModuleLookup: JsToCssModuleLookup = new Map();
+
+  const globalStylesLookup: GlobalStylesLookup = new Map();
+  const jsToGlobalStyleLookup: JsToGlobalStyleLookup = new Map();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
@@ -98,9 +107,6 @@ export function plugin(
         ast: capturedAst,
         importSources,
       } = await captureTaggedStyles({ code, ast: parsed, isDev });
-      if (!capturedVariableNames.size) {
-        return;
-      }
 
       const temporalVariableNames = new Map(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
@@ -139,7 +145,7 @@ export function plugin(
         });
 
       const { composedStyles } = replaceUuidToStyles({
-        cssLookup,
+        cssModulesLookup,
         ownedClassNamesToStyles: mapOfClassNamesToStyles,
         uuidToStylesMap,
       });
@@ -149,7 +155,9 @@ export function plugin(
         importerPath: path,
         projectRoot: config.root,
       });
+      // TODO: create virtual global style
 
+      // TODO: remove unused variables used for global styles
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
         {
           temporalVariableNames,
@@ -161,10 +169,13 @@ export function plugin(
         },
       );
 
-      const resolvedId = buildResolvedCssModuleIdFromVirtualCssModuleId({
-        id: importId,
-      });
-      cssLookup.set(resolvedId, {
+      // TODO: register global style
+      // TODO: if no styles found, remove from lookup
+      const resolvedCssModuleId =
+        buildResolvedCssModuleIdFromVirtualCssModuleId({
+          id: importId,
+        });
+      cssModulesLookup.set(resolvedCssModuleId, {
         style,
         classNameToStyleMap: new Map(
           composedStyles.map(({ style, originalName }) => [
@@ -173,10 +184,14 @@ export function plugin(
           ]),
         ),
       });
-      jsToCssLookup.set(path, { resolvedId, virtualId: importId, style });
+      jsToCssModuleLookup.set(path, {
+        resolvedId: resolvedCssModuleId,
+        virtualId: importId,
+        style,
+      });
 
       if (server) {
-        const m = server.moduleGraph.getModuleById(resolvedId);
+        const m = server.moduleGraph.getModuleById(resolvedCssModuleId);
         if (m) {
           server.moduleGraph.invalidateModule(m);
           m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
@@ -185,9 +200,11 @@ export function plugin(
 
       if (onExitTransform) {
         await onExitTransform({
-          cssLookup,
+          cssModulesLookup,
           id,
-          jsToCssLookup,
+          jsToCssModuleLookup,
+          globalStylesLookup,
+          jsToGlobalStyleLookup,
           stages: {
             '1': {
               capturedVariableNames,
@@ -226,29 +243,38 @@ export function plugin(
       server = server_;
     },
     resolveId(id) {
-      return resolveCssId({ id });
+      return resolveCssModuleId({ id }) ?? resolveGlobalStyleId({ id });
     },
     load(id) {
-      // TODO: load global style
-      return loadCssModule({ cssLookup, id });
+      return (
+        loadCssModule({ cssModulesLookup, id }) ??
+        loadGlobalStyle({ globalStylesLookup, id })
+      );
     },
     handleHotUpdate({ modules, server }) {
       const affectedModules = modules.flatMap((m) => {
+        const dependencies = [m];
         const { id } = m;
         if (!id) {
-          return m;
+          return dependencies;
         }
         const { path } = extractPathAndParamsFromId(id);
-        // TODO: search global style
-        const css = jsToCssLookup.get(path);
-        if (!css) {
-          return m;
+        const { resolvedId: cssModuleId } = jsToCssModuleLookup.get(path) ?? {};
+        if (cssModuleId) {
+          const cssModule = server.moduleGraph.getModuleById(cssModuleId);
+          if (cssModule) {
+            dependencies.push(cssModule);
+          }
         }
-        const cssModule = server.moduleGraph.getModuleById(css.resolvedId);
-        if (!cssModule) {
-          return m;
+        const { resolvedId: globalStyleId } =
+          jsToGlobalStyleLookup.get(path) ?? {};
+        if (globalStyleId) {
+          const globalStyle = server.moduleGraph.getModuleById(globalStyleId);
+          if (globalStyle) {
+            dependencies.push(globalStyle);
+          }
         }
-        return [m, cssModule];
+        return dependencies;
       });
 
       return affectedModules;
