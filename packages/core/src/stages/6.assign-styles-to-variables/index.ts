@@ -1,7 +1,7 @@
 import type { types } from '@babel/core';
 import { transformFromAstAsync } from '@babel/core';
 
-import type { CssModuleIdPrefix } from '@/vite/types';
+import type { VirtualCssModuleId } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
@@ -13,7 +13,7 @@ type AssignStylesToCapturedVariablesArgs = {
   originalCode: string;
   temporalVariableNames: CapturedVariableNames;
   originalToTemporalMap: CapturedVariableNames;
-  cssImportId: `${CssModuleIdPrefix}${string}`;
+  cssModuleImportId: VirtualCssModuleId;
   isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
@@ -23,13 +23,13 @@ export type AssignStylesToCapturedVariablesReturn = {
 export async function assignStylesToCapturedVariables({
   replaced,
   originalCode,
-  cssImportId,
+  cssModuleImportId,
   temporalVariableNames,
   originalToTemporalMap,
   isDev,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
-    cssImportId,
+    cssModuleImportId,
     temporalVariableNames,
     originalToTemporalMap,
   };

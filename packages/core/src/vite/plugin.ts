@@ -150,7 +150,7 @@ export function plugin(
         uuidToStylesMap,
       });
 
-      const { importId, style } = createVirtualCssModule({
+      const { cssModuleImportId, style } = createVirtualCssModule({
         evaluatedStyles: composedStyles,
         importerPath: path,
         projectRoot: config.root,
@@ -164,7 +164,7 @@ export function plugin(
           originalToTemporalMap: capturedVariableNames,
           originalCode: code,
           replaced: replacedAst,
-          cssImportId: importId,
+          cssModuleImportId,
           isDev,
         },
       );
@@ -172,7 +172,7 @@ export function plugin(
       // TODO: register global style
       const resolvedCssModuleId =
         buildResolvedCssModuleIdFromVirtualCssModuleId({
-          id: importId,
+          id: cssModuleImportId,
         });
       cssModulesLookup.set(resolvedCssModuleId, {
         style,
@@ -185,7 +185,7 @@ export function plugin(
       });
       jsToCssModuleLookup.set(path, {
         resolvedId: resolvedCssModuleId,
-        virtualId: importId,
+        virtualId: cssModuleImportId,
         style,
       });
 
@@ -224,7 +224,7 @@ export function plugin(
             '4': {
               composedStyles,
             },
-            '5': { importId, style },
+            '5': { cssModuleImportId, style },
             '6': { transformed: resultCode },
           },
           transformed: resultCode,

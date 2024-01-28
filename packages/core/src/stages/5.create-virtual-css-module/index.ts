@@ -12,7 +12,7 @@ type CreateVirtualCssModuleArgs = {
 };
 export type CreateVirtualCssModuleReturn = {
   style: string;
-  importId: VirtualCssModuleId;
+  cssModuleImportId: VirtualCssModuleId;
 };
 
 export function createVirtualCssModule({
@@ -26,7 +26,7 @@ export function createVirtualCssModule({
 `;
   });
   return {
-    importId: buildCssModuleImportId({ importerPath, projectRoot }),
+    cssModuleImportId: buildCssModuleImportId({ importerPath, projectRoot }),
     style: styles.join(''),
   };
 }

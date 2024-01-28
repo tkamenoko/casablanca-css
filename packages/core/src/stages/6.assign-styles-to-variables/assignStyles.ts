@@ -2,14 +2,14 @@ import { type PluginObj, type PluginPass } from '@babel/core';
 import type babel from '@babel/core';
 import { isTopLevelStatement } from '@macrostyles/utils';
 
-import type { CssModuleIdPrefix } from '@/vite/types';
+import type { VirtualCssModuleId } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
 export type Options = {
   temporalVariableNames: CapturedVariableNames;
   originalToTemporalMap: CapturedVariableNames;
-  cssImportId: `${CssModuleIdPrefix}${string}`;
+  cssModuleImportId: VirtualCssModuleId;
 };
 
 type BabelState = {
@@ -26,7 +26,7 @@ export function assignStylesPlugin({
         enter: (path, state) => {
           const stylesId = path.scope.generateUidIdentifier('styles');
           state.importIdName = stylesId.name;
-          const { cssImportId } = state.opts;
+          const { cssModuleImportId } = state.opts;
           const head = path.get('body').at(0);
           if (!head) {
             throw new Error('Blank file?');
@@ -34,7 +34,7 @@ export function assignStylesPlugin({
           head.insertBefore(
             t.importDeclaration(
               [t.importDefaultSpecifier(stylesId)],
-              t.stringLiteral(cssImportId),
+              t.stringLiteral(cssModuleImportId),
             ),
           );
         },
