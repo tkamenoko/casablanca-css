@@ -5,8 +5,6 @@ import { extractPathAndParamsFromId } from '@macrostyles/utils';
 import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
 import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
 import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
-import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
-import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
 import { createEvaluator } from '@/stages/3.evaluate-module';
 import type { CaptureTaggedStylesReturn } from '@/stages/1.capture-tagged-styles';
 import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
@@ -14,6 +12,10 @@ import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions'
 import { prepareCompositions } from '@/stages/2.prepare-compositions';
 import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
 import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+import {
+  createVirtualModules,
+  type CreateVirtualModulesReturn,
+} from '@/stages/5.create-virtual-modules';
 
 import { loadCssModule } from './hooks/loadCss/loadCssModule';
 import type {
@@ -40,7 +42,7 @@ export type TransformResult = {
     2?: PrepareCompositionsReturn;
     3?: EvaluateModuleReturn;
     4?: ReplaceUuidToStylesReturn;
-    5?: CreateVirtualCssModuleReturn;
+    5?: CreateVirtualModulesReturn;
     6?: AssignStylesToCapturedVariablesReturn;
   };
 };
@@ -150,12 +152,14 @@ export function plugin(
         uuidToStylesMap,
       });
 
-      const { cssModuleImportId, style } = createVirtualCssModule({
-        evaluatedStyles: composedStyles,
+      const { cssModule, globalStyle } = createVirtualModules({
+        evaluatedCssModuleStyles: composedStyles,
+        evaluatedGlobalStyles,
         importerPath: path,
         projectRoot: config.root,
       });
-      // TODO: create virtual global style
+
+      const { importId: cssModuleImportId, style: cssModuleStyle } = cssModule;
 
       // TODO: remove unused variables used for global styles
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
@@ -175,7 +179,7 @@ export function plugin(
           id: cssModuleImportId,
         });
       cssModulesLookup.set(resolvedCssModuleId, {
-        style,
+        style: cssModuleStyle,
         classNameToStyleMap: new Map(
           composedStyles.map(({ style, originalName }) => [
             originalName,
@@ -186,7 +190,7 @@ export function plugin(
       jsToCssModuleLookup.set(path, {
         resolvedId: resolvedCssModuleId,
         virtualId: cssModuleImportId,
-        style,
+        style: cssModuleStyle,
       });
 
       if (server) {
@@ -224,7 +228,7 @@ export function plugin(
             '4': {
               composedStyles,
             },
-            '5': { cssModuleImportId, style },
+            '5': { cssModule, globalStyle },
             '6': { transformed: resultCode },
           },
           transformed: resultCode,

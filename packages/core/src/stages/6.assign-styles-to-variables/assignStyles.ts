@@ -17,6 +17,8 @@ type BabelState = {
   importIdName: string;
 };
 
+// TODO: do not import css if no styles passed
+
 export function assignStylesPlugin({
   types: t,
 }: typeof babel): PluginObj<PluginPass & BabelState> {

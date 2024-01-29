@@ -4,6 +4,8 @@ import { build } from 'vite';
 import { buildModuleId } from '../fixtures/buildModuleId';
 import { test } from '../fixtures/extendedTest';
 
+// TODO: test global style!
+
 test('should create css string from partial styles and importer id', async ({
   expect,
   transformResult,
@@ -26,8 +28,8 @@ test('should create css string from partial styles and importer id', async ({
 
   const r = transformResult[moduleId];
   assert(r);
-  const { cssModuleImportId, style } = r.stages[5] ?? {};
+  const { cssModule, globalStyle } = r.stages[5] ?? {};
 
-  assert(cssModuleImportId && style);
-  expect(style).toMatch(/\.foo *\{/);
+  assert(cssModule?.importId && cssModule.style);
+  expect(cssModule.style).toMatch(/\.foo *\{/);
 });
