@@ -22,7 +22,7 @@ export type ReplaceUuidToStylesReturn = {
   }[];
 };
 
-export function replaceUuidToStyles({
+export function replaceUuidWithStyles({
   cssModulesLookup,
   ownedClassNamesToStyles,
   uuidToStylesMap: uuidToClassNamesMap,

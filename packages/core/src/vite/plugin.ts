@@ -11,7 +11,7 @@ import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
 import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions';
 import { prepareCompositions } from '@/stages/2.prepare-compositions';
 import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
-import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+import { replaceUuidWithStyles } from '@/stages/4.assign-composed-styles-to-uuid';
 import {
   createVirtualModules,
   type CreateVirtualModulesReturn,
@@ -146,7 +146,7 @@ export function plugin(
           uuidToStylesMap,
         });
 
-      const { composedStyles } = replaceUuidToStyles({
+      const { composedStyles } = replaceUuidWithStyles({
         cssModulesLookup,
         ownedClassNamesToStyles: mapOfClassNamesToStyles,
         uuidToStylesMap,
