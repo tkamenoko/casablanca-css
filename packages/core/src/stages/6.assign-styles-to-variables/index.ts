@@ -1,19 +1,26 @@
 import type { types } from '@babel/core';
 import { transformFromAstAsync } from '@babel/core';
 
-import type { VirtualCssModuleId } from '@/vite/types';
+import type { VirtualCssModuleId, VirtualGlobalStyleId } from '@/vite/types';
 
 import type { CapturedVariableNames } from '../1.capture-tagged-styles';
 
-import type { Options } from './assignStyles';
+import type { Options } from './types';
 import { assignStylesPlugin } from './assignStyles';
+import { importGlobalStylePlugin } from './importGlobalStyle';
 
 type AssignStylesToCapturedVariablesArgs = {
   replaced: types.File;
   originalCode: string;
-  temporalVariableNames: CapturedVariableNames;
-  originalToTemporalMap: CapturedVariableNames;
-  cssModuleImportId: VirtualCssModuleId;
+  cssModule: {
+    temporalVariableNames: CapturedVariableNames;
+    originalToTemporalMap: CapturedVariableNames;
+    importId: VirtualCssModuleId;
+  };
+  globalStyle: {
+    temporalVariableNames: string[];
+    importId: VirtualGlobalStyleId;
+  };
   isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
@@ -23,18 +30,19 @@ export type AssignStylesToCapturedVariablesReturn = {
 export async function assignStylesToCapturedVariables({
   replaced,
   originalCode,
-  cssModuleImportId,
-  temporalVariableNames,
-  originalToTemporalMap,
+  cssModule,
+  globalStyle,
   isDev,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
-    cssModuleImportId,
-    temporalVariableNames,
-    originalToTemporalMap,
+    cssModule,
+    globalStyle,
   };
   const result = await transformFromAstAsync(replaced, originalCode, {
-    plugins: [[assignStylesPlugin, pluginOption]],
+    plugins: [
+      [assignStylesPlugin, pluginOption],
+      [importGlobalStylePlugin, pluginOption],
+    ],
     sourceMaps: isDev ? 'inline' : false,
   });
   if (!result) {

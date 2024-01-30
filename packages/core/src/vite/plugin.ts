@@ -29,6 +29,7 @@ import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './helpers/buildR
 import { resolveCssModuleId } from './hooks/resolveCss/resolveCssModuleId';
 import { resolveGlobalStyleId } from './hooks/resolveCss/resolveGlobalStyleId';
 import { loadGlobalStyle } from './hooks/loadCss/loadGlobalStyle';
+import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from './helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId';
 
 export type TransformResult = {
   id: string;
@@ -160,20 +161,25 @@ export function plugin(
       });
 
       const { importId: cssModuleImportId, style: cssModuleStyle } = cssModule;
+      const { importId: globalStyleImportId } = globalStyle;
 
-      // TODO: remove unused variables used for global styles
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
         {
-          temporalVariableNames,
-          originalToTemporalMap: capturedVariableNames,
+          cssModule: {
+            importId: cssModuleImportId,
+            originalToTemporalMap: capturedVariableNames,
+            temporalVariableNames,
+          },
+          globalStyle: {
+            importId: globalStyleImportId,
+            temporalVariableNames: capturedGlobalStylesTempNames,
+          },
           originalCode: code,
           replaced: replacedAst,
-          cssModuleImportId,
           isDev,
         },
       );
 
-      // TODO: register global style
       const resolvedCssModuleId =
         buildResolvedCssModuleIdFromVirtualCssModuleId({
           id: cssModuleImportId,
@@ -193,11 +199,33 @@ export function plugin(
         style: cssModuleStyle,
       });
 
+      const resolvedGlobalStyleId =
+        buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
+          id: globalStyleImportId,
+        });
+      globalStylesLookup.set(resolvedGlobalStyleId, {
+        style: globalStyle.style,
+      });
+      jsToGlobalStyleLookup.set(path, {
+        resolvedId: resolvedGlobalStyleId,
+        style: globalStyle.style,
+        virtualId: globalStyleImportId,
+      });
+
       if (server) {
-        const m = server.moduleGraph.getModuleById(resolvedCssModuleId);
-        if (m) {
-          server.moduleGraph.invalidateModule(m);
-          m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+        {
+          const m = server.moduleGraph.getModuleById(resolvedCssModuleId);
+          if (m) {
+            server.moduleGraph.invalidateModule(m);
+            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+          }
+        }
+        {
+          const m = server.moduleGraph.getModuleById(resolvedGlobalStyleId);
+          if (m) {
+            server.moduleGraph.invalidateModule(m);
+            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+          }
         }
       }
 
