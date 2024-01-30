@@ -32,4 +32,7 @@ test('should create css string from partial styles and importer id', async ({
 
   assert(cssModule?.importId && cssModule.style);
   expect(cssModule.style).toMatch(/\.foo *\{/);
+
+  assert(globalStyle?.importId && globalStyle.style);
+  expect(globalStyle.style).toMatch(/body *{/);
 });

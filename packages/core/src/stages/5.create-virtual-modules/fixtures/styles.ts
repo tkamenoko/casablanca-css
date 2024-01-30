@@ -1,4 +1,4 @@
-import { css } from '@macrostyles/core';
+import { css, injectGlobal } from '@macrostyles/core';
 
 export const foo = css`
   color: blue;
@@ -8,4 +8,10 @@ export const foo = css`
 export const bar = css`
   color: red;
   font-weight: bold;
+`;
+
+injectGlobal`
+  body {
+    box-sizing: border-box;
+  }
 `;
