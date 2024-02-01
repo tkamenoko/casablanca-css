@@ -1,4 +1,4 @@
-import type { CssLookup } from '@/vite/types';
+import type { CssModulesLookup } from '@/vite/types';
 
 import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
@@ -12,7 +12,7 @@ type ReplaceUuidToStylesArgs = {
     }
   >;
   uuidToStylesMap: UuidToStylesMap;
-  cssLookup: CssLookup;
+  cssModulesLookup: CssModulesLookup;
 };
 export type ReplaceUuidToStylesReturn = {
   composedStyles: {
@@ -22,8 +22,8 @@ export type ReplaceUuidToStylesReturn = {
   }[];
 };
 
-export function replaceUuidToStyles({
-  cssLookup,
+export function replaceUuidWithStyles({
+  cssModulesLookup,
   ownedClassNamesToStyles,
   uuidToStylesMap: uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
@@ -32,7 +32,7 @@ export function replaceUuidToStyles({
     Array.from(uuidToClassNamesMap.entries())
       .map(([uuid, { className, resolvedId }]) => {
         if (resolvedId) {
-          const style = cssLookup
+          const style = cssModulesLookup
             .get(resolvedId)
             ?.classNameToStyleMap.get(className)?.style;
           if (!style) {

@@ -2,19 +2,11 @@ import { type PluginObj, type PluginPass } from '@babel/core';
 import type babel from '@babel/core';
 import { isTopLevelStatement } from '@macrostyles/utils';
 
-import type { ModuleIdPrefix } from '@/vite/types';
-
-import type { CapturedVariableNames } from '../1.capture-tagged-styles';
-
-export type Options = {
-  temporalVariableNames: CapturedVariableNames;
-  originalToTemporalMap: CapturedVariableNames;
-  cssImportId: `${ModuleIdPrefix}${string}`;
-};
+import type { Options } from './types';
 
 type BabelState = {
   opts: Options;
-  importIdName: string;
+  importIdName?: string;
 };
 
 export function assignStylesPlugin({
@@ -24,19 +16,21 @@ export function assignStylesPlugin({
     visitor: {
       Program: {
         enter: (path, state) => {
-          const stylesId = path.scope.generateUidIdentifier('styles');
-          state.importIdName = stylesId.name;
-          const { cssImportId } = state.opts;
           const head = path.get('body').at(0);
           if (!head) {
-            throw new Error('Blank file?');
+            return;
           }
-          head.insertBefore(
-            t.importDeclaration(
-              [t.importDefaultSpecifier(stylesId)],
-              t.stringLiteral(cssImportId),
-            ),
-          );
+          const { cssModule } = state.opts;
+          if (cssModule.temporalVariableNames.size) {
+            const stylesId = path.scope.generateUidIdentifier('styles');
+            state.importIdName = stylesId.name;
+            head.insertBefore(
+              t.importDeclaration(
+                [t.importDefaultSpecifier(stylesId)],
+                t.stringLiteral(cssModule.importId),
+              ),
+            );
+          }
         },
       },
 
@@ -45,7 +39,11 @@ export function assignStylesPlugin({
           if (!isTopLevelStatement(path)) {
             return;
           }
-          const { temporalVariableNames, originalToTemporalMap } = state.opts;
+          if (!state.importIdName) {
+            return;
+          }
+          const { temporalVariableNames, originalToTemporalMap } =
+            state.opts.cssModule;
           const stylesId = t.identifier(state.importIdName);
           for (const declaration of path.get('declarations')) {
             const id = declaration.get('id');

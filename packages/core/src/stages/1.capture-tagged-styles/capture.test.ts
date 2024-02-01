@@ -26,7 +26,11 @@ test('should capture variable names initialized with css tag', async ({
 
   const r = transformResult[moduleId];
   assert(r);
-  const { capturedVariableNames, transformed } = r.stages[1] ?? {};
+  const { capturedVariableNames, transformed, capturedGlobalStylesTempNames } =
+    r.stages[1] ?? {};
+
+  expect(capturedGlobalStylesTempNames?.length).toEqual(2);
+
   assert(capturedVariableNames?.size);
   expect([...capturedVariableNames.entries()]).toMatchObject([
     ['style', { originalName: 'style', temporalName: expect.any(String) }],

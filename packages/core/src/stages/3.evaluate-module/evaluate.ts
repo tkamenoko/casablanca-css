@@ -6,7 +6,7 @@ import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 import type { EvaluateModuleReturn } from './types';
 import { createComposeInternal } from './createComposeInternal';
 import { createGlobalContext } from './injectRegisterGlobals';
-import { injectReactRefresh } from './injectReaactRefresh';
+import { injectReactRefresh } from './injectReactRefresh';
 
 type EvaluateArgs = {
   code: string;
@@ -19,6 +19,7 @@ type EvaluateArgs = {
       temporalName: string;
     }
   >;
+  temporalGlobalStyles: string[];
   linker: ModuleLinker;
 };
 
@@ -27,12 +28,13 @@ export async function evaluate({
   linker,
   modulesCache,
   temporalVariableNames,
+  temporalGlobalStyles,
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
   const contextifiedObject = vm.createContext({
+    ...globalThis,
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
-    process,
   });
   // create module
   const injectedCode = injectReactRefresh(code);
@@ -48,6 +50,7 @@ export async function evaluate({
       (b.dependencySpecifiers?.length || 0)
     );
   });
+
   for (const dep of sortedDeps) {
     if (dep.status !== 'evaluated') {
       await dep.evaluate();
@@ -74,5 +77,9 @@ export async function evaluate({
     });
   }
 
-  return { mapOfClassNamesToStyles };
+  const evaluatedGlobalStyles = temporalGlobalStyles
+    .map((t) => captured[t])
+    .filter((x): x is string => typeof x === 'string');
+
+  return { mapOfClassNamesToStyles, evaluatedGlobalStyles };
 }

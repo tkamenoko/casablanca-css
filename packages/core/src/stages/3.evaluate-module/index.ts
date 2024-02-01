@@ -19,6 +19,7 @@ type Evaluator = (args: {
       temporalName: string;
     }
   >;
+  temporalGlobalStyles: string[];
 }) => Promise<EvaluateModuleReturn>;
 
 type CreateEvaluatorArgs = {
@@ -40,6 +41,7 @@ export function createEvaluator({
     const evaluator: Evaluator = async ({
       code,
       temporalVariableNames,
+      temporalGlobalStyles,
       uuidToStylesMap,
     }) => {
       return await evaluate({
@@ -47,6 +49,7 @@ export function createEvaluator({
         linker,
         modulesCache,
         temporalVariableNames,
+        temporalGlobalStyles,
         uuidToStylesMap,
       });
     };
@@ -60,6 +63,7 @@ export function createEvaluator({
   const evaluator: Evaluator = async ({
     code,
     temporalVariableNames,
+    temporalGlobalStyles,
     uuidToStylesMap,
   }) => {
     return await evaluate({
@@ -67,6 +71,7 @@ export function createEvaluator({
       linker,
       modulesCache,
       temporalVariableNames,
+      temporalGlobalStyles,
       uuidToStylesMap,
     });
   };

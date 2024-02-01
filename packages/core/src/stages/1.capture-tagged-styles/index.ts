@@ -1,8 +1,11 @@
 import type { types } from '@babel/core';
 import { transformFromAstAsync } from '@babel/core';
 
-import type { ImportSource, Options } from './captureVariables';
+import type { ImportSource, Options } from './types';
 import { captureVariableNamesPlugin } from './captureVariables';
+import { removeImportsPlugin } from './removeImports';
+import { collectImportSourcesPlugin } from './collectImportSources';
+import { captureGlobalStylesPlugin } from './captureGlobalStyles';
 
 type CaptureTaggedStylesArgs = {
   code: string;
@@ -19,6 +22,7 @@ export type CaptureTaggedStylesReturn = {
   transformed: string;
   ast: types.File;
   capturedVariableNames: CapturedVariableNames;
+  capturedGlobalStylesTempNames: string[];
   importSources: ImportSource[];
 };
 
@@ -31,11 +35,16 @@ export async function captureTaggedStyles({
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
-    exportedNames: [],
+    capturedGlobalStylesTempNames: [],
     importSources: [],
   };
   const result = await transformFromAstAsync(ast, code, {
-    plugins: [[captureVariableNamesPlugin, pluginOption]],
+    plugins: [
+      [collectImportSourcesPlugin, pluginOption],
+      [captureVariableNamesPlugin, pluginOption],
+      [captureGlobalStylesPlugin, pluginOption],
+      [removeImportsPlugin, pluginOption],
+    ],
     sourceMaps: isDev ? 'inline' : false,
     ast: true,
   });
@@ -48,6 +57,7 @@ export async function captureTaggedStyles({
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
+    capturedGlobalStylesTempNames: pluginOption.capturedGlobalStylesTempNames,
     transformed,
     ast: capturedAst,
     importSources: pluginOption.importSources,

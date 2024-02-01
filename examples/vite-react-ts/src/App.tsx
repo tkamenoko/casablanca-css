@@ -8,7 +8,7 @@ const StyledButton = styled(Button)`
   border: 3px solid blue;
 `;
 
-const StyledPWithAdditionalProps = styled('p')<{
+const StyledPWithAdditionalProps = styled('p') <{
   borderColor: 'red' | 'green' | 'blue';
 }>`
   border: 3px solid ${(p) => p.borderColor};

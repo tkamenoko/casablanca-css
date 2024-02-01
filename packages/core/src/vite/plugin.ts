@@ -5,32 +5,45 @@ import { extractPathAndParamsFromId } from '@macrostyles/utils';
 import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
 import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
 import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
-import type { CreateVirtualCssModuleReturn } from '@/stages/5.create-virtual-css-module';
-import { createVirtualCssModule } from '@/stages/5.create-virtual-css-module';
 import { createEvaluator } from '@/stages/3.evaluate-module';
 import type { CaptureTaggedStylesReturn } from '@/stages/1.capture-tagged-styles';
 import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
 import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions';
 import { prepareCompositions } from '@/stages/2.prepare-compositions';
 import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
-import { replaceUuidToStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+import { replaceUuidWithStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+import {
+  createVirtualModules,
+  type CreateVirtualModulesReturn,
+} from '@/stages/5.create-virtual-modules';
 
-import { loadCss } from './hooks/loadCss';
-import { resolveCssId } from './hooks/resolveCssId';
-import type { CssLookup, JsToCssLookup, PluginOption } from './types';
-import { buildResolvedIdFromVirtualId } from './helpers/buildResolvedIdFromVirtualId';
+import { loadCssModule } from './hooks/loadCss/loadCssModule';
+import type {
+  CssModulesLookup,
+  GlobalStylesLookup,
+  JsToCssModuleLookup,
+  JsToGlobalStyleLookup,
+  PluginOption,
+} from './types';
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './helpers/buildResolvedCssModuleIdFromVirtualCssModuleId';
+import { resolveCssModuleId } from './hooks/resolveCss/resolveCssModuleId';
+import { resolveGlobalStyleId } from './hooks/resolveCss/resolveGlobalStyleId';
+import { loadGlobalStyle } from './hooks/loadCss/loadGlobalStyle';
+import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from './helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId';
 
 export type TransformResult = {
   id: string;
   transformed: string;
-  cssLookup: CssLookup;
-  jsToCssLookup: JsToCssLookup;
+  cssModulesLookup: CssModulesLookup;
+  jsToCssModuleLookup: JsToCssModuleLookup;
+  globalStylesLookup: GlobalStylesLookup;
+  jsToGlobalStyleLookup: JsToGlobalStyleLookup;
   stages: {
     1?: CaptureTaggedStylesReturn;
     2?: PrepareCompositionsReturn;
     3?: EvaluateModuleReturn;
     4?: ReplaceUuidToStylesReturn;
-    5?: CreateVirtualCssModuleReturn;
+    5?: CreateVirtualModulesReturn;
     6?: AssignStylesToCapturedVariablesReturn;
   };
 };
@@ -42,8 +55,11 @@ export function plugin(
     onExitTransform?: OnExitTransform;
   },
 ): Plugin {
-  const cssLookup: CssLookup = new Map();
-  const jsToCssLookup: JsToCssLookup = new Map();
+  const cssModulesLookup: CssModulesLookup = new Map();
+  const jsToCssModuleLookup: JsToCssModuleLookup = new Map();
+
+  const globalStylesLookup: GlobalStylesLookup = new Map();
+  const jsToGlobalStyleLookup: JsToGlobalStyleLookup = new Map();
 
   let config: ResolvedConfig | null = null;
   let server: ViteDevServer | null = null;
@@ -89,13 +105,11 @@ export function plugin(
       // find tagged templates, then remove all tags.
       const {
         capturedVariableNames,
+        capturedGlobalStylesTempNames,
         transformed: capturedCode,
         ast: capturedAst,
         importSources,
       } = await captureTaggedStyles({ code, ast: parsed, isDev });
-      if (!capturedVariableNames.size) {
-        return;
-      }
 
       const temporalVariableNames = new Map(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
@@ -125,38 +139,53 @@ export function plugin(
         modulePath: path,
       });
 
-      const { mapOfClassNamesToStyles } = await evaluateModule({
-        code: replacedCode,
-        temporalVariableNames,
-        uuidToStylesMap,
-      });
+      const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
+        await evaluateModule({
+          code: replacedCode,
+          temporalVariableNames,
+          temporalGlobalStyles: capturedGlobalStylesTempNames,
+          uuidToStylesMap,
+        });
 
-      const { composedStyles } = replaceUuidToStyles({
-        cssLookup,
+      const { composedStyles } = replaceUuidWithStyles({
+        cssModulesLookup,
         ownedClassNamesToStyles: mapOfClassNamesToStyles,
         uuidToStylesMap,
       });
 
-      const { importId, style } = createVirtualCssModule({
-        evaluatedStyles: composedStyles,
+      const { cssModule, globalStyle } = createVirtualModules({
+        evaluatedCssModuleStyles: composedStyles,
+        evaluatedGlobalStyles,
         importerPath: path,
         projectRoot: config.root,
       });
 
+      const { importId: cssModuleImportId, style: cssModuleStyle } = cssModule;
+      const { importId: globalStyleImportId } = globalStyle;
+
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
         {
-          temporalVariableNames,
-          originalToTemporalMap: capturedVariableNames,
+          cssModule: {
+            importId: cssModuleImportId,
+            originalToTemporalMap: capturedVariableNames,
+            temporalVariableNames,
+          },
+          globalStyle: {
+            importId: globalStyleImportId,
+            temporalVariableNames: capturedGlobalStylesTempNames,
+          },
           originalCode: code,
           replaced: replacedAst,
-          cssImportId: importId,
           isDev,
         },
       );
 
-      const resolvedId = buildResolvedIdFromVirtualId({ id: importId });
-      cssLookup.set(resolvedId, {
-        style,
+      const resolvedCssModuleId =
+        buildResolvedCssModuleIdFromVirtualCssModuleId({
+          id: cssModuleImportId,
+        });
+      cssModulesLookup.set(resolvedCssModuleId, {
+        style: cssModuleStyle,
         classNameToStyleMap: new Map(
           composedStyles.map(({ style, originalName }) => [
             originalName,
@@ -164,25 +193,54 @@ export function plugin(
           ]),
         ),
       });
-      jsToCssLookup.set(path, { resolvedId, virtualId: importId, style });
+      jsToCssModuleLookup.set(path, {
+        resolvedId: resolvedCssModuleId,
+        virtualId: cssModuleImportId,
+        style: cssModuleStyle,
+      });
+
+      const resolvedGlobalStyleId =
+        buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
+          id: globalStyleImportId,
+        });
+      globalStylesLookup.set(resolvedGlobalStyleId, {
+        style: globalStyle.style,
+      });
+      jsToGlobalStyleLookup.set(path, {
+        resolvedId: resolvedGlobalStyleId,
+        style: globalStyle.style,
+        virtualId: globalStyleImportId,
+      });
 
       if (server) {
-        const m = server.moduleGraph.getModuleById(resolvedId);
-        if (m) {
-          server.moduleGraph.invalidateModule(m);
-          m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+        {
+          const m = server.moduleGraph.getModuleById(resolvedCssModuleId);
+          if (m) {
+            server.moduleGraph.invalidateModule(m);
+            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+          }
+        }
+        {
+          const m = server.moduleGraph.getModuleById(resolvedGlobalStyleId);
+          if (m) {
+            server.moduleGraph.invalidateModule(m);
+            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
+          }
         }
       }
 
       if (onExitTransform) {
         await onExitTransform({
-          cssLookup,
+          cssModulesLookup,
           id,
-          jsToCssLookup,
+          jsToCssModuleLookup,
+          globalStylesLookup,
+          jsToGlobalStyleLookup,
           stages: {
             '1': {
               capturedVariableNames,
               importSources,
+              capturedGlobalStylesTempNames,
               transformed: capturedCode,
               ast: capturedAst,
             },
@@ -193,11 +251,12 @@ export function plugin(
             },
             '3': {
               mapOfClassNamesToStyles,
+              evaluatedGlobalStyles,
             },
             '4': {
               composedStyles,
             },
-            '5': { importId, style },
+            '5': { cssModule, globalStyle },
             '6': { transformed: resultCode },
           },
           transformed: resultCode,
@@ -215,27 +274,38 @@ export function plugin(
       server = server_;
     },
     resolveId(id) {
-      return resolveCssId({ id });
+      return resolveCssModuleId({ id }) ?? resolveGlobalStyleId({ id });
     },
     load(id) {
-      return loadCss({ cssLookup, id });
+      return (
+        loadCssModule({ cssModulesLookup, id }) ??
+        loadGlobalStyle({ globalStylesLookup, id })
+      );
     },
     handleHotUpdate({ modules, server }) {
       const affectedModules = modules.flatMap((m) => {
+        const dependencies = [m];
         const { id } = m;
         if (!id) {
-          return m;
+          return dependencies;
         }
         const { path } = extractPathAndParamsFromId(id);
-        const css = jsToCssLookup.get(path);
-        if (!css) {
-          return m;
+        const { resolvedId: cssModuleId } = jsToCssModuleLookup.get(path) ?? {};
+        if (cssModuleId) {
+          const cssModule = server.moduleGraph.getModuleById(cssModuleId);
+          if (cssModule) {
+            dependencies.push(cssModule);
+          }
         }
-        const cssModule = server.moduleGraph.getModuleById(css.resolvedId);
-        if (!cssModule) {
-          return m;
+        const { resolvedId: globalStyleId } =
+          jsToGlobalStyleLookup.get(path) ?? {};
+        if (globalStyleId) {
+          const globalStyle = server.moduleGraph.getModuleById(globalStyleId);
+          if (globalStyle) {
+            dependencies.push(globalStyle);
+          }
         }
-        return [m, cssModule];
+        return dependencies;
       });
 
       return affectedModules;

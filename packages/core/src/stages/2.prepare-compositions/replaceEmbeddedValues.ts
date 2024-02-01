@@ -4,7 +4,7 @@ import type babel from '@babel/core';
 import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
 import { isTopLevelStatement } from '@macrostyles/utils';
 
-import type { ResolvedModuleId } from '@/vite/types';
+import type { ResolvedCssModuleId } from '@/vite/types';
 
 import type { ComposeInternalArg } from '../3.evaluate-module/createComposeInternal';
 
@@ -15,7 +15,7 @@ export type Options = {
   temporalVariableNames: string[];
   embeddedToClassNameMap: Map<
     string,
-    { className: string; cssId: ResolvedModuleId; uuid: string }
+    { className: string; cssId: ResolvedCssModuleId; uuid: string }
   >;
   uuidToStylesMap: UuidToStylesMap;
 };

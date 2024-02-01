@@ -26,8 +26,11 @@ test('should create css string from partial styles and importer id', async ({
 
   const r = transformResult[moduleId];
   assert(r);
-  const { importId, style } = r.stages[5] ?? {};
+  const { cssModule, globalStyle } = r.stages[5] ?? {};
 
-  assert(importId && style);
-  expect(style).toMatch(/\.foo *\{/);
+  assert(cssModule?.importId && cssModule.style);
+  expect(cssModule.style).toMatch(/\.foo *\{/);
+
+  assert(globalStyle?.importId && globalStyle.style);
+  expect(globalStyle.style).toMatch(/body *{/);
 });

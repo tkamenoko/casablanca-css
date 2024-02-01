@@ -1,6 +1,6 @@
 import type { TaggedStyle } from '@macrostyles/utils';
 
-import type { ResolvedModuleId } from '@/vite/types';
+import type { ResolvedCssModuleId } from '@/vite/types';
 
 import type { UuidToStylesMap } from '../2.prepare-compositions/types';
 
@@ -8,7 +8,7 @@ export type ComposeInternalArg = {
   uuid: string;
   varName: string;
   value: TaggedStyle<unknown>;
-  resolvedId: ResolvedModuleId | null;
+  resolvedId: ResolvedCssModuleId | null;
 };
 
 type ComposeInternal = (...args: ComposeInternalArg[]) => string;

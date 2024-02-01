@@ -5,6 +5,7 @@ import { isMacrostylesImport } from './isMacrostylesImport';
 
 export function isMacrostylesCssTemplate(
   path: NodePath<types.Expression | null | undefined>,
+  tagName: 'css' | 'injectGlobal',
 ): path is NodePath<TaggedTemplateExpression> {
   if (!path.isTaggedTemplateExpression()) {
     return false;
@@ -31,5 +32,5 @@ export function isMacrostylesCssTemplate(
   if (!imported.isIdentifier()) {
     return false;
   }
-  return imported.node.name === 'css';
+  return imported.node.name === tagName;
 }

@@ -4,6 +4,7 @@ import { assert } from 'vitest';
 import { buildModuleId } from '../fixtures/buildModuleId';
 import { test } from '../fixtures/extendedTest';
 
+import * as globalStyleModuleExports from './fixtures/globalStyles';
 import * as assetModuleExports from './fixtures/useAssetFile';
 import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
 import * as thirdPartyModuleExports from './fixtures/thirdParty';
@@ -151,6 +152,43 @@ test('should evaluate module using non-script modules', async ({
     expect,
     mapOfClassNamesToStyles,
     moduleExports: assetModuleExports,
+    variableNames,
+  });
+});
+
+test('should evaluate module injecting global styles', async ({
+  expect,
+  plugin,
+  transformResult,
+}) => {
+  const variableNames = ['staticStyle'] as const;
+  const moduleId = buildModuleId({
+    relativePath: './fixtures/globalStyles.ts',
+    root: import.meta.url,
+  });
+
+  await build({
+    configFile: false,
+    appType: 'custom',
+    plugins: [plugin],
+    build: {
+      write: false,
+      lib: { entry: moduleId, formats: ['es'] },
+    },
+    optimizeDeps: { disabled: true },
+  });
+
+  const r = transformResult[moduleId];
+  assert(r);
+  const { mapOfClassNamesToStyles, evaluatedGlobalStyles } = r.stages[3] ?? {};
+  assert(mapOfClassNamesToStyles && evaluatedGlobalStyles);
+
+  expect(evaluatedGlobalStyles.at(0)).toMatch('body {');
+
+  testObjectHasEvaluatedStyles({
+    expect,
+    mapOfClassNamesToStyles,
+    moduleExports: globalStyleModuleExports,
     variableNames,
   });
 });
