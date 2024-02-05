@@ -2,6 +2,9 @@ import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
 import { isBuiltin } from 'node:module';
 
+import { isVirtualCssModuleId } from '@/vite/helpers/isVirtualCssModuleId';
+import { isVirtualGlobalStyleId } from '@/vite/helpers/isVirtualGlobalStyleId';
+
 import type { TransformContext } from '../types';
 
 type CreateLinkerReturn = {
@@ -23,6 +26,9 @@ export function createLinker({
       modulePath;
     const basePath =
       referencingPath === '*target*' ? modulePath : referencingPath;
+    // macrostyles modules must be resolved by macrostyles plugin.
+    const skipSelf =
+      !isVirtualCssModuleId(specifier) && !isVirtualGlobalStyleId(specifier);
 
     builtin: {
       const cached = modulesCache.get(specifier);
@@ -90,7 +96,6 @@ export function createLinker({
         .load({
           id: specifier,
           resolveDependencies: true,
-          moduleSideEffects: true,
         })
         .catch(() => null);
       if (!loaded?.code) {
@@ -106,7 +111,9 @@ export function createLinker({
     }
     absolute: {
       // resolve id as absolute path
-      const resolvedAbsolutePath = await ctx.resolve(specifier);
+      const resolvedAbsolutePath = await ctx.resolve(specifier, undefined, {
+        skipSelf,
+      });
       if (!resolvedAbsolutePath) {
         break absolute;
       }
@@ -118,7 +125,6 @@ export function createLinker({
         .load({
           id: resolvedAbsolutePath.id,
           resolveDependencies: true,
-          moduleSideEffects: true,
         })
         .catch(() => null);
       if (!loaded?.code) {
@@ -145,7 +151,6 @@ export function createLinker({
         .load({
           id: resolvedRelativePath.id,
           resolveDependencies: true,
-          moduleSideEffects: true,
         })
         .catch(() => null);
       if (!loaded?.code) {
