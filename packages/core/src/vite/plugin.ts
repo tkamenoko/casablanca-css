@@ -115,6 +115,12 @@ export function plugin(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
       );
 
+      if (
+        !(capturedVariableNames.size || capturedGlobalStylesTempNames.length)
+      ) {
+        return;
+      }
+
       // replace `compose` calls to temporal strings
       const {
         transformed: replacedCode,
