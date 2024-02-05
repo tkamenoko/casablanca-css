@@ -9,7 +9,6 @@ import type { TransformContext } from '../types';
 
 type CreateLinkerReturn = {
   linker: ModuleLinker;
-  modulesCache: Map<string, Module>;
 };
 
 export function createLinker({
@@ -168,5 +167,5 @@ export function createLinker({
       `Failed to load "${specifier}" from "${referencingModule.identifier}"`,
     );
   };
-  return { linker, modulesCache };
+  return { linker };
 }

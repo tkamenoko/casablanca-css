@@ -34,7 +34,7 @@ export function createEvaluator({
   modulePath,
 }: CreateEvaluatorArgs): Evaluator {
   if (server) {
-    const { linker, modulesCache } = createLinkerForServer({
+    const { linker } = createLinkerForServer({
       modulePath,
       server,
     });
@@ -47,7 +47,6 @@ export function createEvaluator({
       return await evaluate({
         code,
         linker,
-        modulesCache,
         temporalVariableNames,
         temporalGlobalStyles,
         uuidToStylesMap,
@@ -55,7 +54,7 @@ export function createEvaluator({
     };
     return evaluator;
   }
-  const { linker, modulesCache } = createLinkerForProduction({
+  const { linker } = createLinkerForProduction({
     modulePath,
     transformContext,
   });
@@ -69,7 +68,6 @@ export function createEvaluator({
     return await evaluate({
       code,
       linker,
-      modulesCache,
       temporalVariableNames,
       temporalGlobalStyles,
       uuidToStylesMap,
