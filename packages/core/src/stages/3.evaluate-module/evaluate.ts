@@ -35,14 +35,15 @@ export async function evaluate({
   const currentGlobals = Object.fromEntries(
     globalPropertyNames.map((n) => [n, globalThis[n]]),
   );
+  const { injected: injectedCode, reactGlobals } = injectReactRefresh(code);
 
   const contextifiedObject = vm.createContext({
     ...currentGlobals,
+    ...reactGlobals,
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
   });
   // create module
-  const injectedCode = injectReactRefresh(code);
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
     identifier: `vm:module(*target*)`,
