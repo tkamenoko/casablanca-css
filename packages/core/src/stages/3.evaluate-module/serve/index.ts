@@ -1,18 +1,13 @@
 import type { ModuleLinker, Module } from 'node:vm';
 import vm from 'node:vm';
 import { isBuiltin } from 'node:module';
-import { pathToFileURL } from 'node:url';
 
 import type { ViteDevServer } from 'vite';
 
-import { injectReactRefresh } from '../injectReactRefresh';
-
 import { normalizeSpecifier } from './normalizeSpecifier';
-import { fixSsrTransform } from './fixSsrTransform';
 
 type CreateLinkerReturn = {
   linker: ModuleLinker;
-  modulesCache: Map<string, Module>;
 };
 
 export function createLinker({
@@ -98,27 +93,22 @@ export function createLinker({
         break vite;
       }
       const { url } = resolvedModule;
-      const loaded = await server
-        .transformRequest(url, {
-          html: false,
-          ssr: true,
-        })
-        .catch(() => null);
+      const loaded = await server.ssrLoadModule(url).catch(() => null);
       if (!loaded) {
         break vite;
       }
 
-      const fixed = await fixSsrTransform(loaded.code);
-
-      const m = new vm.SourceTextModule(injectReactRefresh(fixed), {
-        context: referencingModule.context,
-        identifier: `vm:module<vite>(${serverSpecifier})`,
-        initializeImportMeta: (meta) => {
-          meta.url = url.startsWith('file://')
-            ? url
-            : pathToFileURL(url).toString();
+      const exportNames = Object.keys(loaded);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, loaded[name]));
         },
-      });
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<vite>(${serverSpecifier})`,
+        },
+      );
       modulesCache.set(serverSpecifier, m);
       return m;
     }
@@ -143,31 +133,26 @@ export function createLinker({
 
       const url = resolvedModule?.url ?? resolvedRelativePath.id;
 
-      const loaded = await server
-        .transformRequest(url, {
-          html: false,
-          ssr: true,
-        })
-        .catch(() => null);
+      const loaded = await server.ssrLoadModule(url).catch(() => null);
       if (!loaded) {
         break relative;
       }
 
-      const fixed = await fixSsrTransform(loaded.code);
-
-      const m = new vm.SourceTextModule(injectReactRefresh(fixed), {
-        context: referencingModule.context,
-        identifier: `vm:module<relative>(${resolvedRelativePath.id})`,
-        initializeImportMeta: (meta) => {
-          meta.url = url.startsWith('file://')
-            ? url
-            : pathToFileURL(url).toString();
+      const exportNames = Object.keys(loaded);
+      const m = new vm.SyntheticModule(
+        exportNames,
+        () => {
+          exportNames.forEach((name) => m.setExport(name, loaded[name]));
         },
-      });
-      modulesCache.set(resolvedRelativePath.id, m);
+        {
+          context: referencingModule.context,
+          identifier: `vm:module<relative>(${serverSpecifier})`,
+        },
+      );
+      modulesCache.set(serverSpecifier, m);
       return m;
     }
     throw new Error(`Failed to load "${serverSpecifier}" from "${modulePath}"`);
   };
-  return { linker, modulesCache };
+  return { linker };
 }

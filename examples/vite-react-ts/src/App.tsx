@@ -1,5 +1,6 @@
 import { useState, type FC } from 'react';
 import { styled } from '@macrostyles/react';
+import { modularScale } from 'polished';
 
 import { Button } from './Button';
 
@@ -13,6 +14,10 @@ const StyledPWithAdditionalProps = styled('p') <{
 }>`
   border: 3px solid ${(p) => p.borderColor};
 `;
+
+const StyledH1 = styled("h1")`
+  font-size: ${modularScale(2)};
+`
 
 const ContainerDiv = styled('div')`
   display: grid;
@@ -28,7 +33,7 @@ export const App: FC = () => {
   const [color, setColor] = useState<'red' | 'green' | 'blue'>('red');
   return (
     <ContainerDiv>
-      <h1>Macrostyles + React-TS</h1>
+      <StyledH1>Macrostyles + React-TS</StyledH1>
       <p>Zero runtime CSS-in-JS for vite.</p>
       <StyledButton />
       <StyledPWithAdditionalProps borderColor={color}>

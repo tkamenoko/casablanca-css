@@ -1,4 +1,4 @@
-import type { ModuleLinker, Module } from 'node:vm';
+import type { ModuleLinker } from 'node:vm';
 import vm from 'node:vm';
 
 import type { UuidToStylesMap } from '../2.prepare-compositions/types';
@@ -10,7 +10,6 @@ import { injectReactRefresh } from './injectReactRefresh';
 
 type EvaluateArgs = {
   code: string;
-  modulesCache: Map<string, Module>;
   uuidToStylesMap: UuidToStylesMap;
   temporalVariableNames: Map<
     string,
@@ -26,36 +25,30 @@ type EvaluateArgs = {
 export async function evaluate({
   code,
   linker,
-  modulesCache,
   temporalVariableNames,
   temporalGlobalStyles,
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
+  const globalPropertyNames = Object.getOwnPropertyNames(
+    globalThis,
+  ) as (keyof Global)[];
+  const currentGlobals = Object.fromEntries(
+    globalPropertyNames.map((n) => [n, globalThis[n]]),
+  );
+  const { injected: injectedCode, reactGlobals } = injectReactRefresh(code);
+
   const contextifiedObject = vm.createContext({
-    ...globalThis,
+    ...currentGlobals,
+    ...reactGlobals,
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
   });
   // create module
-  const injectedCode = injectReactRefresh(code);
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
     identifier: `vm:module(*target*)`,
   });
   await targetModule.link(linker);
-  // evaluate dependencies
-  const sortedDeps = [...modulesCache.values()].slice().sort((a, b) => {
-    return (
-      (a.dependencySpecifiers?.length || 0) -
-      (b.dependencySpecifiers?.length || 0)
-    );
-  });
-
-  for (const dep of sortedDeps) {
-    if (dep.status !== 'evaluated') {
-      await dep.evaluate();
-    }
-  }
 
   // evaluate
   await targetModule.evaluate();

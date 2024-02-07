@@ -28,7 +28,7 @@ export function modifyCompositionsPlugin({
       TaggedTemplateExpression: {
         enter: (path) => {
           // is macrostyles template?
-          if (!isMacrostylesCssTemplate(path)) {
+          if (!isMacrostylesCssTemplate(path, 'css')) {
             return;
           }
           const quasi = path.get('quasi');

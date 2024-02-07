@@ -5,23 +5,23 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "dependencies": {
-    "@babel/core": "^7.23.2"
+    "@babel/core": "^7.23.9"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.20.2"
+    "@types/babel__core": "^7.20.5"
   },
   "exports": {
     ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "@macrostyles/core": "npm:core@0.0.1",
-    "vite": "^4.4.11"
+    "@macrostyles/core": "0.0.1",
+    "vite": "^5.0.12"
   },
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {

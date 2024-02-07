@@ -115,6 +115,12 @@ export function plugin(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
       );
 
+      if (
+        !(capturedVariableNames.size || capturedGlobalStylesTempNames.length)
+      ) {
+        return;
+      }
+
       // replace `compose` calls to temporal strings
       const {
         transformed: replacedCode,
@@ -213,15 +219,8 @@ export function plugin(
       });
 
       if (server) {
-        {
-          const m = server.moduleGraph.getModuleById(resolvedCssModuleId);
-          if (m) {
-            server.moduleGraph.invalidateModule(m);
-            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
-          }
-        }
-        {
-          const m = server.moduleGraph.getModuleById(resolvedGlobalStyleId);
+        for (const moduleId of [resolvedCssModuleId, resolvedGlobalStyleId]) {
+          const m = server.moduleGraph.getModuleById(moduleId);
           if (m) {
             server.moduleGraph.invalidateModule(m);
             m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
