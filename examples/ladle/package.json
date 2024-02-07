@@ -1,21 +1,21 @@
 {
   "name": "ladle-example",
   "dependencies": {
-    "polished": "^4.2.2",
+    "polished": "^4.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@ladle/react": "^3.3.1",
-    "@macrostyles/core": "npm:core@0.0.1",
-    "@macrostyles/react": "npm:react@0.0.1",
-    "@styled/typescript-styled-plugin": "^1.0.0",
-    "@types/react": "^18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "@vitejs/plugin-react": "^4.1.0",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.11",
-    "vite-tsconfig-paths": "^4.2.1"
+    "@ladle/react": "^4.0.2",
+    "@macrostyles/core": "0.0.1",
+    "@macrostyles/react": "0.0.1",
+    "@styled/typescript-styled-plugin": "^1.0.1",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vite-tsconfig-paths": "^4.3.1"
   },
   "private": true,
   "scripts": {
