@@ -152,7 +152,7 @@ export function createLinker({
           resolveDependencies: true,
         })
         .catch(() => null);
-      if (!loaded?.code) {
+      if (typeof loaded?.code !== 'string') {
         break relative;
       }
 
