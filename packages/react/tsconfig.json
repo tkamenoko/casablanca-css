@@ -4,7 +4,6 @@
     "baseUrl": "./",
     "outDir": "./dist",
     "isolatedModules": true,
-    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "paths": {
       "@macrostyles/react": ["./src"],
