@@ -5,6 +5,7 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@tsconfig/strictest": "^2.0.2",
     "@types/eslint": "^8.56.2",
@@ -26,13 +27,10 @@
     "wireit": "^0.14.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.19.0"
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
-  "prettier": {
-    "singleQuote": true
-  },
   "private": true,
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
@@ -41,10 +39,7 @@
   },
   "wireit": {
     "test-all": {
-      "dependencies": [
-        "./packages/core:test",
-        "./packages/react:test"
-      ]
+      "dependencies": ["./packages/core:test", "./packages/react:test"]
     },
     "types-all": {
       "dependencies": [
@@ -55,8 +50,5 @@
     }
   },
   "type": "module",
-  "workspaces": [
-    "./packages/*",
-    "./examples/*"
-  ]
+  "workspaces": ["./packages/*", "./examples/*"]
 }
