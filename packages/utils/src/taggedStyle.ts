@@ -1,4 +1,4 @@
-const macrostylesSymbol = Symbol('macrostyles');
+const macrostylesSymbol = Symbol("macrostyles");
 
 export type TaggedStyle<T> = T & {
   [macrostylesSymbol]: unknown;

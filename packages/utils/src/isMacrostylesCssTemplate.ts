@@ -1,16 +1,16 @@
-import type { NodePath, types } from '@babel/core';
-import type { TaggedTemplateExpression } from '@babel/types';
+import type { NodePath, types } from "@babel/core";
+import type { TaggedTemplateExpression } from "@babel/types";
 
-import { isMacrostylesImport } from './isMacrostylesImport';
+import { isMacrostylesImport } from "./isMacrostylesImport";
 
 export function isMacrostylesCssTemplate(
   path: NodePath<types.Expression | null | undefined>,
-  tagName: 'css' | 'injectGlobal',
+  tagName: "css" | "injectGlobal",
 ): path is NodePath<TaggedTemplateExpression> {
   if (!path.isTaggedTemplateExpression()) {
     return false;
   }
-  const tagId = path.get('tag');
+  const tagId = path.get("tag");
   if (!tagId.isIdentifier()) {
     return false;
   }
@@ -20,11 +20,10 @@ export function isMacrostylesCssTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isMacrostylesImport(importDec, 'core'))) {
+  if (!(importDec && isMacrostylesImport(importDec, "core"))) {
     return false;
   }
-  const imported = tagBinding.path.get('imported');
-
+  const imported = tagBinding.path.get("imported");
   if (Array.isArray(imported)) {
     return false;
   }
