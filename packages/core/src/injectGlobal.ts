@@ -1,4 +1,4 @@
-import type { TaggedStyle } from '@macrostyles/utils';
+import type { TaggedStyle } from "@macrostyles/utils";
 
 export function injectGlobal(
   _strings: TemplateStringsArray,
@@ -7,5 +7,5 @@ export function injectGlobal(
   if (import.meta.env.DEV) {
     return;
   }
-  throw new Error('This function is not for runtime execution.');
+  throw new Error("This function is not for runtime execution.");
 }

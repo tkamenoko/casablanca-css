@@ -1,6 +1,6 @@
-import { buildCssModuleImportId } from '@/vite/helpers/buildCssModuleImportId';
-import { buildGlobalStyleImportId } from '@/vite/helpers/buildGlobalStyleImportId';
-import type { VirtualCssModuleId, VirtualGlobalStyleId } from '@/vite/types';
+import { buildCssModuleImportId } from "#@/vite/helpers/buildCssModuleImportId";
+import { buildGlobalStyleImportId } from "#@/vite/helpers/buildGlobalStyleImportId";
+import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
 
 type CreateVirtualModulesArgs = {
   importerPath: string;
@@ -36,11 +36,11 @@ export function createVirtualModules({
   return {
     cssModule: {
       importId: buildCssModuleImportId({ importerPath, projectRoot }),
-      style: cssModuleStyles.join(''),
+      style: cssModuleStyles.join(""),
     },
     globalStyle: {
       importId: buildGlobalStyleImportId({ importerPath, projectRoot }),
-      style: evaluatedGlobalStyles.join(''),
+      style: evaluatedGlobalStyles.join(""),
     },
   };
 }

@@ -1,8 +1,6 @@
-import { extractPathAndParamsFromId } from '@macrostyles/utils';
-
-import type { ResolvedCssModuleId, VirtualCssModuleId } from '../types';
-
-import { isVirtualCssModuleId } from './isVirtualCssModuleId';
+import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import type { ResolvedCssModuleId, VirtualCssModuleId } from "../types";
+import { isVirtualCssModuleId } from "./isVirtualCssModuleId";
 
 export function buildResolvedCssModuleIdFromVirtualCssModuleId({
   id,

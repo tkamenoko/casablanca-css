@@ -1,5 +1,5 @@
-import { css, injectGlobal } from '@macrostyles/core';
-import type { FC } from 'react';
+import { css, injectGlobal } from "@macrostyles/core";
+import type { FC } from "react";
 
 injectGlobal`
   body {
@@ -18,9 +18,12 @@ const notExported = css`
 `;
 
 export const Component: FC = () => {
-  return <button className={notExported}>PUSH!</button>;
+  return (
+    <button type="button" className={notExported}>
+      PUSH!
+    </button>
+  );
 };
-
 
 injectGlobal`
   img {
@@ -28,4 +31,5 @@ injectGlobal`
   }  
 `;
 
+// biome-ignore lint/style/noUnusedTemplateLiteral: test plugin to ignore other template string
 export const notStyleString = ``;

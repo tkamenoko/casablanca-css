@@ -1,8 +1,7 @@
-import type { PluginObj, PluginPass } from '@babel/core';
-import type babel from '@babel/core';
-import { isTopLevelStatement } from '@macrostyles/utils';
-
-import type { Options } from './types';
+import type { PluginObj, PluginPass } from "@babel/core";
+import type babel from "@babel/core";
+import { isTopLevelStatement } from "@macrostyles/utils";
+import type { Options } from "./types";
 
 type BabelState = {
   opts: Options;
@@ -15,7 +14,7 @@ export function importGlobalStylePlugin({
     visitor: {
       Program: {
         enter: (path, state) => {
-          const head = path.get('body').at(0);
+          const head = path.get("body").at(0);
           if (!head) {
             return;
           }
@@ -38,8 +37,8 @@ export function importGlobalStylePlugin({
           if (!temporalVariableNames.length) {
             return;
           }
-          for (const declaration of path.get('declarations')) {
-            const id = declaration.get('id');
+          for (const declaration of path.get("declarations")) {
+            const id = declaration.get("id");
             if (!id.isIdentifier()) {
               continue;
             }

@@ -1,8 +1,6 @@
-import type { TaggedStyle } from '@macrostyles/utils';
-
-import type { ResolvedCssModuleId } from '@/vite/types';
-
-import type { UuidToStylesMap } from '../2.prepare-compositions/types';
+import type { TaggedStyle } from "@macrostyles/utils";
+import type { ResolvedCssModuleId } from "#@/vite/types";
+import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 
 export type ComposeInternalArg = {
   uuid: string;
@@ -30,8 +28,7 @@ export function createComposeInternal(
         className: componentClassName ?? stored.className,
       });
       uuids.push(uuid);
-      continue;
     }
-    return uuids.join('\n');
+    return uuids.join("\n");
   };
 }

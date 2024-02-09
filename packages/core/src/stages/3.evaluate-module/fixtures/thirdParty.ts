@@ -1,5 +1,5 @@
-import { modularScale } from 'polished';
-import { css } from '@macrostyles/core';
+import { css } from "@macrostyles/core";
+import { modularScale } from "polished";
 
 export const styleWithPolished = css`
   font-size: ${modularScale(2)};

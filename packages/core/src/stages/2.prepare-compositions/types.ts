@@ -1,4 +1,4 @@
-import type { ResolvedCssModuleId } from '@/vite/types';
+import type { ResolvedCssModuleId } from "#@/vite/types";
 
 export type UuidToStylesMap = Map<
   string,

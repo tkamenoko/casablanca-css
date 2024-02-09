@@ -1,5 +1,4 @@
 import type { Plugin } from "vite";
-
 import type { PluginOption } from "./plugin";
 import { plugin } from "./plugin";
 

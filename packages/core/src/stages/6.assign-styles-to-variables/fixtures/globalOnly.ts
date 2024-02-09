@@ -1,6 +1,6 @@
-import { injectGlobal } from '@macrostyles/core';
+import { injectGlobal } from "@macrostyles/core";
 
-const fontSize = '16px';
+const fontSize = "16px";
 
 injectGlobal`
   body {

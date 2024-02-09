@@ -1,25 +1,24 @@
-import { assert } from 'vitest';
-import { build } from 'vite';
+import { build } from "vite";
+import { assert } from "vitest";
+import { buildModuleId } from "../fixtures/buildModuleId";
+import { test } from "../fixtures/extendedTest";
 
-import { buildModuleId } from '../fixtures/buildModuleId';
-import { test } from '../fixtures/extendedTest';
-
-test('should create css string from partial styles and importer id', async ({
+test("should create css string from partial styles and importer id", async ({
   expect,
   transformResult,
   plugin,
 }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/styles.ts',
+    relativePath: "./fixtures/styles.ts",
     root: import.meta.url,
   });
   await build({
     configFile: false,
-    appType: 'custom',
+    appType: "custom",
     plugins: [plugin],
     build: {
       write: false,
-      lib: { entry: moduleId, formats: ['es'] },
+      lib: { entry: moduleId, formats: ["es"] },
     },
     optimizeDeps: { disabled: true },
   });

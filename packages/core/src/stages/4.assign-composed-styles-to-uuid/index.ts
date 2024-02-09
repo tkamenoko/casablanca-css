@@ -1,6 +1,5 @@
-import type { CssModulesLookup } from '@/vite/types';
-
-import type { UuidToStylesMap } from '../2.prepare-compositions/types';
+import type { CssModulesLookup } from "#@/vite/types";
+import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 
 type ReplaceUuidToStylesArgs = {
   ownedClassNamesToStyles: Map<
@@ -73,7 +72,7 @@ export function replaceUuidWithStyles({
       dependsOn: Set<string>;
     }
   > = new Map();
-  uuidToStyles.forEach(({ dependsOn, style, uuid, className }) => {
+  for (const { className, dependsOn, style, uuid } of uuidToStyles.values()) {
     let s = style;
     for (const depsUuid of dependsOn) {
       const d =
@@ -83,10 +82,13 @@ export function replaceUuidWithStyles({
       }
       s = s.replaceAll(depsUuid, d.style);
       dependsOn.delete(depsUuid);
-      d.dependsOn.forEach((dd) => dependsOn.add(dd));
+      for (const dependency of d.dependsOn) {
+        dependsOn.add(dependency);
+      }
     }
     resolvedUuidToStyles.set(uuid, { dependsOn, style: s, uuid });
-  });
+  }
+
   const result = Array.from(ownedClassNamesToStyles.values()).map(
     ({ style, originalName, temporalVariableName }) => {
       let s = style;

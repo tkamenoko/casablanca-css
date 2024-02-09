@@ -1,9 +1,8 @@
-import type { PluginObj, PluginPass } from '@babel/core';
-import { isMacrostylesImport } from '@macrostyles/utils';
+import type { PluginObj, PluginPass } from "@babel/core";
+import { isMacrostylesImport } from "@macrostyles/utils";
+import type { BabelState } from "./types";
 
-import type { BabelState } from './types';
-
-const tagNames = new Set(['css', 'injectGlobal']);
+const tagNames = new Set(["css", "injectGlobal"]);
 
 export function removeImportsPlugin(): PluginObj<PluginPass & BabelState> {
   return {
@@ -13,14 +12,14 @@ export function removeImportsPlugin(): PluginObj<PluginPass & BabelState> {
           path.traverse({
             ImportDeclaration: {
               enter: (path_) => {
-                if (!isMacrostylesImport(path_, 'core')) {
+                if (!isMacrostylesImport(path_, "core")) {
                   return;
                 }
-                for (const item of path_.get('specifiers')) {
+                for (const item of path_.get("specifiers")) {
                   if (!item.isImportSpecifier()) {
                     continue;
                   }
-                  const imported = item.get('imported');
+                  const imported = item.get("imported");
                   if (imported.isIdentifier()) {
                     const importedName = imported.node.name;
                     if (tagNames.has(importedName)) {
@@ -28,7 +27,7 @@ export function removeImportsPlugin(): PluginObj<PluginPass & BabelState> {
                     }
                   }
                 }
-                if (!path_.get('specifiers').length) {
+                if (!path_.get("specifiers").length) {
                   path_.remove();
                 }
               },

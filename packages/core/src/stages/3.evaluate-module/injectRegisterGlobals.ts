@@ -1,7 +1,7 @@
-import { GlobalWindow } from 'happy-dom';
+import { GlobalWindow } from "happy-dom";
 
-const ignores = ['undefined', 'NaN', 'global', 'globalThis'] as const;
-const selfReferences = ['self', 'top', 'parent', 'window'] as const;
+const ignores = ["undefined", "NaN", "global", "globalThis"] as const;
+const selfReferences = ["self", "top", "parent", "window"] as const;
 
 type CreateWindowForContextReturn = Omit<
   typeof window,
@@ -23,7 +23,7 @@ export function createGlobalContext(): CreateWindowForContextReturn {
       },
     )
     .map(([k, v]) => {
-      if (typeof v === 'function' && !k.at(0)?.match(/[A-Z]/)) {
+      if (typeof v === "function" && !k.at(0)?.match(/[A-Z]/)) {
         return [k, v.bind(window)];
       }
       return [k, v];

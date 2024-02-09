@@ -1,15 +1,11 @@
-import { randomUUID } from 'node:crypto';
-
-import type babel from '@babel/core';
-import type { NodePath, PluginObj, PluginPass, types } from '@babel/core';
-import { isTopLevelStatement } from '@macrostyles/utils';
-
-import type { ResolvedCssModuleId } from '@/vite/types';
-
-import type { ComposeInternalArg } from '../3.evaluate-module/createComposeInternal';
-
-import type { UuidToStylesMap } from './types';
-import { markImportedSelectorsAsGlobal } from './markImportedSelectorsAsGlobal';
+import { randomUUID } from "node:crypto";
+import type babel from "@babel/core";
+import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
+import { isTopLevelStatement } from "@macrostyles/utils";
+import type { ResolvedCssModuleId } from "#@/vite/types";
+import type { ComposeInternalArg } from "../3.evaluate-module/createComposeInternal";
+import { markImportedSelectorsAsGlobal } from "./markImportedSelectorsAsGlobal";
+import type { UuidToStylesMap } from "./types";
 
 export type Options = {
   temporalVariableNames: string[];
@@ -35,15 +31,15 @@ export function replaceEmbeddedValuesPlugin({
           if (!isTopLevelStatement(path)) {
             return;
           }
-          for (const declaration of path.get('declarations')) {
-            const id = declaration.get('id');
+          for (const declaration of path.get("declarations")) {
+            const id = declaration.get("id");
             if (
               !id.isIdentifier() ||
               !state.opts.temporalVariableNames.includes(id.node.name)
             ) {
               continue;
             }
-            const init = declaration.get('init');
+            const init = declaration.get("init");
             if (!init.isTemplateLiteral()) {
               continue;
             }
@@ -51,8 +47,8 @@ export function replaceEmbeddedValuesPlugin({
             // imported classNames are already evaluated. This avoids duplication of replacing classNames.
             markImportedSelectorsAsGlobal({ templateLiteralPath: init });
             // fix `composes: ...` property
-            const expressions = init.get('expressions');
-            const quasis = init.get('quasis');
+            const expressions = init.get("expressions");
+            const quasis = init.get("quasis");
             for (const [i, quasi] of quasis.entries()) {
               const expression = expressions.at(i);
               if (!expression) {
@@ -60,13 +56,13 @@ export function replaceEmbeddedValuesPlugin({
               }
               const ids = expression.isArrayExpression()
                 ? expression
-                    .get('elements')
+                    .get("elements")
                     .filter((e): e is NodePath<types.Identifier> =>
                       e.isIdentifier(),
                     )
                 : expression.isIdentifier()
-                ? [expression]
-                : [];
+                  ? [expression]
+                  : [];
               if (!ids.length) {
                 continue;
               }
@@ -74,7 +70,7 @@ export function replaceEmbeddedValuesPlugin({
               if (!style.match(/(?:;|\s)composes:\s*$/)) {
                 continue;
               }
-              const composeArgs: (Omit<ComposeInternalArg, 'value'> & {
+              const composeArgs: (Omit<ComposeInternalArg, "value"> & {
                 valueId: types.Identifier;
               })[] = [];
               for (const id of ids) {
@@ -100,24 +96,24 @@ export function replaceEmbeddedValuesPlugin({
               }
               expression.replaceWith(
                 t.callExpression(
-                  t.identifier('__composeInternal'),
+                  t.identifier("__composeInternal"),
                   composeArgs.map(({ resolvedId, uuid, valueId, varName }) => {
                     const resolvedIdProperty = t.objectProperty(
-                      t.identifier('resolvedId'),
+                      t.identifier("resolvedId"),
                       resolvedId
                         ? t.stringLiteral(resolvedId)
                         : t.nullLiteral(),
                     );
                     const uuidProperty = t.objectProperty(
-                      t.identifier('uuid'),
+                      t.identifier("uuid"),
                       t.stringLiteral(uuid),
                     );
                     const valueProperty = t.objectProperty(
-                      t.identifier('value'),
+                      t.identifier("value"),
                       valueId,
                     );
                     const varNameProperty = t.objectProperty(
-                      t.identifier('varName'),
+                      t.identifier("varName"),
                       t.stringLiteral(varName),
                     );
                     return t.objectExpression([
@@ -131,7 +127,7 @@ export function replaceEmbeddedValuesPlugin({
               );
               const removedCompose = style.replace(
                 /(?<prev>;|\s)composes:\s*$/,
-                '$<prev>',
+                "$<prev>",
               );
               quasi.replaceWith(t.templateElement({ raw: removedCompose }));
             }

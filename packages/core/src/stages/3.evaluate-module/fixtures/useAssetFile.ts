@@ -1,5 +1,5 @@
-import './styles.css';
-import { css } from '@macrostyles/core';
+import { css } from "@macrostyles/core";
+import "./styles.css";
 
 export const className = css`
   background-color: blue;

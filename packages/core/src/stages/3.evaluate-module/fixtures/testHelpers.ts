@@ -1,4 +1,4 @@
-import { assert, type ExpectStatic } from 'vitest';
+import { assert, type ExpectStatic } from "vitest";
 
 export function testObjectHasEvaluatedStyles({
   expect,
@@ -21,7 +21,7 @@ export function testObjectHasEvaluatedStyles({
   expect(mapOfClassNamesToStyles.size).toEqual(variableNames.length);
   for (const variableName of variableNames) {
     const value = moduleExports[variableName];
-    assert(typeof value === 'string');
+    assert(typeof value === "string");
     expect(mapOfClassNamesToStyles.get(variableName)?.style).toMatch(
       value.trim(),
     );

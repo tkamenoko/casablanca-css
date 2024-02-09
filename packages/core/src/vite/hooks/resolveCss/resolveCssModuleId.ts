@@ -1,7 +1,7 @@
-import { isResolvedCssModuleId } from '../../helpers/isResolvedCssModuleId';
-import { isVirtualCssModuleId } from '../../helpers/isVirtualCssModuleId';
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from '../../helpers/buildResolvedCssModuleIdFromVirtualCssModuleId';
-import type { ResolvedCssModuleId } from '../../types';
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "../../helpers/buildResolvedCssModuleIdFromVirtualCssModuleId";
+import { isResolvedCssModuleId } from "../../helpers/isResolvedCssModuleId";
+import { isVirtualCssModuleId } from "../../helpers/isVirtualCssModuleId";
+import type { ResolvedCssModuleId } from "../../types";
 
 export function resolveCssModuleId({
   id,

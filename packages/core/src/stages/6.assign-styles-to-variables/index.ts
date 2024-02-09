@@ -1,13 +1,10 @@
-import type { types } from '@babel/core';
-import { transformFromAstAsync } from '@babel/core';
-
-import type { VirtualCssModuleId, VirtualGlobalStyleId } from '@/vite/types';
-
-import type { CapturedVariableNames } from '../1.capture-tagged-styles';
-
-import type { Options } from './types';
-import { assignStylesPlugin } from './assignStyles';
-import { importGlobalStylePlugin } from './importGlobalStyle';
+import type { types } from "@babel/core";
+import { transformFromAstAsync } from "@babel/core";
+import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles";
+import { assignStylesPlugin } from "./assignStyles";
+import { importGlobalStylePlugin } from "./importGlobalStyle";
+import type { Options } from "./types";
 
 type AssignStylesToCapturedVariablesArgs = {
   replaced: types.File;
@@ -43,14 +40,14 @@ export async function assignStylesToCapturedVariables({
       [assignStylesPlugin, pluginOption],
       [importGlobalStylePlugin, pluginOption],
     ],
-    sourceMaps: isDev ? 'inline' : false,
+    sourceMaps: isDev ? "inline" : false,
   });
   if (!result) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
   const { code: transformed } = result;
   if (!transformed) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
 
   return { transformed };
