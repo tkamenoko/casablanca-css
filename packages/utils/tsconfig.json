@@ -4,10 +4,9 @@
     "baseUrl": "./",
     "outDir": "./dist",
     "isolatedModules": true,
-    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "#@/*": ["./src/*"]
     },
     "types": ["vite/client"],
     "jsx": "react-jsx"

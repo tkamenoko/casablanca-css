@@ -5,16 +5,10 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/macrostyles/issues",
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@tsconfig/strictest": "^2.0.2",
-    "@types/eslint": "^8.56.2",
-    "@types/eslint-config-prettier": "^6.11.3",
     "@types/prettier": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.2.5",
     "rollup-plugin-node-externals": "^7.0.1",
     "syncpack": "^12.3.0",
@@ -26,19 +20,32 @@
     "wireit": "^0.14.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.19.0"
   },
   "homepage": "https://github.com/tkamenoko/macrostyles#readme",
   "license": "MIT",
-  "prettier": {
-    "singleQuote": true
-  },
   "private": true,
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-all": "wireit",
+    "types-all": "wireit"
   },
   "type": "module",
+  "wireit": {
+    "test-all": {
+      "dependencies": [
+        "./packages/core:test",
+        "./packages/react:test"
+      ]
+    },
+    "types-all": {
+      "dependencies": [
+        "./packages/core:types",
+        "./packages/react:types",
+        "./packages/utils:types"
+      ]
+    }
+  },
   "workspaces": [
     "./packages/*",
     "./examples/*"

@@ -1,4 +1,4 @@
-import { css } from '@macrostyles/core';
+import { css } from "@macrostyles/core";
 
 export const composedStyle = css`
   font-weight: bold;

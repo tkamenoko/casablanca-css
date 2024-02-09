@@ -1,12 +1,11 @@
-import type { PluginObj, PluginPass, types, NodePath } from '@babel/core';
-import type babel from '@babel/core';
+import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
+import type babel from "@babel/core";
 import {
+  isMacrostylesCssTemplate,
   isMacrostylesImport,
   isTopLevelStatement,
-  isMacrostylesCssTemplate,
-} from '@macrostyles/utils';
-
-import type { BabelState } from './types';
+} from "@macrostyles/utils";
+import type { BabelState } from "./types";
 
 export function captureVariableNamesPlugin({
   types: t,
@@ -16,9 +15,9 @@ export function captureVariableNamesPlugin({
       Program: {
         enter: (path) => {
           const found = path
-            .get('body')
+            .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, 'core'),
+              isMacrostylesImport(p, "core"),
             );
 
           if (!found) {
@@ -32,13 +31,13 @@ export function captureVariableNamesPlugin({
           if (!isTopLevelStatement(path)) {
             return;
           }
-          for (const declaration of path.get('declarations')) {
-            const init = declaration.get('init');
+          for (const declaration of path.get("declarations")) {
+            const init = declaration.get("init");
 
-            if (!isMacrostylesCssTemplate(init, 'css')) {
+            if (!isMacrostylesCssTemplate(init, "css")) {
               return;
             }
-            const id = declaration.get('id');
+            const id = declaration.get("id");
             if (!id.isIdentifier()) {
               return;
             }
@@ -48,8 +47,8 @@ export function captureVariableNamesPlugin({
             );
 
             const exportingTemporalNode = t.exportNamedDeclaration(
-              t.variableDeclaration('const', [
-                t.variableDeclarator(temporalId, init.get('quasi').node),
+              t.variableDeclaration("const", [
+                t.variableDeclarator(temporalId, init.get("quasi").node),
               ]),
             );
             if (path.parentPath.isExportNamedDeclaration()) {

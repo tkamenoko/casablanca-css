@@ -1,5 +1,5 @@
-import type { FC, JSX, ComponentType } from 'react';
-import type { TaggedStyle } from '@macrostyles/utils';
+import type { TaggedStyle } from "@macrostyles/utils";
+import type { ComponentType, FC, JSX } from "react";
 
 type TagFunction<T extends object> = <P extends object = T>(
   strings: TemplateStringsArray,
@@ -27,5 +27,5 @@ export const styled = (<C>(component: C) => {
       component as TaggedStyle<typeof component>;
     return f;
   }
-  throw new Error('This function is not for runtime execution.');
+  throw new Error("This function is not for runtime execution.");
 }) as Styled;

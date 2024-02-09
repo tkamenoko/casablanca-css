@@ -1,5 +1,5 @@
-import type { VirtualGlobalStyleId } from '../types';
-import { globalStyleIdPrefix } from '../types';
+import type { VirtualGlobalStyleId } from "../types";
+import { globalStyleIdPrefix } from "../types";
 
 export function buildGlobalStyleImportId({
   importerPath: importerId,
@@ -8,6 +8,6 @@ export function buildGlobalStyleImportId({
   importerPath: string;
   projectRoot: string;
 }): VirtualGlobalStyleId {
-  const replaced = importerId.replace(projectRoot, '').replace(/^\//, '');
+  const replaced = importerId.replace(projectRoot, "").replace(/^\//, "");
   return `${globalStyleIdPrefix}${replaced}.css`;
 }

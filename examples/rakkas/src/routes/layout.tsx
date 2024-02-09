@@ -1,5 +1,5 @@
 import { injectGlobal } from "@macrostyles/core";
-import type { Layout } from 'rakkasjs';
+import type { Layout } from "rakkasjs";
 
 injectGlobal`
   * {

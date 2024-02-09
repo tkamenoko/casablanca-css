@@ -1,6 +1,6 @@
-import type { NodePath, types } from '@babel/core';
-import type { TaggedTemplateExpression } from '@babel/types';
-import { isMacrostylesImport } from '@macrostyles/utils';
+import type { NodePath, types } from "@babel/core";
+import type { TaggedTemplateExpression } from "@babel/types";
+import { isMacrostylesImport } from "@macrostyles/utils";
 
 export function isMacrostylesStyledTemplate(
   path: NodePath<types.Expression | null | undefined>,
@@ -8,11 +8,11 @@ export function isMacrostylesStyledTemplate(
   if (!path.isTaggedTemplateExpression()) {
     return false;
   }
-  const tagFunction = path.get('tag');
+  const tagFunction = path.get("tag");
   if (!tagFunction.isCallExpression()) {
     return false;
   }
-  const tagId = tagFunction.get('callee');
+  const tagId = tagFunction.get("callee");
   if (!tagId.isIdentifier()) {
     return false;
   }
@@ -22,10 +22,10 @@ export function isMacrostylesStyledTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isMacrostylesImport(importDec, 'react'))) {
+  if (!(importDec && isMacrostylesImport(importDec, "react"))) {
     return false;
   }
-  const imported = tagBinding.path.get('imported');
+  const imported = tagBinding.path.get("imported");
 
   if (Array.isArray(imported)) {
     return false;
@@ -34,5 +34,5 @@ export function isMacrostylesStyledTemplate(
   if (!imported.isIdentifier()) {
     return false;
   }
-  return imported.node.name === 'styled';
+  return imported.node.name === "styled";
 }

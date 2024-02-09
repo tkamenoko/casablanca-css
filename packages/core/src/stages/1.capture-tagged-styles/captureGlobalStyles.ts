@@ -1,12 +1,11 @@
-import type { PluginObj, PluginPass, types, NodePath } from '@babel/core';
-import type babel from '@babel/core';
+import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
+import type babel from "@babel/core";
 import {
+  isMacrostylesCssTemplate,
   isMacrostylesImport,
   isTopLevelStatement,
-  isMacrostylesCssTemplate,
-} from '@macrostyles/utils';
-
-import type { BabelState } from './types';
+} from "@macrostyles/utils";
+import type { BabelState } from "./types";
 
 export function captureGlobalStylesPlugin({
   types: t,
@@ -16,9 +15,9 @@ export function captureGlobalStylesPlugin({
       Program: {
         enter: (path) => {
           const found = path
-            .get('body')
+            .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, 'core'),
+              isMacrostylesImport(p, "core"),
             );
 
           if (!found) {
@@ -32,20 +31,20 @@ export function captureGlobalStylesPlugin({
           if (!isTopLevelStatement(path)) {
             return;
           }
-          const exp = path.get('expression');
+          const exp = path.get("expression");
           if (!exp.isTaggedTemplateExpression()) {
             return;
           }
-          if (!isMacrostylesCssTemplate(exp, 'injectGlobal')) {
+          if (!isMacrostylesCssTemplate(exp, "injectGlobal")) {
             return;
           }
           // create temp var
           const temporalId =
-            path.scope.generateUidIdentifier('temporal_global');
+            path.scope.generateUidIdentifier("temporal_global");
           // assign style
           const exportingTemporalNode = t.exportNamedDeclaration(
-            t.variableDeclaration('const', [
-              t.variableDeclarator(temporalId, exp.get('quasi').node),
+            t.variableDeclaration("const", [
+              t.variableDeclarator(temporalId, exp.get("quasi").node),
             ]),
           );
           path.replaceWith(exportingTemporalNode);

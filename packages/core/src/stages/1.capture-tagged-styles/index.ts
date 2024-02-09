@@ -1,11 +1,10 @@
-import type { types } from '@babel/core';
-import { transformFromAstAsync } from '@babel/core';
-
-import type { ImportSource, Options } from './types';
-import { captureVariableNamesPlugin } from './captureVariables';
-import { removeImportsPlugin } from './removeImports';
-import { collectImportSourcesPlugin } from './collectImportSources';
-import { captureGlobalStylesPlugin } from './captureGlobalStyles';
+import type { types } from "@babel/core";
+import { transformFromAstAsync } from "@babel/core";
+import { captureGlobalStylesPlugin } from "./captureGlobalStyles";
+import { captureVariableNamesPlugin } from "./captureVariables";
+import { collectImportSourcesPlugin } from "./collectImportSources";
+import { removeImportsPlugin } from "./removeImports";
+import type { ImportSource, Options } from "./types";
 
 type CaptureTaggedStylesArgs = {
   code: string;
@@ -45,15 +44,15 @@ export async function captureTaggedStyles({
       [captureGlobalStylesPlugin, pluginOption],
       [removeImportsPlugin, pluginOption],
     ],
-    sourceMaps: isDev ? 'inline' : false,
+    sourceMaps: isDev ? "inline" : false,
     ast: true,
   });
   if (!result) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
   const { code: transformed, ast: capturedAst } = result;
   if (!(transformed && capturedAst)) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,

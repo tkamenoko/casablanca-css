@@ -1,16 +1,15 @@
-import type { Page } from 'rakkasjs';
-import { styled } from '@macrostyles/react';
-import { modularScale } from 'polished';
+import { styled } from "@macrostyles/react";
+import { modularScale } from "polished";
+import type { Page } from "rakkasjs";
+import { LinkWithBorder } from "#@/components/link";
 
-import { LinkWithBorder } from '@/components/link';
-
-const ContainerDiv = styled('div')`
+const ContainerDiv = styled("div")`
   display: grid;
   justify-content: center;
   align-items: center;
 `;
 
-const StyledH1 = styled('h1')`
+const StyledH1 = styled("h1")`
   text-align: center;
   font-size: ${modularScale(4)};
 `;

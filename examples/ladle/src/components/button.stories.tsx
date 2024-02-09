@@ -1,6 +1,5 @@
-import type { Story } from '@ladle/react';
-
-import { CustomButton, StyledButton } from './button';
+import type { Story } from "@ladle/react";
+import { CustomButton, StyledButton } from "./button";
 
 export const Buttons: Story = () => (
   <div>

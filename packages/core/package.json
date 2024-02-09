@@ -36,6 +36,7 @@
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
     "build": "wireit",
+    "lint": "wireit",
     "test": "wireit",
     "types": "wireit"
   },
@@ -62,6 +63,14 @@
       "output": [
         "./dist/**/*.{js,d.ts}"
       ]
+    },
+    "lint": {
+      "command": "biome check --apply ./",
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./vite.config.ts"
+      ],
+      "output": []
     },
     "test": {
       "command": "vitest run",

@@ -1,12 +1,10 @@
-import type { ModuleLinker } from 'node:vm';
-import vm from 'node:vm';
-
-import type { UuidToStylesMap } from '../2.prepare-compositions/types';
-
-import type { EvaluateModuleReturn } from './types';
-import { createComposeInternal } from './createComposeInternal';
-import { createGlobalContext } from './injectRegisterGlobals';
-import { injectReactRefresh } from './injectReactRefresh';
+import type { ModuleLinker } from "node:vm";
+import vm from "node:vm";
+import type { UuidToStylesMap } from "../2.prepare-compositions/types";
+import { createComposeInternal } from "./createComposeInternal";
+import { injectReactRefresh } from "./injectReactRefresh";
+import { createGlobalContext } from "./injectRegisterGlobals";
+import type { EvaluateModuleReturn } from "./types";
 
 type EvaluateArgs = {
   code: string;
@@ -46,7 +44,7 @@ export async function evaluate({
   // create module
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
-    identifier: `vm:module(*target*)`,
+    identifier: "vm:module(*target*)",
   });
   await targetModule.link(linker);
 
@@ -56,11 +54,11 @@ export async function evaluate({
   // return captured styles
   const captured: Record<string, unknown> = { ...targetModule.namespace };
 
-  const mapOfClassNamesToStyles: EvaluateModuleReturn['mapOfClassNamesToStyles'] =
+  const mapOfClassNamesToStyles: EvaluateModuleReturn["mapOfClassNamesToStyles"] =
     new Map();
   for (const { originalName, temporalName } of temporalVariableNames.values()) {
     const style = captured[temporalName];
-    if (typeof style !== 'string') {
+    if (typeof style !== "string") {
       throw new Error(`Failed to capture variable ${temporalName}`);
     }
     mapOfClassNamesToStyles.set(originalName, {
@@ -72,7 +70,7 @@ export async function evaluate({
 
   const evaluatedGlobalStyles = temporalGlobalStyles
     .map((t) => captured[t])
-    .filter((x): x is string => typeof x === 'string');
+    .filter((x): x is string => typeof x === "string");
 
   return { mapOfClassNamesToStyles, evaluatedGlobalStyles };
 }

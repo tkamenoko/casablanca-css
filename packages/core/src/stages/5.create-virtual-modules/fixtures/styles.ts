@@ -1,4 +1,4 @@
-import { css, injectGlobal } from '@macrostyles/core';
+import { css, injectGlobal } from "@macrostyles/core";
 
 export const foo = css`
   color: blue;

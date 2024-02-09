@@ -1,10 +1,7 @@
-import { extractPathAndParamsFromId } from '@macrostyles/utils';
-
-import { buildCssModuleImportId } from '@/vite/helpers/buildCssModuleImportId';
-
-import type { ResolvedCssModuleId } from '../types';
-
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './buildResolvedCssModuleIdFromVirtualCssModuleId';
+import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { buildCssModuleImportId } from "#@/vite/helpers/buildCssModuleImportId";
+import type { ResolvedCssModuleId } from "../types";
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./buildResolvedCssModuleIdFromVirtualCssModuleId";
 
 export function buildResolvedIdFromJsId({
   jsId,

@@ -1,12 +1,11 @@
-import type { TransformOptions } from '@babel/core';
-import { parseAsync } from '@babel/core';
-import { extractPathAndParamsFromId } from '@macrostyles/utils';
-import type { Plugin, ResolvedConfig } from 'vite';
-
-import type { CreateClassNamesFromComponentsReturn } from '@/stages/1.create-classNames-for-components';
-import { createClassNamesFromComponents } from '@/stages/1.create-classNames-for-components';
-import type { ModifyEmbeddedComponentsReturn } from '@/stages/2.modify-embedded-components';
-import { modifyEmbeddedComponents } from '@/stages/2.modify-embedded-components';
+import type { TransformOptions } from "@babel/core";
+import { parseAsync } from "@babel/core";
+import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import type { Plugin, ResolvedConfig } from "vite";
+import type { CreateClassNamesFromComponentsReturn } from "#@/stages/1.create-classNames-for-components";
+import { createClassNamesFromComponents } from "#@/stages/1.create-classNames-for-components";
+import type { ModifyEmbeddedComponentsReturn } from "#@/stages/2.modify-embedded-components";
+import { modifyEmbeddedComponents } from "#@/stages/2.modify-embedded-components";
 
 export type PluginOption = {
   babelOptions: TransformOptions;
@@ -33,21 +32,21 @@ export function plugin(
   let config: ResolvedConfig | null = null;
   const {
     babelOptions = {},
-    extensions = ['.js', '.jsx', '.ts', '.tsx'],
+    extensions = [".js", ".jsx", ".ts", ".tsx"],
     onExitTransform,
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
 
   return {
-    name: 'macrostyles:react',
-    enforce: 'pre',
+    name: "macrostyles:react",
+    enforce: "pre",
     async transform(code, id) {
       if (!config) {
-        throw new Error('Vite config is not resolved');
+        throw new Error("Vite config is not resolved");
       }
 
       const { path, queries } = extractPathAndParamsFromId(id);
-      if (queries.has('raw')) {
+      if (queries.has("raw")) {
         return;
       }
       if (!(include.has(path) || extensions.some((e) => path.endsWith(e)))) {
@@ -59,15 +58,15 @@ export function plugin(
         return;
       }
 
-      const isDev = config.mode === 'development';
+      const isDev = config.mode === "development";
 
       const parsed = await parseAsync(code, {
         ...babelOptions,
         parserOpts: {
-          plugins: ['jsx', 'typescript'],
+          plugins: ["jsx", "typescript"],
         },
         ast: true,
-        sourceMaps: isDev ? 'inline' : false,
+        sourceMaps: isDev ? "inline" : false,
       });
 
       if (!parsed) {
@@ -92,8 +91,8 @@ export function plugin(
           id,
           transformed: resultCode,
           stages: {
-            '1': { ast: astWithClassNames, code: codeWithClassNames },
-            '2': { code: resultCode },
+            "1": { ast: astWithClassNames, code: codeWithClassNames },
+            "2": { code: resultCode },
           },
         });
       }

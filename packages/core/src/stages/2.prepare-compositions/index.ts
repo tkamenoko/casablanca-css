@@ -1,18 +1,14 @@
-import { randomUUID } from 'node:crypto';
-
-import type { types } from '@babel/core';
-import { transformFromAstAsync } from '@babel/core';
-
-import { buildResolvedIdFromJsId } from '@/vite/helpers/buildResolvedIdFromJsId';
-import type { ResolvedCssModuleId } from '@/vite/types';
-
-import type { ImportSource } from '../1.capture-tagged-styles/types';
-
+import { randomUUID } from "node:crypto";
+import type { types } from "@babel/core";
+import { transformFromAstAsync } from "@babel/core";
+import { buildResolvedIdFromJsId } from "#@/vite/helpers/buildResolvedIdFromJsId";
+import type { ResolvedCssModuleId } from "#@/vite/types";
+import type { ImportSource } from "../1.capture-tagged-styles/types";
 import {
-  replaceEmbeddedValuesPlugin,
   type Options,
-} from './replaceEmbeddedValues';
-import type { UuidToStylesMap } from './types';
+  replaceEmbeddedValuesPlugin,
+} from "./replaceEmbeddedValues";
+import type { UuidToStylesMap } from "./types";
 
 type PrepareCompositionsArgs = {
   captured: types.File;
@@ -71,15 +67,15 @@ export async function prepareCompositions({
   };
   const result = await transformFromAstAsync(captured, code, {
     plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
-    sourceMaps: isDev ? 'inline' : false,
+    sourceMaps: isDev ? "inline" : false,
     ast: true,
   });
   if (!result) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
   const { code: transformed, ast } = result;
   if (!(transformed && ast)) {
-    throw new Error('Failed');
+    throw new Error("Failed");
   }
 
   return { transformed, uuidToStylesMap, ast };

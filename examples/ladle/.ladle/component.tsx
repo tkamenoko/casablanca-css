@@ -1,4 +1,4 @@
-import type { GlobalProvider } from '@ladle/react';
+import type { GlobalProvider } from "@ladle/react";
 import { injectGlobal } from "@macrostyles/core";
 
 injectGlobal`
@@ -7,7 +7,6 @@ injectGlobal`
     box-sizing: border-box;
   }
 `;
-
 
 export const Provider: GlobalProvider = ({ children }) => {
   return <>{children}</>;

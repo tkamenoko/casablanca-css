@@ -1,5 +1,5 @@
-import { css } from '@macrostyles/core';
-import type { FC } from 'react';
+import { css } from "@macrostyles/core";
+import type { FC } from "react";
 
 export const styleA = css`
   color: aliceblue;

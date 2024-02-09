@@ -1,35 +1,33 @@
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { parseAsync } from '@babel/core';
-import { extractPathAndParamsFromId } from '@macrostyles/utils';
-
-import type { EvaluateModuleReturn } from '@/stages/3.evaluate-module';
-import type { AssignStylesToCapturedVariablesReturn } from '@/stages/6.assign-styles-to-variables';
-import { assignStylesToCapturedVariables } from '@/stages/6.assign-styles-to-variables';
-import { createEvaluator } from '@/stages/3.evaluate-module';
-import type { CaptureTaggedStylesReturn } from '@/stages/1.capture-tagged-styles';
-import { captureTaggedStyles } from '@/stages/1.capture-tagged-styles';
-import type { PrepareCompositionsReturn } from '@/stages/2.prepare-compositions';
-import { prepareCompositions } from '@/stages/2.prepare-compositions';
-import type { ReplaceUuidToStylesReturn } from '@/stages/4.assign-composed-styles-to-uuid';
-import { replaceUuidWithStyles } from '@/stages/4.assign-composed-styles-to-uuid';
+import { parseAsync } from "@babel/core";
+import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import type { CaptureTaggedStylesReturn } from "#@/stages/1.capture-tagged-styles";
+import { captureTaggedStyles } from "#@/stages/1.capture-tagged-styles";
+import type { PrepareCompositionsReturn } from "#@/stages/2.prepare-compositions";
+import { prepareCompositions } from "#@/stages/2.prepare-compositions";
+import type { EvaluateModuleReturn } from "#@/stages/3.evaluate-module";
+import { createEvaluator } from "#@/stages/3.evaluate-module";
+import type { ReplaceUuidToStylesReturn } from "#@/stages/4.assign-composed-styles-to-uuid";
+import { replaceUuidWithStyles } from "#@/stages/4.assign-composed-styles-to-uuid";
 import {
-  createVirtualModules,
   type CreateVirtualModulesReturn,
-} from '@/stages/5.create-virtual-modules';
-
-import { loadCssModule } from './hooks/loadCss/loadCssModule';
+  createVirtualModules,
+} from "#@/stages/5.create-virtual-modules";
+import type { AssignStylesToCapturedVariablesReturn } from "#@/stages/6.assign-styles-to-variables";
+import { assignStylesToCapturedVariables } from "#@/stages/6.assign-styles-to-variables";
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./helpers/buildResolvedCssModuleIdFromVirtualCssModuleId";
+import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
+import { loadCssModule } from "./hooks/loadCss/loadCssModule";
+import { loadGlobalStyle } from "./hooks/loadCss/loadGlobalStyle";
+import { resolveCssModuleId } from "./hooks/resolveCss/resolveCssModuleId";
+import { resolveGlobalStyleId } from "./hooks/resolveCss/resolveGlobalStyleId";
 import type {
   CssModulesLookup,
   GlobalStylesLookup,
   JsToCssModuleLookup,
   JsToGlobalStyleLookup,
   PluginOption,
-} from './types';
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from './helpers/buildResolvedCssModuleIdFromVirtualCssModuleId';
-import { resolveCssModuleId } from './hooks/resolveCss/resolveCssModuleId';
-import { resolveGlobalStyleId } from './hooks/resolveCss/resolveGlobalStyleId';
-import { loadGlobalStyle } from './hooks/loadCss/loadGlobalStyle';
-import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from './helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId';
+} from "./types";
 
 export type TransformResult = {
   id: string;
@@ -65,20 +63,20 @@ export function plugin(
   let server: ViteDevServer | null = null;
   const {
     babelOptions = {},
-    extensions = ['.js', '.jsx', '.ts', '.tsx'],
+    extensions = [".js", ".jsx", ".ts", ".tsx"],
     onExitTransform,
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
 
   return {
-    name: 'macrostyles',
+    name: "macrostyles",
     async transform(code, id) {
       if (!config) {
-        throw new Error('Vite config is not resolved');
+        throw new Error("Vite config is not resolved");
       }
 
       const { path, queries } = extractPathAndParamsFromId(id);
-      if (queries.has('raw')) {
+      if (queries.has("raw")) {
         return;
       }
       if (!(include.has(path) || extensions.some((e) => path.endsWith(e)))) {
@@ -90,12 +88,12 @@ export function plugin(
         return;
       }
 
-      const isDev = config.mode === 'development';
+      const isDev = config.mode === "development";
 
       const parsed = await parseAsync(code, {
         ...babelOptions,
         ast: true,
-        sourceMaps: isDev ? 'inline' : false,
+        sourceMaps: isDev ? "inline" : false,
       });
 
       if (!parsed) {
@@ -236,27 +234,27 @@ export function plugin(
           globalStylesLookup,
           jsToGlobalStyleLookup,
           stages: {
-            '1': {
+            "1": {
               capturedVariableNames,
               importSources,
               capturedGlobalStylesTempNames,
               transformed: capturedCode,
               ast: capturedAst,
             },
-            '2': {
+            "2": {
               transformed: replacedCode,
               ast: replacedAst,
               uuidToStylesMap,
             },
-            '3': {
+            "3": {
               mapOfClassNamesToStyles,
               evaluatedGlobalStyles,
             },
-            '4': {
+            "4": {
               composedStyles,
             },
-            '5': { cssModule, globalStyle },
-            '6': { transformed: resultCode },
+            "5": { cssModule, globalStyle },
+            "6": { transformed: resultCode },
           },
           transformed: resultCode,
         });

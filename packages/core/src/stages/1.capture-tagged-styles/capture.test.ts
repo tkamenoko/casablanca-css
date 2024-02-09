@@ -1,27 +1,26 @@
-import { build } from 'vite';
-import { assert } from 'vitest';
+import { build } from "vite";
+import { assert } from "vitest";
+import { buildModuleId } from "../fixtures/buildModuleId";
+import { test } from "../fixtures/extendedTest";
 
-import { buildModuleId } from '../fixtures/buildModuleId';
-import { test } from '../fixtures/extendedTest';
-
-test('should capture variable names initialized with css tag', async ({
+test("should capture variable names initialized with css tag", async ({
   expect,
   plugin,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
-    relativePath: './fixtures/static.tsx',
+    relativePath: "./fixtures/static.tsx",
     root: import.meta.url,
   });
   await build({
     configFile: false,
-    appType: 'custom',
+    appType: "custom",
     plugins: [plugin],
     build: {
       write: false,
-      lib: { entry: moduleId, formats: ['es'] },
+      lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];
@@ -33,10 +32,10 @@ test('should capture variable names initialized with css tag', async ({
 
   assert(capturedVariableNames?.size);
   expect([...capturedVariableNames.entries()]).toMatchObject([
-    ['style', { originalName: 'style', temporalName: expect.any(String) }],
+    ["style", { originalName: "style", temporalName: expect.any(String) }],
     [
-      'notExported',
-      { originalName: 'notExported', temporalName: expect.any(String) },
+      "notExported",
+      { originalName: "notExported", temporalName: expect.any(String) },
     ],
   ]);
 

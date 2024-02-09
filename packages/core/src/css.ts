@@ -1,4 +1,4 @@
-import type { TaggedStyle } from '@macrostyles/utils';
+import type { TaggedStyle } from "@macrostyles/utils";
 
 export function css(
   strings: TemplateStringsArray,
@@ -6,10 +6,10 @@ export function css(
 ): TaggedStyle<string> {
   if (import.meta.env.DEV) {
     const s = strings.reduce((prev, current, index) => {
-      return prev + current + (vars[index] ?? '');
-    }, '');
+      return prev + current + (vars[index] ?? "");
+    }, "");
 
     return s as TaggedStyle<string>;
   }
-  throw new Error('This function is not for runtime execution.');
+  throw new Error("This function is not for runtime execution.");
 }

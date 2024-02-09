@@ -1,8 +1,7 @@
-import { type PluginObj, type PluginPass } from '@babel/core';
-import type babel from '@babel/core';
-import { isTopLevelStatement } from '@macrostyles/utils';
-
-import type { Options } from './types';
+import { type PluginObj, type PluginPass } from "@babel/core";
+import type babel from "@babel/core";
+import { isTopLevelStatement } from "@macrostyles/utils";
+import type { Options } from "./types";
 
 type BabelState = {
   opts: Options;
@@ -16,13 +15,13 @@ export function assignStylesPlugin({
     visitor: {
       Program: {
         enter: (path, state) => {
-          const head = path.get('body').at(0);
+          const head = path.get("body").at(0);
           if (!head) {
             return;
           }
           const { cssModule } = state.opts;
           if (cssModule.temporalVariableNames.size) {
-            const stylesId = path.scope.generateUidIdentifier('styles');
+            const stylesId = path.scope.generateUidIdentifier("styles");
             state.importIdName = stylesId.name;
             head.insertBefore(
               t.importDeclaration(
@@ -45,8 +44,8 @@ export function assignStylesPlugin({
           const { temporalVariableNames, originalToTemporalMap } =
             state.opts.cssModule;
           const stylesId = t.identifier(state.importIdName);
-          for (const declaration of path.get('declarations')) {
-            const id = declaration.get('id');
+          for (const declaration of path.get("declarations")) {
+            const id = declaration.get("id");
             if (!id.isIdentifier()) {
               continue;
             }
@@ -59,7 +58,7 @@ export function assignStylesPlugin({
             const replaceTarget = originalToTemporalMap.get(name);
             if (replaceTarget) {
               declaration
-                .get('init')
+                .get("init")
                 .replaceWith(
                   t.memberExpression(stylesId, t.stringLiteral(name), true),
                 );

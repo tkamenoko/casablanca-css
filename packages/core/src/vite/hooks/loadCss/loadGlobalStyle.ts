@@ -1,7 +1,6 @@
-import { extractPathAndParamsFromId } from '@macrostyles/utils';
-
-import { isResolvedGlobalStyleId } from '@/vite/helpers/isResolvedGlobalStyleId';
-import type { GlobalStylesLookup } from '@/vite/types';
+import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { isResolvedGlobalStyleId } from "#@/vite/helpers/isResolvedGlobalStyleId";
+import type { GlobalStylesLookup } from "#@/vite/types";
 
 export function loadGlobalStyle({
   globalStylesLookup,

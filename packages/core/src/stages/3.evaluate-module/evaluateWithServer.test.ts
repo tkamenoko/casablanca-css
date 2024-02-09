@@ -1,15 +1,12 @@
-import { createServer, type ViteDevServer } from 'vite';
-import { assert, test as t } from 'vitest';
-
-import { plugin, type TransformResult } from '@/vite/plugin';
-
-import { buildModuleId } from '../fixtures/buildModuleId';
-
-import * as thirdPartyModuleExports from './fixtures/thirdParty';
-import * as localModuleExports from './fixtures/useLocalFile';
-import * as assetModuleExports from './fixtures/useAssetFile';
-import * as globalStyleModuleExports from './fixtures/globalStyles';
-import { testObjectHasEvaluatedStyles } from './fixtures/testHelpers';
+import { type ViteDevServer, createServer } from "vite";
+import { assert, test as t } from "vitest";
+import { type TransformResult, plugin } from "#@/vite/plugin";
+import { buildModuleId } from "../fixtures/buildModuleId";
+import * as globalStyleModuleExports from "./fixtures/globalStyles";
+import { testObjectHasEvaluatedStyles } from "./fixtures/testHelpers";
+import * as thirdPartyModuleExports from "./fixtures/thirdParty";
+import * as assetModuleExports from "./fixtures/useAssetFile";
+import * as localModuleExports from "./fixtures/useLocalFile";
 
 type TestContext = {
   server: ViteDevServer;
@@ -26,7 +23,7 @@ const test = t.extend<TestContext>({
           },
         }),
       ],
-      appType: 'custom',
+      appType: "custom",
       server: {
         middlewareMode: true,
         hmr: false,
@@ -34,7 +31,7 @@ const test = t.extend<TestContext>({
       },
       configFile: false,
       optimizeDeps: {
-        disabled: true,
+        noDiscovery: true,
       },
     });
     await use(server);
@@ -45,14 +42,14 @@ const test = t.extend<TestContext>({
   },
 });
 
-test('should evaluate module to get exported styles', async ({
+test("should evaluate module to get exported styles", async ({
   expect,
   transformResult,
   server,
 }) => {
-  const variableNames = ['staticStyle', 'embedded', 'functionCall'] as const;
+  const variableNames = ["staticStyle", "embedded", "functionCall"] as const;
   const moduleId = buildModuleId({
-    relativePath: './fixtures/simple.ts',
+    relativePath: "./fixtures/simple.ts",
     root: import.meta.url,
   });
 
@@ -75,21 +72,21 @@ test('should evaluate module to get exported styles', async ({
   font-size: ${4}em;
 `,
       functionCall: `
-  font-weight: ${'bold'};
+  font-weight: ${"bold"};
 `,
     },
     variableNames,
   });
 });
 
-test('should evaluate module using third party modules', async ({
+test("should evaluate module using third party modules", async ({
   expect,
   server,
   transformResult,
 }) => {
-  const variableNames = ['styleWithPolished'] as const;
+  const variableNames = ["styleWithPolished"] as const;
   const moduleId = buildModuleId({
-    relativePath: './fixtures/thirdParty.ts',
+    relativePath: "./fixtures/thirdParty.ts",
     root: import.meta.url,
   });
 
@@ -109,14 +106,14 @@ test('should evaluate module using third party modules', async ({
   });
 });
 
-test('should evaluate module using local modules', async ({
+test("should evaluate module using local modules", async ({
   expect,
   server,
   transformResult,
 }) => {
-  const variableNames = ['styleWithLocalModule'] as const;
+  const variableNames = ["styleWithLocalModule"] as const;
   const moduleId = buildModuleId({
-    relativePath: './fixtures/useLocalFile.ts',
+    relativePath: "./fixtures/useLocalFile.ts",
     root: import.meta.url,
   });
 
@@ -136,14 +133,14 @@ test('should evaluate module using local modules', async ({
   });
 });
 
-test('should evaluate module using non-script modules', async ({
+test("should evaluate module using non-script modules", async ({
   expect,
   server,
   transformResult,
 }) => {
-  const variableNames = ['className'] as const;
+  const variableNames = ["className"] as const;
   const moduleId = buildModuleId({
-    relativePath: './fixtures/useAssetFile.ts',
+    relativePath: "./fixtures/useAssetFile.ts",
     root: import.meta.url,
   });
 
@@ -163,14 +160,14 @@ test('should evaluate module using non-script modules', async ({
   });
 });
 
-test('should evaluate module injecting global styles', async ({
+test("should evaluate module injecting global styles", async ({
   expect,
   server,
   transformResult,
 }) => {
-  const variableNames = ['staticStyle'] as const;
+  const variableNames = ["staticStyle"] as const;
   const moduleId = buildModuleId({
-    relativePath: './fixtures/globalStyles.ts',
+    relativePath: "./fixtures/globalStyles.ts",
     root: import.meta.url,
   });
 
@@ -182,7 +179,7 @@ test('should evaluate module injecting global styles', async ({
   const { mapOfClassNamesToStyles, evaluatedGlobalStyles } = r.stages[3] ?? {};
   assert(mapOfClassNamesToStyles && evaluatedGlobalStyles);
 
-  expect(evaluatedGlobalStyles.at(0)).toMatch('body {');
+  expect(evaluatedGlobalStyles.at(0)).toMatch("body {");
 
   testObjectHasEvaluatedStyles({
     expect,
