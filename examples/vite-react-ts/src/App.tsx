@@ -1,25 +1,24 @@
-import { useState, type FC } from 'react';
-import { styled } from '@macrostyles/react';
-import { modularScale } from 'polished';
-
-import { Button } from './Button';
+import { styled } from "@macrostyles/react";
+import { modularScale } from "polished";
+import { type FC, useState } from "react";
+import { Button } from "./Button";
 
 const StyledButton = styled(Button)`
   display: block;
   border: 3px solid blue;
 `;
 
-const StyledPWithAdditionalProps = styled('p') <{
-  borderColor: 'red' | 'green' | 'blue';
+const StyledPWithAdditionalProps = styled("p")<{
+  borderColor: "red" | "green" | "blue";
 }>`
   border: 3px solid ${(p) => p.borderColor};
 `;
 
 const StyledH1 = styled("h1")`
   font-size: ${modularScale(2)};
-`
+`;
 
-const ContainerDiv = styled('div')`
+const ContainerDiv = styled("div")`
   display: grid;
   grid-template-columns: auto;
   justify-content: center;
@@ -30,7 +29,7 @@ const ContainerDiv = styled('div')`
 `;
 
 export const App: FC = () => {
-  const [color, setColor] = useState<'red' | 'green' | 'blue'>('red');
+  const [color, setColor] = useState<"red" | "green" | "blue">("red");
   return (
     <ContainerDiv>
       <StyledH1>Macrostyles + React-TS</StyledH1>
@@ -43,7 +42,7 @@ export const App: FC = () => {
         type="button"
         onClick={() =>
           setColor((prev) =>
-            prev === 'red' ? 'blue' : prev === 'blue' ? 'green' : 'red',
+            prev === "red" ? "blue" : prev === "blue" ? "green" : "red",
           )
         }
       >

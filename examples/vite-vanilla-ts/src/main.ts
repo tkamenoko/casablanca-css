@@ -1,7 +1,6 @@
-import { css, injectGlobal } from '@macrostyles/core';
-import { modularScale } from 'polished';
-
-import { grid, textAlign } from './styles';
+import { css, injectGlobal } from "@macrostyles/core";
+import { modularScale } from "polished";
+import { grid, textAlign } from "./styles";
 
 injectGlobal`
   * {
@@ -27,7 +26,7 @@ const divStyle = css`
   }
 `;
 
-const app = document.querySelector<HTMLDivElement>('#app');
+const app = document.querySelector<HTMLDivElement>("#app");
 if (app) {
   app.innerHTML = /* html */ `
   <div class="${divStyle}">    

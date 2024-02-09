@@ -1,5 +1,5 @@
-import { styled } from '@macrostyles/react';
-import { StyledLink } from 'rakkasjs';
+import { styled } from "@macrostyles/react";
+import { StyledLink } from "rakkasjs";
 
 export const LinkWithBorder = styled(StyledLink)`
   display: block;

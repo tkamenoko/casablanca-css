@@ -1,8 +1,8 @@
-import { styled } from '@macrostyles/react';
-import { StyledLink, type Page } from 'rakkasjs';
-import { useState } from 'react';
+import { styled } from "@macrostyles/react";
+import { type Page, StyledLink } from "rakkasjs";
+import { useState } from "react";
 
-const CountButton = styled('button')`
+const CountButton = styled("button")`
   border: 3px solid green;
   font-size: 2rem;
 `;
