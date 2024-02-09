@@ -16,7 +16,6 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
-    // @ts-expect-error plugin type mismatch
     { ...nodeExternals(), enforce: "pre", apply: "build" },
     dts({
       insertTypesEntry: true,

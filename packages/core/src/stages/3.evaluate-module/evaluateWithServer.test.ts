@@ -31,7 +31,7 @@ const test = t.extend<TestContext>({
       },
       configFile: false,
       optimizeDeps: {
-        disabled: true,
+        noDiscovery: true,
       },
     });
     await use(server);

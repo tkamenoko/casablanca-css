@@ -20,7 +20,7 @@ test("should replace embedded component ids to property access in css-tagged sty
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   assert(transformResult);

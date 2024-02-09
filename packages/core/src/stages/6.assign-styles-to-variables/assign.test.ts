@@ -21,7 +21,7 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const { transformed, jsToCssModuleLookup } = transformResult[moduleId] ?? {};
@@ -52,7 +52,7 @@ test("should remove temporal variables, import global styles", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const { transformed, jsToGlobalStyleLookup } =
@@ -81,7 +81,7 @@ test("should work with a file using both `css` and `injectGlobal`", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const { transformed, jsToGlobalStyleLookup, jsToCssModuleLookup } =

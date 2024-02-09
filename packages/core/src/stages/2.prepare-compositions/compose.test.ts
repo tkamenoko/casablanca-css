@@ -20,7 +20,7 @@ test("should replace `compose: ...` with uuid", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];

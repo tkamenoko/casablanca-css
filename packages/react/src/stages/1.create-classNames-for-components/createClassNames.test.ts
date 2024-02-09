@@ -20,7 +20,7 @@ test("should create css-tagged styles from styled-tagged components", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   assert(transformResult);

@@ -27,7 +27,7 @@ test("should evaluate module to get exported styles", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];
@@ -70,7 +70,7 @@ test("should evaluate module using third party modules", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];
@@ -104,7 +104,7 @@ test("should evaluate module using local modules", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];
@@ -138,7 +138,7 @@ test("should evaluate module using non-script modules", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];
@@ -173,7 +173,7 @@ test("should evaluate module injecting global styles", async ({
       write: false,
       lib: { entry: moduleId, formats: ["es"] },
     },
-    optimizeDeps: { disabled: true },
+    optimizeDeps: { noDiscovery: true },
   });
 
   const r = transformResult[moduleId];

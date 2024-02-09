@@ -44,34 +44,60 @@
   "types": "dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "*": ["dist/*.d.ts"]
+      "*": [
+        "dist/*.d.ts"
+      ]
     }
   },
   "wireit": {
     "build": {
       "command": "vite build",
-      "dependencies": ["../utils:build"],
-      "files": ["./src/**/*.ts", "./tsconfig.json", "./vite.config.ts"],
-      "output": ["./dist/**/*.{js,d.ts}"]
+      "dependencies": [
+        "../utils:build"
+      ],
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/**/*.{js,d.ts}"
+      ]
     },
     "test": {
       "command": "vitest run",
-      "dependencies": ["../utils:build", "../core:build"],
+      "dependencies": [
+        "../utils:build",
+        "../core:build"
+      ],
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
-      "files": ["./src/**/*.{ts,tsx}", "./tsconfig.json", "./vite.config.ts"],
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
       "output": []
     },
     "lint": {
       "command": "biome check --apply ./",
-      "files": ["./src/**/*.{ts,tsx}", "./vite.config.ts"],
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./vite.config.ts"
+      ],
       "output": []
     },
     "types": {
       "command": "tsc --noEmit",
-      "dependencies": ["../utils:build"],
-      "files": ["./src/**/*.{ts,tsx}", "./tsconfig.json", "./vite.config.ts"],
+      "dependencies": [
+        "../utils:build"
+      ],
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
       "output": []
     }
   }

@@ -17,7 +17,6 @@ export default defineConfig({
   },
 
   plugins: [
-    // @ts-expect-error plugin type mismatch
     { ...nodeExternals(), enforce: "pre", apply: "build" },
     dts({
       insertTypesEntry: true,
@@ -25,5 +24,5 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  // test: {},
+  test: {},
 });
