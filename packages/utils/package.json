@@ -26,6 +26,7 @@
   "repository": "tkamenoko/macrostyles.git",
   "scripts": {
     "build": "wireit",
+    "lint": "wireit",
     "test": "wireit",
     "types": "wireit"
   },
@@ -33,42 +34,31 @@
   "types": "dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "*": [
-        "dist/*.d.ts"
-      ]
+      "*": ["dist/*.d.ts"]
     }
   },
   "wireit": {
     "build": {
       "command": "vite build",
-      "files": [
-        "./src/**/*.ts",
-        "./tsconfig.json",
-        "./vite.config.ts"
-      ],
-      "output": [
-        "./dist/**/*.{js,d.ts}"
-      ]
+      "files": ["./src/**/*.ts", "./tsconfig.json", "./vite.config.ts"],
+      "output": ["./dist/**/*.{js,d.ts}"]
     },
     "test": {
       "command": "vitest run",
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
-      "files": [
-        "./src/**/*.ts",
-        "./tsconfig.json",
-        "./vite.config.ts"
-      ],
+      "files": ["./src/**/*.ts", "./tsconfig.json", "./vite.config.ts"],
+      "output": []
+    },
+    "lint": {
+      "command": "biome check --apply ./",
+      "files": ["./src/**/*.{ts,tsx}", "./vite.config.ts"],
       "output": []
     },
     "types": {
       "command": "tsc --noEmit",
-      "files": [
-        "./src/**/*.{ts,tsx}",
-        "./tsconfig.json",
-        "./vite.config.ts"
-      ],
+      "files": ["./src/**/*.{ts,tsx}", "./tsconfig.json", "./vite.config.ts"],
       "output": []
     }
   }

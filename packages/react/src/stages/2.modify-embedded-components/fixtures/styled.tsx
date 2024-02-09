@@ -1,14 +1,13 @@
-import { styled } from '@macrostyles/react';
-import { css } from '@macrostyles/core';
-import type { FC } from 'react';
-
-import { StyledDiv } from './externalComponent';
+import { css } from "@macrostyles/core";
+import { styled } from "@macrostyles/react";
+import type { FC } from "react";
+import { StyledDiv } from "./externalComponent";
 
 const Component: FC<{ dataFoo: string }> = ({ dataFoo, ...rest }) => {
-  return <div {...rest} data-foo={dataFoo}></div>;
+  return <div {...rest} data-foo={dataFoo} />;
 };
 
-const NotExportedComponent = styled('div')`
+const NotExportedComponent = styled("div")`
   font-size: large;
 `;
 

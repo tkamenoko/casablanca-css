@@ -1,4 +1,4 @@
-import type { NodePath, types } from '@babel/core';
+import type { NodePath, types } from "@babel/core";
 
 export function isImportedComponent(path: NodePath<types.Identifier>): boolean {
   const name = path.node.name;
