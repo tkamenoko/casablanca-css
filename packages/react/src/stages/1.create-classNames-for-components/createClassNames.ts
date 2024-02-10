@@ -194,6 +194,9 @@ export function createClassNamesPlugin({
                 cssTaggedId,
               ],
             );
+            const assignNewClassName = t.variableDeclaration("const", [
+              t.variableDeclarator(newClassNameId, newClassNameTemplate),
+            ]);
 
             const inlineStyleId =
               path.scope.generateUidIdentifier("inlineStyle");
@@ -205,6 +208,12 @@ export function createClassNamesPlugin({
                 );
               },
             );
+            const assignInlineStyles = t.variableDeclaration("const", [
+              t.variableDeclarator(
+                inlineStyleId,
+                t.objectExpression(inlineStyleProperties),
+              ),
+            ]);
 
             const innerJsxElement = t.jsxElement(
               t.jsxOpeningElement(
@@ -225,19 +234,13 @@ export function createClassNamesPlugin({
               null,
               [],
             );
+            const returnJsxElement = t.returnStatement(innerJsxElement);
 
             const componentBlockStatement = t.blockStatement([
               extractGivenClassName,
-              t.variableDeclaration("const", [
-                t.variableDeclarator(newClassNameId, newClassNameTemplate),
-              ]),
-              t.variableDeclaration("const", [
-                t.variableDeclarator(
-                  inlineStyleId,
-                  t.objectExpression(inlineStyleProperties),
-                ),
-              ]),
-              t.returnStatement(innerJsxElement),
+              assignNewClassName,
+              assignInlineStyles,
+              returnJsxElement,
             ]);
             const replacingFunctionComponent = t.arrowFunctionExpression(
               [propsId],
