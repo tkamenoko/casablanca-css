@@ -3,6 +3,7 @@ import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
+import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 
 export function createClassNamesPlugin({
   types: t,
@@ -215,25 +216,12 @@ export function createClassNamesPlugin({
               ),
             ]);
 
-            const innerJsxElement = t.jsxElement(
-              t.jsxOpeningElement(
-                jsxId,
-                [
-                  t.jsxSpreadAttribute(propsId),
-                  t.jsxAttribute(
-                    t.jsxIdentifier("className"),
-                    t.jsxExpressionContainer(newClassNameId),
-                  ),
-                  t.jsxAttribute(
-                    t.jsxIdentifier("style"),
-                    t.jsxExpressionContainer(inlineStyleId),
-                  ),
-                ],
-                true,
-              ),
-              null,
-              [],
-            );
+            const innerJsxElement = buildInnerJsxElement({
+              classNameId: newClassNameId,
+              inlineStyleId,
+              jsxId,
+              propsId,
+            });
             const returnJsxElement = t.returnStatement(innerJsxElement);
 
             const componentBlockStatement = t.blockStatement([
