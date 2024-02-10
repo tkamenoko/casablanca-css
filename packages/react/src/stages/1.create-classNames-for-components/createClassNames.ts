@@ -2,6 +2,7 @@ import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
+import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 
 export function createClassNamesPlugin({
   types: t,
@@ -167,20 +168,17 @@ export function createClassNamesPlugin({
               ? styledComponent.node.name
               : styledComponent.node.value;
             const jsxId = t.jsxIdentifier(jsxName);
-            const classNameId = t.identifier("className");
+
             const givenClassNameId =
               path.scope.generateUidIdentifier("givenClassName");
             const newClassNameId =
               path.scope.generateUidIdentifier("newClassName");
             const propsId = path.scope.generateUidIdentifier("props");
-            const extractGivenClassName = t.variableDeclaration("const", [
-              t.variableDeclarator(
-                t.objectPattern([
-                  t.objectProperty(classNameId, givenClassNameId),
-                ]),
-                propsId,
-              ),
-            ]);
+            const extractGivenClassName = buildClassNameExtractingStatement({
+              givenClassNameId,
+              propsId,
+            });
+
             const newClassNameTemplate = t.templateLiteral(
               [
                 t.templateElement({ raw: "" }),
