@@ -3,6 +3,7 @@ import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
+import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 
 export function createClassNamesPlugin({
@@ -201,20 +202,11 @@ export function createClassNamesPlugin({
 
             const inlineStyleId =
               path.scope.generateUidIdentifier("inlineStyle");
-            const inlineStyleProperties = cssDynamicVars.map(
-              ({ cssVarName, functionId }) => {
-                return t.objectProperty(
-                  t.stringLiteral(cssVarName),
-                  t.callExpression(functionId, [propsId]),
-                );
-              },
-            );
-            const assignInlineStyles = t.variableDeclaration("const", [
-              t.variableDeclarator(
-                inlineStyleId,
-                t.objectExpression(inlineStyleProperties),
-              ),
-            ]);
+            const assignInlineStyles = buildInlineStylesAssignmentStatement({
+              cssDynamicVars,
+              inlineStyleId,
+              propsId,
+            });
 
             const innerJsxElement = buildInnerJsxElement({
               classNameId: newClassNameId,
