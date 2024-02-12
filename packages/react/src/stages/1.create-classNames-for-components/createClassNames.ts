@@ -2,6 +2,11 @@ import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
+import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
+import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicvarsFromEmbeddedFunctions";
+import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
+import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
+import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
 
 export function createClassNamesPlugin({
   types: t,
@@ -122,32 +127,23 @@ export function createClassNamesPlugin({
               path.insertBefore(cssNode);
             }
             // extract functions from template for dynamic styling
-            const arrowFunctions = cssTemplate
+            const arrowFunctionPaths = cssTemplate
               .get("expressions")
               .filter((e): e is NodePath<types.ArrowFunctionExpression> =>
                 e.isArrowFunctionExpression(),
               );
-            const cssDynamicVars: {
-              functionId: types.Identifier;
-              cssVarName: `--${string}`;
-            }[] = [];
-            for (const arrowFunction of arrowFunctions) {
-              const functionId = path.scope.generateUidIdentifier();
-              const cssVarName = `--${functionId.name}` as const;
-              // move function to the top level
-              const outerFunction = t.variableDeclaration("const", [
-                t.variableDeclarator(functionId, arrowFunction.node),
-              ]);
-              if (path.parentPath.isExportDeclaration()) {
-                path.parentPath.insertBefore(outerFunction);
-              } else {
-                path.insertBefore(outerFunction);
-              }
-              // replace embedded functions with `var(--varName)`
-              arrowFunction.replaceWith(t.stringLiteral(`var(${cssVarName})`));
-
-              cssDynamicVars.push({ cssVarName, functionId });
+            const cssDynamicVars = buildCssDynamicVarsFromEmbeddedFunctions({
+              arrowFunctionPaths,
+              path,
+            });
+            // move function to the top level
+            const outerFunctions = cssDynamicVars.map((c) => c.outerFunction);
+            if (path.parentPath.isExportDeclaration()) {
+              path.parentPath.insertBefore(outerFunctions);
+            } else {
+              path.insertBefore(outerFunctions);
             }
+
             // replace component with new function component that has created className
             const tag = init.get("tag");
             if (!tag.isCallExpression()) {
@@ -167,79 +163,45 @@ export function createClassNamesPlugin({
               ? styledComponent.node.name
               : styledComponent.node.value;
             const jsxId = t.jsxIdentifier(jsxName);
-            const classNameId = t.identifier("className");
+
             const givenClassNameId =
               path.scope.generateUidIdentifier("givenClassName");
             const newClassNameId =
               path.scope.generateUidIdentifier("newClassName");
             const propsId = path.scope.generateUidIdentifier("props");
-            const extractGivenClassName = t.variableDeclaration("const", [
-              t.variableDeclarator(
-                t.objectPattern([
-                  t.objectProperty(classNameId, givenClassNameId),
-                ]),
-                propsId,
-              ),
-            ]);
-            const newClassNameTemplate = t.templateLiteral(
-              [
-                t.templateElement({ raw: "" }),
-                t.templateElement({ raw: " " }),
-                t.templateElement({ raw: "" }),
-              ],
-              [
-                t.logicalExpression(
-                  "??",
-                  givenClassNameId,
-                  t.stringLiteral(""),
-                ),
-                cssTaggedId,
-              ],
-            );
+            const extractGivenClassName = buildClassNameExtractingStatement({
+              givenClassNameId,
+              propsId,
+            });
+
+            const assignNewClassName = buildNewClassNameAssignmentStatement({
+              additionalClassNameId: givenClassNameId,
+              cssTaggedId,
+              newClassNameId,
+            });
 
             const inlineStyleId =
               path.scope.generateUidIdentifier("inlineStyle");
-            const inlineStyleProperties = cssDynamicVars.map(
-              ({ cssVarName, functionId }) => {
-                return t.objectProperty(
-                  t.stringLiteral(cssVarName),
-                  t.callExpression(functionId, [propsId]),
-                );
-              },
-            );
+            const assignInlineStyles = buildInlineStylesAssignmentStatement({
+              cssDynamicVars,
+              inlineStyleId,
+              propsId,
+            });
 
-            const innerJsxElement = t.jsxElement(
-              t.jsxOpeningElement(
-                jsxId,
-                [
-                  t.jsxSpreadAttribute(propsId),
-                  t.jsxAttribute(
-                    t.jsxIdentifier("className"),
-                    t.jsxExpressionContainer(newClassNameId),
-                  ),
-                  t.jsxAttribute(
-                    t.jsxIdentifier("style"),
-                    t.jsxExpressionContainer(inlineStyleId),
-                  ),
-                ],
-                true,
-              ),
-              null,
-              [],
-            );
+            const innerJsxElement = buildInnerJsxElement({
+              classNameId: newClassNameId,
+              inlineStyleId,
+              jsxId,
+              propsId,
+            });
+            const returnJsxElement = t.returnStatement(innerJsxElement);
 
             const componentBlockStatement = t.blockStatement([
               extractGivenClassName,
-              t.variableDeclaration("const", [
-                t.variableDeclarator(newClassNameId, newClassNameTemplate),
-              ]),
-              t.variableDeclaration("const", [
-                t.variableDeclarator(
-                  inlineStyleId,
-                  t.objectExpression(inlineStyleProperties),
-                ),
-              ]),
-              t.returnStatement(innerJsxElement),
+              assignNewClassName,
+              assignInlineStyles,
+              // TODO: remove props specified in type assertion or starts with `$`
+              returnJsxElement,
             ]);
             const replacingFunctionComponent = t.arrowFunctionExpression(
               [propsId],
