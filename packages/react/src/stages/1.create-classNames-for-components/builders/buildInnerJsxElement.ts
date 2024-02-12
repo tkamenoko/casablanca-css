@@ -11,6 +11,7 @@ export function buildInnerJsxElement({
   classNameId: types.Identifier;
   inlineStyleId: types.Identifier;
 }): types.JSXElement {
+  // <jsxId {...propsId} className={classNameId} style={inlineStyleId} />
   const innerJsxElement = types.jsxElement(
     types.jsxOpeningElement(
       jsxId,

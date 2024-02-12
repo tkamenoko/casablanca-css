@@ -7,6 +7,7 @@ export function buildClassNameExtractingStatement({
   givenClassNameId: types.Identifier;
   propsId: types.Identifier;
 }): types.VariableDeclaration {
+  // const {className: givenClassNameId} = propsId
   const classNameId = types.identifier("className");
   const extractedGivenClassName = types.variableDeclaration("const", [
     types.variableDeclarator(
