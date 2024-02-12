@@ -3,7 +3,7 @@ import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
-import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicvarsFromEmbeddedFunctions";
+import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicVarsFromEmbeddedFunctions";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
