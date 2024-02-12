@@ -200,6 +200,7 @@ export function createClassNamesPlugin({
               extractGivenClassName,
               assignNewClassName,
               assignInlineStyles,
+              // TODO: remove props specified in type assertion or starts with `$`
               returnJsxElement,
             ]);
             const replacingFunctionComponent = t.arrowFunctionExpression(
