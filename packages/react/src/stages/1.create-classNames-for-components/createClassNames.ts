@@ -5,6 +5,7 @@ import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTempl
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
+import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
 
 export function createClassNamesPlugin({
   types: t,
@@ -181,24 +182,11 @@ export function createClassNamesPlugin({
               propsId,
             });
 
-            const newClassNameTemplate = t.templateLiteral(
-              [
-                t.templateElement({ raw: "" }),
-                t.templateElement({ raw: " " }),
-                t.templateElement({ raw: "" }),
-              ],
-              [
-                t.logicalExpression(
-                  "??",
-                  givenClassNameId,
-                  t.stringLiteral(""),
-                ),
-                cssTaggedId,
-              ],
-            );
-            const assignNewClassName = t.variableDeclaration("const", [
-              t.variableDeclarator(newClassNameId, newClassNameTemplate),
-            ]);
+            const assignNewClassName = buildNewClassNameAssignmentStatement({
+              additionalClassNameId: givenClassNameId,
+              cssTaggedId,
+              newClassNameId,
+            });
 
             const inlineStyleId =
               path.scope.generateUidIdentifier("inlineStyle");
