@@ -3,6 +3,7 @@ import type babel from "@babel/core";
 import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
+import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicvarsFromEmbeddedFunctions";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
@@ -126,32 +127,23 @@ export function createClassNamesPlugin({
               path.insertBefore(cssNode);
             }
             // extract functions from template for dynamic styling
-            const arrowFunctions = cssTemplate
+            const arrowFunctionPaths = cssTemplate
               .get("expressions")
               .filter((e): e is NodePath<types.ArrowFunctionExpression> =>
                 e.isArrowFunctionExpression(),
               );
-            const cssDynamicVars: {
-              functionId: types.Identifier;
-              cssVarName: `--${string}`;
-            }[] = [];
-            for (const arrowFunction of arrowFunctions) {
-              const functionId = path.scope.generateUidIdentifier();
-              const cssVarName = `--${functionId.name}` as const;
-              // move function to the top level
-              const outerFunction = t.variableDeclaration("const", [
-                t.variableDeclarator(functionId, arrowFunction.node),
-              ]);
-              if (path.parentPath.isExportDeclaration()) {
-                path.parentPath.insertBefore(outerFunction);
-              } else {
-                path.insertBefore(outerFunction);
-              }
-              // replace embedded functions with `var(--varName)`
-              arrowFunction.replaceWith(t.stringLiteral(`var(${cssVarName})`));
-
-              cssDynamicVars.push({ cssVarName, functionId });
+            const cssDynamicVars = buildCssDynamicVarsFromEmbeddedFunctions({
+              arrowFunctionPaths,
+              path,
+            });
+            // move function to the top level
+            const outerFunctions = cssDynamicVars.map((c) => c.outerFunction);
+            if (path.parentPath.isExportDeclaration()) {
+              path.parentPath.insertBefore(outerFunctions);
+            } else {
+              path.insertBefore(outerFunctions);
             }
+
             // replace component with new function component that has created className
             const tag = init.get("tag");
             if (!tag.isCallExpression()) {
