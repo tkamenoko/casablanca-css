@@ -4,9 +4,12 @@ import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
 import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicVarsFromEmbeddedFunctions";
+import { buildExcludingParamsSetStatement } from "./builders/buildExcludingParamsSetStatement";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
+import { buildPropsCleaningStatement } from "./builders/buildPropsCleaningStatement";
+import { getAnnotatedParams } from "./getAnnotatedParams";
 
 export function createClassNamesPlugin({
   types: t,
@@ -188,21 +191,49 @@ export function createClassNamesPlugin({
               propsId,
             });
 
+            const cleanedPropsId = path.scope.generateUidIdentifier("props");
+            const annotatedParams = getAnnotatedParams(init).map((s) =>
+              t.stringLiteral(s),
+            );
+            const excludingParamsSetId = path.scope.generateUidIdentifier();
+            const initExcludingParamsSet = annotatedParams.length
+              ? buildExcludingParamsSetStatement({
+                  annotatedParams,
+                  paramsSetId: excludingParamsSetId,
+                })
+              : null;
+            if (initExcludingParamsSet) {
+              if (path.parentPath.isExportDeclaration()) {
+                path.parentPath.insertBefore(initExcludingParamsSet);
+              } else {
+                path.insertBefore(initExcludingParamsSet);
+              }
+            }
+
+            const cleanProps = initExcludingParamsSet
+              ? buildPropsCleaningStatement({
+                  cleanedPropsId,
+                  excludingParamsSetId,
+                  originalPropsId: propsId,
+                })
+              : null;
+
             const innerJsxElement = buildInnerJsxElement({
               classNameId: newClassNameId,
               inlineStyleId,
               jsxId,
-              propsId,
+              propsId: cleanProps ? cleanedPropsId : propsId,
             });
             const returnJsxElement = t.returnStatement(innerJsxElement);
 
-            const componentBlockStatement = t.blockStatement([
+            const blockStatements = [
               extractGivenClassName,
               assignNewClassName,
               assignInlineStyles,
-              // TODO: remove props specified in type assertion or starts with `$`
+              cleanProps,
               returnJsxElement,
-            ]);
+            ].filter((x): x is NonNullable<typeof x> => !!x);
+            const componentBlockStatement = t.blockStatement(blockStatements);
             const replacingFunctionComponent = t.arrowFunctionExpression(
               [propsId],
               componentBlockStatement,
