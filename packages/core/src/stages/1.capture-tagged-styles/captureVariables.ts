@@ -1,10 +1,10 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import {
-  isMacrostylesCssTemplate,
-  isMacrostylesImport,
+  isCasablancaCssTemplate,
+  isCasablancaImport,
   isTopLevelStatement,
-} from "@macrostyles/utils";
+} from "@casablanca/utils";
 import type { BabelState } from "./types";
 
 export function captureVariableNamesPlugin({
@@ -17,7 +17,7 @@ export function captureVariableNamesPlugin({
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "core"),
+              isCasablancaImport(p, "core"),
             );
 
           if (!found) {
@@ -34,7 +34,7 @@ export function captureVariableNamesPlugin({
           for (const declaration of path.get("declarations")) {
             const init = declaration.get("init");
 
-            if (!isMacrostylesCssTemplate(init, "css")) {
+            if (!isCasablancaCssTemplate(init, "css")) {
               return;
             }
             const id = declaration.get("id");

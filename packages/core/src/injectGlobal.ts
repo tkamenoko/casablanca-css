@@ -1,4 +1,4 @@
-import type { TaggedStyle } from "@macrostyles/utils";
+import type { TaggedStyle } from "@casablanca/utils";
 
 export function injectGlobal(
   _strings: TemplateStringsArray,

@@ -1,10 +1,10 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import {
-  isMacrostylesCssTemplate,
-  isMacrostylesImport,
+  isCasablancaCssTemplate,
+  isCasablancaImport,
   isTopLevelStatement,
-} from "@macrostyles/utils";
+} from "@casablanca/utils";
 import type { BabelState } from "./types";
 
 export function captureGlobalStylesPlugin({
@@ -17,7 +17,7 @@ export function captureGlobalStylesPlugin({
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "core"),
+              isCasablancaImport(p, "core"),
             );
 
           if (!found) {
@@ -35,7 +35,7 @@ export function captureGlobalStylesPlugin({
           if (!exp.isTaggedTemplateExpression()) {
             return;
           }
-          if (!isMacrostylesCssTemplate(exp, "injectGlobal")) {
+          if (!isCasablancaCssTemplate(exp, "injectGlobal")) {
             return;
           }
           // create temp var

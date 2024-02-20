@@ -1,4 +1,4 @@
-import { injectGlobal } from "@macrostyles/core";
+import { injectGlobal } from "@casablanca/core";
 
 const fontSize = "16px";
 

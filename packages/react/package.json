@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
-  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "peerDependencies": {
     "@casablanca/core": "0.0.1",
     "vite": "^5.0.12"
@@ -69,7 +69,7 @@
       "dependencies": [
         "../utils:build",
         "../core:build"
-      ],
+      ], 
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },

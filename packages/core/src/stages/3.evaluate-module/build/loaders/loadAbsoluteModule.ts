@@ -14,7 +14,7 @@ export async function loadAbsoluteModule({
   referencingModule: Module;
   ctx: TransformContext;
 }): Promise<Module | null> {
-  // macrostyles modules must be resolved by macrostyles plugin.
+  // casablanca modules must be resolved by casablanca plugin.
   const skipSelf =
     !isVirtualCssModuleId(specifier) && !isVirtualGlobalStyleId(specifier);
   // resolve id as absolute path

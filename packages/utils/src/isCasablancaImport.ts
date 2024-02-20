@@ -11,5 +11,5 @@ export function isCasablancaImport(
   if (!importSource.isStringLiteral()) {
     return false;
   }
-  return importSource.node.value === `@macrostyles/${packageName}`;
+  return importSource.node.value === `@casablanca/${packageName}`;
 }

@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
-  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "peerDependencies": {
     "vite": "^5.0.12"
   },
