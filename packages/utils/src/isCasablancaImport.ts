@@ -1,6 +1,6 @@
 import type { NodePath, types } from "@babel/core";
 
-export function isMacrostylesImport(
+export function isCasablancaImport(
   path: NodePath<types.Node>,
   packageName: "core" | "react" | "utils",
 ): path is NodePath<types.ImportDeclaration> {
