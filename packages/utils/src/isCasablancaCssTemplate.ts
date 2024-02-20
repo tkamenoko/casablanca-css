@@ -1,18 +1,15 @@
 import type { NodePath, types } from "@babel/core";
 import type { TaggedTemplateExpression } from "@babel/types";
-import { isMacrostylesImport } from "@macrostyles/utils";
+import { isCasablancaImport } from "./isCasablancaImport";
 
-export function isMacrostylesStyledTemplate(
+export function isCasablancaCssTemplate(
   path: NodePath<types.Expression | null | undefined>,
+  tagName: "css" | "injectGlobal",
 ): path is NodePath<TaggedTemplateExpression> {
   if (!path.isTaggedTemplateExpression()) {
     return false;
   }
-  const tagFunction = path.get("tag");
-  if (!tagFunction.isCallExpression()) {
-    return false;
-  }
-  const tagId = tagFunction.get("callee");
+  const tagId = path.get("tag");
   if (!tagId.isIdentifier()) {
     return false;
   }
@@ -22,11 +19,10 @@ export function isMacrostylesStyledTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isMacrostylesImport(importDec, "react"))) {
+  if (!(importDec && isCasablancaImport(importDec, "core"))) {
     return false;
   }
   const imported = tagBinding.path.get("imported");
-
   if (Array.isArray(imported)) {
     return false;
   }
@@ -34,5 +30,5 @@ export function isMacrostylesStyledTemplate(
   if (!imported.isIdentifier()) {
     return false;
   }
-  return imported.node.name === "styled";
+  return imported.node.name === tagName;
 }

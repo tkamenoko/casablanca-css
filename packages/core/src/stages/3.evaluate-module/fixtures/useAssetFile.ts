@@ -1,4 +1,4 @@
-import { css } from "@macrostyles/core";
+import { css } from "@casablanca/core";
 import "./styles.css";
 
 export const className = css`

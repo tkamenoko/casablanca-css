@@ -1,7 +1,7 @@
-const macrostylesSymbol = Symbol("macrostyles");
+const casablancaSymbol = Symbol("casablanca");
 
 export type TaggedStyle<T> = T & {
-  [macrostylesSymbol]: unknown;
+  [casablancaSymbol]: unknown;
   __rawClassName?: string;
   __modularizedClassName?: string;
 };

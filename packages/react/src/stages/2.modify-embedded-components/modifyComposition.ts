@@ -1,9 +1,9 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import {
-  isMacrostylesCssTemplate,
-  isMacrostylesImport,
-} from "@macrostyles/utils";
+  isCasablancaCssTemplate,
+  isCasablancaImport,
+} from "@casablanca/utils";
 import { isImportedComponent } from "./isImportedComponent";
 
 export function modifyCompositionsPlugin({
@@ -16,7 +16,7 @@ export function modifyCompositionsPlugin({
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "core"),
+              isCasablancaImport(p, "core"),
             );
           if (!found) {
             path.stop();
@@ -26,8 +26,7 @@ export function modifyCompositionsPlugin({
       },
       TaggedTemplateExpression: {
         enter: (path) => {
-          // is macrostyles template?
-          if (!isMacrostylesCssTemplate(path, "css")) {
+          if (!isCasablancaCssTemplate(path, "css")) {
             return;
           }
           const quasi = path.get("quasi");

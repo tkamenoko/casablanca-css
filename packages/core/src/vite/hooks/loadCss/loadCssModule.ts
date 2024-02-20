@@ -1,4 +1,4 @@
-import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { extractPathAndParamsFromId } from "@casablanca/utils";
 import { isResolvedCssModuleId } from "../../helpers/isResolvedCssModuleId";
 import type { CssModulesLookup } from "../../types";
 

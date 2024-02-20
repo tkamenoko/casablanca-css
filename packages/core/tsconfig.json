@@ -6,7 +6,7 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "paths": {
-      "@macrostyles/core": ["./src"],
+      "@casablanca/core": ["./src"],
       "#@/*": ["./src/*"]
     },
     "types": ["vite/client"],

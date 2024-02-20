@@ -1,3 +1,3 @@
-# @macrostyles/core
+# @casablanca/utils
 
-Core package of `macrostyles` .
+Utility package of `casablanca-css` .

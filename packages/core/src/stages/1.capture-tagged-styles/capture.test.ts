@@ -39,9 +39,9 @@ test("should capture variable names initialized with css tag", async ({
     ],
   ]);
 
-  assert(transformed);
-  expect(transformed).not.toMatch(/css/);
-  expect(transformed).not.toMatch(/@macrostyles\/core/);
+  assert(transformed);  
+  expect(transformed).not.toMatch(/{ *css/);
+  expect(transformed).not.toMatch(/@casablanca\/core/);
 
   for (const { temporalName } of capturedVariableNames.values()) {
     const regexp = new RegExp(`export const ${temporalName}`);

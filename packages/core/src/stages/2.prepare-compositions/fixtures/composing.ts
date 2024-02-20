@@ -1,4 +1,4 @@
-import { css } from "@macrostyles/core";
+import { css } from "@casablanca/core";
 import { modularScale } from "polished";
 import { styleA as imported } from "./composed";
 

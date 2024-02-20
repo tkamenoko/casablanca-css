@@ -1,5 +1,5 @@
-import { css } from "@macrostyles/core";
-import { styled } from "@macrostyles/react";
+import { css } from "@casablanca/core";
+import { styled } from "@casablanca/react";
 import type { FC } from "react";
 import { StyledDiv } from "./externalComponent";
 

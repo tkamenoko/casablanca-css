@@ -1,3 +1,3 @@
-# @macrostyles/core
+# @casablanca/core
 
-Core package of `macrostyles` .
+React plugin of `casablanca-css` .

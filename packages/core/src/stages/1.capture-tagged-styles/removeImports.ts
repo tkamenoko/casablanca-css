@@ -1,5 +1,5 @@
 import type { PluginObj, PluginPass } from "@babel/core";
-import { isMacrostylesImport } from "@macrostyles/utils";
+import { isCasablancaImport } from "@casablanca/utils";
 import type { BabelState } from "./types";
 
 const tagNames = new Set(["css", "injectGlobal"]);
@@ -12,7 +12,7 @@ export function removeImportsPlugin(): PluginObj<PluginPass & BabelState> {
           path.traverse({
             ImportDeclaration: {
               enter: (path_) => {
-                if (!isMacrostylesImport(path_, "core")) {
+                if (!isCasablancaImport(path_, "core")) {
                   return;
                 }
                 for (const item of path_.get("specifiers")) {

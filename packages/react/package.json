@@ -1,12 +1,12 @@
 {
-  "name": "@macrostyles/react",
-  "description": "React Styled Component support for macrostyles.",
+  "name": "@casablanca/react",
+  "description": "React Styled Component support for casablanca-css.",
   "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
+  "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "dependencies": {
     "@babel/core": "^7.23.9",
-    "@macrostyles/utils": "0.0.1"
+    "@casablanca/utils": "0.0.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
@@ -26,14 +26,14 @@
       "default": "./dist/vite.js"
     }
   },
-  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
+  "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
-  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "peerDependencies": {
-    "@macrostyles/core": "0.0.1",
+    "@casablanca/core": "0.0.1",
     "vite": "^5.0.12"
   },
-  "repository": "tkamenoko/macrostyles.git",
+  "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
     "build": "wireit",
     "lint": "wireit",
@@ -69,7 +69,7 @@
       "dependencies": [
         "../utils:build",
         "../core:build"
-      ],
+      ], 
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },

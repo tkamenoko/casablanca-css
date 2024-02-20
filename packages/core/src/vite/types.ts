@@ -6,7 +6,7 @@ export type PluginOption = {
   includes: string[];
 };
 
-export const cssModuleIdPrefix = "virtual:macrostyles-modules/";
+export const cssModuleIdPrefix = "virtual:casablanca-modules/";
 export type CssModuleIdPrefix = typeof cssModuleIdPrefix;
 export type VirtualCssModuleId = `${CssModuleIdPrefix}${string}.module.css`;
 export type ResolvedCssModuleId = `\0${VirtualCssModuleId}`;
@@ -26,7 +26,7 @@ export type JsToCssModuleLookup = Map<
   }
 >;
 
-export const globalStyleIdPrefix = "virtual:macrostyles-globals/";
+export const globalStyleIdPrefix = "virtual:casablanca-globals/";
 export type GlobalStyleIdPrefix = typeof globalStyleIdPrefix;
 export type VirtualGlobalStyleId = `${GlobalStyleIdPrefix}${string}.css`;
 export type ResolvedGlobalStyleId = `\0${VirtualGlobalStyleId}`;

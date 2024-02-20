@@ -1,5 +1,5 @@
 import { parseAsync } from "@babel/core";
-import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import type { CaptureTaggedStylesReturn } from "#@/stages/1.capture-tagged-styles";
 import { captureTaggedStyles } from "#@/stages/1.capture-tagged-styles";
@@ -69,7 +69,7 @@ export function plugin(
   const include = new Set(options?.includes ?? []);
 
   return {
-    name: "macrostyles",
+    name: "casablanca",
     async transform(code, id) {
       if (!config) {
         throw new Error("Vite config is not resolved");

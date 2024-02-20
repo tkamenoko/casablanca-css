@@ -1,4 +1,4 @@
-import { css } from "@macrostyles/core";
+import { css } from "@casablanca/core";
 
 export const staticStyle = css`
   color: blue;

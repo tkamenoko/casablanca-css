@@ -1,4 +1,4 @@
-import { styled } from "@macrostyles/react";
+import { styled } from "@casablanca/react";
 import { modularScale } from "polished";
 import { type FC, useState } from "react";
 import { Button } from "./Button";
@@ -32,7 +32,7 @@ export const App: FC = () => {
   const [color, setColor] = useState<"red" | "green" | "blue">("red");
   return (
     <ContainerDiv>
-      <StyledH1>Macrostyles + React-TS</StyledH1>
+      <StyledH1>Casablanca + React-TS</StyledH1>
       <p>Zero runtime CSS-in-JS for vite.</p>
       <StyledButton />
       <StyledPWithAdditionalProps borderColor={color}>

@@ -1,5 +1,5 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
-import { isMacrostylesImport } from "@macrostyles/utils";
+import { isCasablancaImport } from "@casablanca/utils";
 import type { BabelState, ImportSource } from "./types";
 
 export function collectImportSourcesPlugin(): PluginObj<
@@ -12,7 +12,7 @@ export function collectImportSourcesPlugin(): PluginObj<
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "core"),
+              isCasablancaImport(p, "core"),
             );
 
           if (!found) {

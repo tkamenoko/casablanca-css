@@ -1,4 +1,4 @@
-import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { VirtualCssModuleId } from "../types";
 import { cssModuleIdPrefix } from "../types";
 

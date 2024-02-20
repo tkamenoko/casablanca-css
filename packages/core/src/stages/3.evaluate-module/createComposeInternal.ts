@@ -1,4 +1,4 @@
-import type { TaggedStyle } from "@macrostyles/utils";
+import type { TaggedStyle } from "@casablanca/utils";
 import type { ResolvedCssModuleId } from "#@/vite/types";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 

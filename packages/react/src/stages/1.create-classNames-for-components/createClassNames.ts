@@ -1,7 +1,7 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
-import { isMacrostylesImport, isTopLevelStatement } from "@macrostyles/utils";
-import { isMacrostylesStyledTemplate } from "../helpers/isMacrostylesStyledTemplate";
+import { isCasablancaImport, isTopLevelStatement } from "@casablanca/utils";
+import { isCasablancaStyledTemplate } from "../helpers/isCasablancaStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicVarsFromEmbeddedFunctions";
 import { buildExcludingParamsSetStatement } from "./builders/buildExcludingParamsSetStatement";
@@ -21,7 +21,7 @@ export function createClassNamesPlugin({
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "react"),
+              isCasablancaImport(p, "react"),
             );
           if (!found) {
             path.stop();
@@ -32,7 +32,7 @@ export function createClassNamesPlugin({
           path.traverse({
             ImportDeclaration: {
               enter: (p) => {
-                if (!isMacrostylesImport(p, "react")) {
+                if (!isCasablancaImport(p, "react")) {
                   return;
                 }
                 for (const item of p.get("specifiers")) {
@@ -49,7 +49,7 @@ export function createClassNamesPlugin({
                 }
               },
               exit: (path) => {
-                if (!isMacrostylesImport(path, "react")) {
+                if (!isCasablancaImport(path, "react")) {
                   return;
                 }
                 if (!path.get("specifiers").length) {
@@ -61,7 +61,7 @@ export function createClassNamesPlugin({
           const p = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isMacrostylesImport(p, "core"),
+              isCasablancaImport(p, "core"),
             );
           const css = t.identifier("css");
           if (!p) {
@@ -69,7 +69,7 @@ export function createClassNamesPlugin({
               "body",
               t.importDeclaration(
                 [t.importSpecifier(css, css)],
-                t.stringLiteral("@macrostyles/core"),
+                t.stringLiteral("@casablanca/core"),
               ),
             );
           } else {
@@ -93,7 +93,7 @@ export function createClassNamesPlugin({
 
           for (const declaration of path.get("declarations")) {
             const init = declaration.get("init");
-            if (!isMacrostylesStyledTemplate(init)) {
+            if (!isCasablancaStyledTemplate(init)) {
               return;
             }
 

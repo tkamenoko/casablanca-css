@@ -1,6 +1,6 @@
 import type { NodePath, types } from "@babel/core";
 
-export function isMacrostylesImport(
+export function isCasablancaImport(
   path: NodePath<types.Node>,
   packageName: "core" | "react" | "utils",
 ): path is NodePath<types.ImportDeclaration> {
@@ -11,5 +11,5 @@ export function isMacrostylesImport(
   if (!importSource.isStringLiteral()) {
     return false;
   }
-  return importSource.node.value === `@macrostyles/${packageName}`;
+  return importSource.node.value === `@casablanca/${packageName}`;
 }

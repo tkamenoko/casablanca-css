@@ -1,5 +1,5 @@
-import { css } from "@macrostyles/core";
-import type { TaggedStyle } from "@macrostyles/utils";
+import { css } from "@casablanca/core";
+import type { TaggedStyle } from "@casablanca/utils";
 import { modularScale } from "polished";
 import type { FC } from "react";
 import { Component, composedStyle } from "./composed";

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type babel from "@babel/core";
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
-import { isTopLevelStatement } from "@macrostyles/utils";
+import { isTopLevelStatement } from "@casablanca/utils";
 import type { ResolvedCssModuleId } from "#@/vite/types";
 import type { ComposeInternalArg } from "../3.evaluate-module/createComposeInternal";
 import { markImportedSelectorsAsGlobal } from "./markImportedSelectorsAsGlobal";
