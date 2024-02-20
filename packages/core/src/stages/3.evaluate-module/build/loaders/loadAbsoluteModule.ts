@@ -1,7 +1,7 @@
-import vm, { Module } from "node:vm";
+import vm, { type Module } from "node:vm";
 import { isVirtualCssModuleId } from "#@/vite/helpers/isVirtualCssModuleId";
 import { isVirtualGlobalStyleId } from "#@/vite/helpers/isVirtualGlobalStyleId";
-import { TransformContext } from "../../types";
+import type { TransformContext } from "../../types";
 
 export async function loadAbsoluteModule({
   modulesCache,

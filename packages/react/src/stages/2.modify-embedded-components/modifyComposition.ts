@@ -1,9 +1,6 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
-import {
-  isCasablancaCssTemplate,
-  isCasablancaImport,
-} from "@casablanca/utils";
+import { isCasablancaCssTemplate, isCasablancaImport } from "@casablanca/utils";
 import { isImportedComponent } from "./isImportedComponent";
 
 export function modifyCompositionsPlugin({

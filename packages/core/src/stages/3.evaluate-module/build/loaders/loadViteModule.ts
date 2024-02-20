@@ -1,5 +1,5 @@
-import vm, { Module } from "node:vm";
-import { TransformContext } from "../../types";
+import vm, { type Module } from "node:vm";
+import type { TransformContext } from "../../types";
 
 export async function loadViteModule({
   modulesCache,

@@ -4,7 +4,6 @@ import { isCasablancaImport, isTopLevelStatement } from "@casablanca/utils";
 import { isCasablancaStyledTemplate } from "../helpers/isCasablancaStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicVarsFromEmbeddedFunctions";
-import { buildExcludingParamsSetStatement } from "./builders/buildExcludingParamsSetStatement";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";

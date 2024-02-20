@@ -39,7 +39,7 @@ test("should capture variable names initialized with css tag", async ({
     ],
   ]);
 
-  assert(transformed);  
+  assert(transformed);
   expect(transformed).not.toMatch(/{ *css/);
   expect(transformed).not.toMatch(/@casablanca\/core/);
 

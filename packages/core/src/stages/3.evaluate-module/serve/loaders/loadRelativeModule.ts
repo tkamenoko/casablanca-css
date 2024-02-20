@@ -1,5 +1,5 @@
-import vm, { Module } from "node:vm";
-import { ViteDevServer } from "vite";
+import vm, { type Module } from "node:vm";
+import type { ViteDevServer } from "vite";
 
 export async function loadRelativeModule({
   modulesCache,
