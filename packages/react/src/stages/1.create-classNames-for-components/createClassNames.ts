@@ -192,29 +192,16 @@ export function createClassNamesPlugin({
             });
 
             const cleanedPropsId = path.scope.generateUidIdentifier("props");
-            const annotatedParams = getAnnotatedParams(init).map((s) =>
-              t.stringLiteral(s),
-            );
-            const excludingParamsSetId = path.scope.generateUidIdentifier();
-            const initExcludingParamsSet = annotatedParams.length
-              ? buildExcludingParamsSetStatement({
-                  annotatedParams,
-                  paramsSetId: excludingParamsSetId,
-                })
-              : null;
-            if (initExcludingParamsSet) {
-              if (path.parentPath.isExportDeclaration()) {
-                path.parentPath.insertBefore(initExcludingParamsSet);
-              } else {
-                path.insertBefore(initExcludingParamsSet);
-              }
-            }
+            const annotatedParams = getAnnotatedParams(init).map((s) => ({
+              name: s,
+              tempId: path.scope.generateUidIdentifier("_"),
+            }));
 
-            const cleanProps = initExcludingParamsSet
+            const cleanProps = annotatedParams.length
               ? buildPropsCleaningStatement({
                   cleanedPropsId,
-                  excludingParamsSetId,
                   originalPropsId: propsId,
+                  excludingParamNames: annotatedParams,
                 })
               : null;
 

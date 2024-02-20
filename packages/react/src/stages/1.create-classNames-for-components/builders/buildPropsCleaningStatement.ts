@@ -3,43 +3,24 @@ import { types } from "@babel/core";
 export function buildPropsCleaningStatement({
   originalPropsId,
   cleanedPropsId,
-  excludingParamsSetId,
+  excludingParamNames,
 }: {
   originalPropsId: types.Identifier;
   cleanedPropsId: types.Identifier;
-  excludingParamsSetId: types.Identifier;
+  excludingParamNames: { name: string; tempId: types.Identifier }[];
 }): types.VariableDeclaration {
-  // const cleanedProps=Object.entries(props).filter(([k]) => !ss.has(k))
-
-  const objectId = types.identifier("Object");
-
-  const propsEntries = types.callExpression(
-    types.memberExpression(objectId, types.identifier("entries")),
-    [originalPropsId],
-  );
-
-  const filteringObjectKey = types.identifier("k");
-  const setHasKey = types.callExpression(
-    types.memberExpression(excludingParamsSetId, types.identifier("has")),
-    [filteringObjectKey],
-  );
-  const filteringCondition = types.unaryExpression("!", setHasKey);
-  const filteringFunction = types.arrowFunctionExpression(
-    [types.arrayPattern([filteringObjectKey])],
-    filteringCondition,
-  );
-  const filteredProps = types.callExpression(
-    types.memberExpression(propsEntries, types.identifier("filter")),
-    [filteringFunction],
+  // const {excluded1:_, excluded2:__,...cleanedProps}=props;
+  const excludingProperties = excludingParamNames.map(({ name, tempId }) =>
+    types.objectProperty(types.identifier(name), tempId),
   );
 
   const cleanedProps = types.variableDeclaration("const", [
     types.variableDeclarator(
-      cleanedPropsId,
-      types.callExpression(
-        types.memberExpression(objectId, types.identifier("fromEntries")),
-        [filteredProps],
-      ),
+      types.objectPattern([
+        ...excludingProperties,
+        types.restElement(cleanedPropsId),
+      ]),
+      originalPropsId,
     ),
   ]);
   return cleanedProps;
