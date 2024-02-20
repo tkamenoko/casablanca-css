@@ -1,12 +1,12 @@
 {
   "name": "vanilla-ts-example",
-  "description": "macrostyles example for vanilla-ts.",
+  "description": "casablanca-css example for vanilla-ts.",
   "version": "0.0.0",
   "dependencies": {
     "polished": "^4.3.1"
   },
   "devDependencies": {
-    "@macrostyles/core": "0.0.1",
+    "@casablanca/core": "0.0.1",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.3.3",

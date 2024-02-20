@@ -1,9 +1,9 @@
 {
-  "name": "macrostyles",
+  "name": "casablanca-css",
   "description": "Zero-Runtime CSS-in-JS powered by vite.",
   "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
-  "bugs": "https://github.com/tkamenoko/macrostyles/issues",
+  "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "devDependencies": {
     "@biomejs/biome": "^1.5.3",
     "@styled/typescript-styled-plugin": "^1.0.1",
@@ -22,10 +22,10 @@
   "engines": {
     "node": ">=18.19.0"
   },
-  "homepage": "https://github.com/tkamenoko/macrostyles#readme",
+  "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
   "private": true,
-  "repository": "tkamenoko/macrostyles.git",
+  "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
     "test-all": "wireit",
     "types-all": "wireit"
