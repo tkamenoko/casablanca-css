@@ -1,4 +1,4 @@
-import vm, { Module } from "node:vm";
+import vm, { type Module } from "node:vm";
 
 export async function loadNodeModule({
   modulesCache,

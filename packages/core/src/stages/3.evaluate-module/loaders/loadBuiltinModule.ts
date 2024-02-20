@@ -1,5 +1,5 @@
 import { isBuiltin } from "node:module";
-import vm, { Module } from "node:vm";
+import vm, { type Module } from "node:vm";
 
 export async function loadBuiltinModule({
   modulesCache,

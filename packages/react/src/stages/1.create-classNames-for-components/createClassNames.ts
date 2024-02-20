@@ -4,7 +4,6 @@ import { isCasablancaImport, isTopLevelStatement } from "@casablanca/utils";
 import { isCasablancaStyledTemplate } from "../helpers/isCasablancaStyledTemplate";
 import { buildClassNameExtractingStatement } from "./builders/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./builders/buildCssDynamicVarsFromEmbeddedFunctions";
-import { buildExcludingParamsSetStatement } from "./builders/buildExcludingParamsSetStatement";
 import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
@@ -192,29 +191,16 @@ export function createClassNamesPlugin({
             });
 
             const cleanedPropsId = path.scope.generateUidIdentifier("props");
-            const annotatedParams = getAnnotatedParams(init).map((s) =>
-              t.stringLiteral(s),
-            );
-            const excludingParamsSetId = path.scope.generateUidIdentifier();
-            const initExcludingParamsSet = annotatedParams.length
-              ? buildExcludingParamsSetStatement({
-                  annotatedParams,
-                  paramsSetId: excludingParamsSetId,
-                })
-              : null;
-            if (initExcludingParamsSet) {
-              if (path.parentPath.isExportDeclaration()) {
-                path.parentPath.insertBefore(initExcludingParamsSet);
-              } else {
-                path.insertBefore(initExcludingParamsSet);
-              }
-            }
+            const annotatedParams = getAnnotatedParams(init).map((s) => ({
+              name: s,
+              tempId: path.scope.generateUidIdentifier("_"),
+            }));
 
-            const cleanProps = initExcludingParamsSet
+            const cleanProps = annotatedParams.length
               ? buildPropsCleaningStatement({
                   cleanedPropsId,
-                  excludingParamsSetId,
                   originalPropsId: propsId,
+                  excludingParamNames: annotatedParams,
                 })
               : null;
 
