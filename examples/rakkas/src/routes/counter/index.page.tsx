@@ -1,4 +1,4 @@
-import { styled } from "@macrostyles/react";
+import { styled } from "@casablanca/react";
 import { type Page, StyledLink } from "rakkasjs";
 import { useState } from "react";
 

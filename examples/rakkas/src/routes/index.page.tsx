@@ -1,4 +1,4 @@
-import { styled } from "@macrostyles/react";
+import { styled } from "@casablanca/react";
 import { modularScale } from "polished";
 import type { Page } from "rakkasjs";
 import { LinkWithBorder } from "#@/components/link";
@@ -17,7 +17,7 @@ const StyledH1 = styled("h1")`
 const Home: Page = () => {
   return (
     <ContainerDiv>
-      <StyledH1>Macrostyles + Rakkas</StyledH1>
+      <StyledH1>Casablanca + Rakkas</StyledH1>
       <LinkWithBorder href="/counter">Go to counter</LinkWithBorder>
     </ContainerDiv>
   );

@@ -1,5 +1,5 @@
+import { injectGlobal } from "@casablanca/core";
 import type { GlobalProvider } from "@ladle/react";
-import { injectGlobal } from "@macrostyles/core";
 
 injectGlobal`
   * {

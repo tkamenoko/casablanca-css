@@ -1,4 +1,4 @@
-import { injectGlobal } from "@macrostyles/core";
+import { injectGlobal } from "@casablanca/core";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";

@@ -1,4 +1,4 @@
-import { styled } from "@macrostyles/react";
+import { styled } from "@casablanca/react";
 import { StyledLink } from "rakkasjs";
 
 export const LinkWithBorder = styled(StyledLink)`
