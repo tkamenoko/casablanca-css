@@ -1,3 +1,3 @@
-# @casablanca/core
+# @casablanca/utils
 
-Core package of `casablanca-css` .
+Utility package of `casablanca-css` .

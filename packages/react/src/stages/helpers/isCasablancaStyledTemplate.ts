@@ -1,8 +1,8 @@
 import type { NodePath, types } from "@babel/core";
 import type { TaggedTemplateExpression } from "@babel/types";
-import { isMacrostylesImport } from "@macrostyles/utils";
+import { isCasablancaImport } from "@casablanca/utils";
 
-export function isMacrostylesStyledTemplate(
+export function isCasablancaStyledTemplate(
   path: NodePath<types.Expression | null | undefined>,
 ): path is NodePath<TaggedTemplateExpression> {
   if (!path.isTaggedTemplateExpression()) {
@@ -22,7 +22,7 @@ export function isMacrostylesStyledTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isMacrostylesImport(importDec, "react"))) {
+  if (!(importDec && isCasablancaImport(importDec, "react"))) {
     return false;
   }
   const imported = tagBinding.path.get("imported");

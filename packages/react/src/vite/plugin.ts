@@ -1,6 +1,6 @@
 import type { TransformOptions } from "@babel/core";
 import { parseAsync } from "@babel/core";
-import { extractPathAndParamsFromId } from "@macrostyles/utils";
+import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { Plugin, ResolvedConfig } from "vite";
 import type { CreateClassNamesFromComponentsReturn } from "#@/stages/1.create-classNames-for-components";
 import { createClassNamesFromComponents } from "#@/stages/1.create-classNames-for-components";
@@ -38,7 +38,7 @@ export function plugin(
   const include = new Set(options?.includes ?? []);
 
   return {
-    name: "macrostyles:react",
+    name: "casablanca:react",
     enforce: "pre",
     async transform(code, id) {
       if (!config) {

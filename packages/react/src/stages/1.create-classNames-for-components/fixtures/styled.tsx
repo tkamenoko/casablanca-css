@@ -1,4 +1,4 @@
-import { styled } from "@macrostyles/react";
+import { styled } from "@casablanca/react";
 import type { FC } from "react";
 
 const Component: FC<{ dataFoo: string }> = ({ dataFoo, ...rest }) => {
