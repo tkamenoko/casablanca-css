@@ -8,7 +8,10 @@ import { buildInlineStylesAssignmentStatement } from "./builders/buildInlineStyl
 import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
 import { buildPropsCleaningStatement } from "./builders/buildPropsCleaningStatement";
+import { extractPathsFromDeclaration } from "./extractPathsFromDeclaration";
 import { getAnnotatedParams } from "./getAnnotatedParams";
+import { getImportedNameFromImportSpecifier } from "./getImportedNameFromImportSpecifier";
+import { insertNodeOnTopLevel } from "./insertNodesOnTopLevel";
 
 export function createClassNamesPlugin({
   types: t,
@@ -35,15 +38,9 @@ export function createClassNamesPlugin({
                   return;
                 }
                 for (const item of p.get("specifiers")) {
-                  if (!item.isImportSpecifier()) {
-                    continue;
-                  }
-                  const imported = item.get("imported");
-                  if (imported.isIdentifier()) {
-                    const importedName = imported.node.name;
-                    if (importedName === "styled") {
-                      item.remove();
-                    }
+                  const importedName = getImportedNameFromImportSpecifier(item);
+                  if (importedName === "styled") {
+                    item.remove();
                   }
                 }
               },
@@ -91,29 +88,20 @@ export function createClassNamesPlugin({
           }
 
           for (const declaration of path.get("declarations")) {
-            const init = declaration.get("init");
-            if (!isCasablancaStyledTemplate(init)) {
-              return;
+            // validate `styled` usage
+            const validatedDeclaration =
+              extractPathsFromDeclaration(declaration);
+            if (!validatedDeclaration) {
+              continue;
             }
+            const { componentId, componentName, init, styledComponent } =
+              validatedDeclaration;
 
-            const cssTemplate = init.get("quasi");
-            const componentId = declaration.get("id");
-            if (!componentId.isIdentifier()) {
-              return;
-            }
-
-            const componentName = componentId.node.name;
-            if (!componentName.at(0)?.match(/[A-Z]/)) {
-              throw new Error(
-                `Component name "${{
-                  componentName,
-                }}" must starts with upper case.`,
-              );
-            }
             const cssTaggedId = path.scope.generateUidIdentifier(
               `styled${componentName}`,
             );
             // create `css` tagged style
+            const cssTemplate = init.get("quasi");
             const cssNode = t.variableDeclaration("const", [
               t.variableDeclarator(
                 cssTaggedId,
@@ -123,11 +111,7 @@ export function createClassNamesPlugin({
                 ),
               ),
             ]);
-            if (path.parentPath.isExportDeclaration()) {
-              path.parentPath.insertBefore(cssNode);
-            } else {
-              path.insertBefore(cssNode);
-            }
+            insertNodeOnTopLevel(path, cssNode, "before");
             // extract functions from template for dynamic styling
             const arrowFunctionPaths = cssTemplate
               .get("expressions")
@@ -140,27 +124,8 @@ export function createClassNamesPlugin({
             });
             // move function to the top level
             const outerFunctions = cssDynamicVars.map((c) => c.outerFunction);
-            if (path.parentPath.isExportDeclaration()) {
-              path.parentPath.insertBefore(outerFunctions);
-            } else {
-              path.insertBefore(outerFunctions);
-            }
-
+            insertNodeOnTopLevel(path, outerFunctions, "before");
             // replace component with new function component that has created className
-            const tag = init.get("tag");
-            if (!tag.isCallExpression()) {
-              return;
-            }
-
-            const styledComponent = tag.get("arguments").at(0);
-            if (
-              !(
-                styledComponent?.isIdentifier() ||
-                styledComponent?.isStringLiteral()
-              )
-            ) {
-              throw new Error(`Invalid "styled" usage for ${componentName}`);
-            }
             const jsxName = styledComponent.isIdentifier()
               ? styledComponent.node.name
               : styledComponent.node.value;
@@ -193,16 +158,14 @@ export function createClassNamesPlugin({
             const cleanedPropsId = path.scope.generateUidIdentifier("props");
             const annotatedParams = getAnnotatedParams(init).map((s) => ({
               name: s,
-              tempId: path.scope.generateUidIdentifier("_"),
+              tempId: path.scope.generateUidIdentifier(),
             }));
 
-            const cleanProps = annotatedParams.length
-              ? buildPropsCleaningStatement({
-                  cleanedPropsId,
-                  originalPropsId: propsId,
-                  excludingParamNames: annotatedParams,
-                })
-              : null;
+            const cleanProps = buildPropsCleaningStatement({
+              cleanedPropsId,
+              originalPropsId: propsId,
+              excludingParamNames: annotatedParams,
+            });
 
             const innerJsxElement = buildInnerJsxElement({
               classNameId: newClassNameId,
@@ -246,17 +209,11 @@ export function createClassNamesPlugin({
                 cssTaggedId,
               ),
             );
-            if (path.parentPath.isExportDeclaration()) {
-              path.parentPath.insertAfter([
-                assignRawClassName,
-                assignModularizedClassName,
-              ]);
-            } else {
-              path.insertAfter([
-                assignRawClassName,
-                assignModularizedClassName,
-              ]);
-            }
+            insertNodeOnTopLevel(
+              path,
+              [assignRawClassName, assignModularizedClassName],
+              "after",
+            );
           }
         },
       },

@@ -1,6 +1,7 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import { isCasablancaCssTemplate, isCasablancaImport } from "@casablanca/utils";
+import { extractPathsFromExpressions } from "./extractPathsFromExpressions";
 import { isImportedComponent } from "./isImportedComponent";
 
 export function modifyCompositionsPlugin({
@@ -30,38 +31,39 @@ export function modifyCompositionsPlugin({
           const quasis = quasi.get("quasis");
           const expressions = quasi.get("expressions");
           for (const [index, literal] of quasis.entries()) {
-            const expression = expressions.at(index);
-            if (!expression?.isIdentifier()) {
+            const validatedExpression = extractPathsFromExpressions({
+              expressions,
+              index,
+              literal,
+              quasis,
+            });
+            if (!validatedExpression) {
               continue;
             }
-            if (!literal.node.value.raw.endsWith(".")) {
-              continue;
-            }
+            const { expression, nextLiteral } = validatedExpression;
             // replace `.${Component}` selector with className
             const componentId = expression.node;
-            if (isImportedComponent(expression)) {
-              const globalOpen = `${literal.node.value.raw.slice(
-                0,
-                -1,
-              )}:global(.`;
-              literal.replaceWith(t.templateElement({ raw: globalOpen }));
-              const nextLiteral = quasis.at(index + 1);
-              if (!nextLiteral) {
-                throw new Error("Failed");
-              }
-              const globalClose = `)${nextLiteral.node.value.raw}`;
-              nextLiteral.replaceWith(t.templateElement({ raw: globalClose }));
-              expression.replaceWith(
-                t.memberExpression(
-                  componentId,
-                  t.identifier("__modularizedClassName"),
-                ),
-              );
-            } else {
+            if (!isImportedComponent(expression)) {
               expression.replaceWith(
                 t.memberExpression(componentId, t.identifier("__rawClassName")),
               );
+              continue;
             }
+
+            const globalOpen = `${literal.node.value.raw.slice(
+              0,
+              -1,
+            )}:global(.`;
+            const globalClose = `)${nextLiteral.node.value.raw}`;
+
+            literal.replaceWith(t.templateElement({ raw: globalOpen }));
+            nextLiteral.replaceWith(t.templateElement({ raw: globalClose }));
+            expression.replaceWith(
+              t.memberExpression(
+                componentId,
+                t.identifier("__modularizedClassName"),
+              ),
+            );
           }
         },
       },

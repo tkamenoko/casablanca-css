@@ -17,6 +17,8 @@ import type { AssignStylesToCapturedVariablesReturn } from "#@/stages/6.assign-s
 import { assignStylesToCapturedVariables } from "#@/stages/6.assign-styles-to-variables";
 import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./helpers/buildResolvedCssModuleIdFromVirtualCssModuleId";
 import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
+import { extractTargetFilePath } from "./helpers/extractTargetFilePath";
+import { invalidateModules } from "./helpers/invalidateModules";
 import { loadCssModule } from "./hooks/loadCss/loadCssModule";
 import { loadGlobalStyle } from "./hooks/loadCss/loadGlobalStyle";
 import { resolveCssModuleId } from "./hooks/resolveCss/resolveCssModuleId";
@@ -63,7 +65,7 @@ export function plugin(
   let server: ViteDevServer | null = null;
   const {
     babelOptions = {},
-    extensions = [".js", ".jsx", ".ts", ".tsx"],
+    extensions = [".mjs", ".cjs", ".js", ".jsx", ".mts", ".cts", ".ts", ".tsx"],
     onExitTransform,
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
@@ -75,16 +77,8 @@ export function plugin(
         throw new Error("Vite config is not resolved");
       }
 
-      const { path, queries } = extractPathAndParamsFromId(id);
-      if (queries.has("raw")) {
-        return;
-      }
-      if (!(include.has(path) || extensions.some((e) => path.endsWith(e)))) {
-        // ignore module that is not JS/TS code
-        return;
-      }
-      if (/\/node_modules\//.test(path)) {
-        // ignore third party packages
+      const path = extractTargetFilePath({ extensions, id, include });
+      if (!path) {
         return;
       }
 
@@ -217,13 +211,10 @@ export function plugin(
       });
 
       if (server) {
-        for (const moduleId of [resolvedCssModuleId, resolvedGlobalStyleId]) {
-          const m = server.moduleGraph.getModuleById(moduleId);
-          if (m) {
-            server.moduleGraph.invalidateModule(m);
-            m.lastHMRTimestamp = m.lastInvalidationTimestamp || Date.now();
-          }
-        }
+        invalidateModules({
+          moduleIds: [resolvedCssModuleId, resolvedGlobalStyleId],
+          server,
+        });
       }
 
       if (onExitTransform) {
@@ -281,28 +272,25 @@ export function plugin(
     },
     handleHotUpdate({ modules, server }) {
       const affectedModules = modules.flatMap((m) => {
-        const dependencies = [m];
         const { id } = m;
         if (!id) {
-          return dependencies;
+          return [m];
         }
         const { path } = extractPathAndParamsFromId(id);
         const { resolvedId: cssModuleId } = jsToCssModuleLookup.get(path) ?? {};
-        if (cssModuleId) {
-          const cssModule = server.moduleGraph.getModuleById(cssModuleId);
-          if (cssModule) {
-            dependencies.push(cssModule);
-          }
-        }
+        const cssModule = cssModuleId
+          ? server.moduleGraph.getModuleById(cssModuleId)
+          : null;
+
         const { resolvedId: globalStyleId } =
           jsToGlobalStyleLookup.get(path) ?? {};
-        if (globalStyleId) {
-          const globalStyle = server.moduleGraph.getModuleById(globalStyleId);
-          if (globalStyle) {
-            dependencies.push(globalStyle);
-          }
-        }
-        return dependencies;
+        const globalStyle = globalStyleId
+          ? server.moduleGraph.getModuleById(globalStyleId)
+          : null;
+
+        return [m, cssModule, globalStyle].filter(
+          (x): x is NonNullable<typeof x> => !!x,
+        );
       });
 
       return affectedModules;

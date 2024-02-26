@@ -8,8 +8,11 @@ export function buildPropsCleaningStatement({
   originalPropsId: types.Identifier;
   cleanedPropsId: types.Identifier;
   excludingParamNames: { name: string; tempId: types.Identifier }[];
-}): types.VariableDeclaration {
+}): types.VariableDeclaration | null {
   // const {excluded1:_, excluded2:__,...cleanedProps}=props;
+  if (!excludingParamNames.length) {
+    return null;
+  }
   const excludingProperties = excludingParamNames.map(({ name, tempId }) =>
     types.objectProperty(types.identifier(name), tempId),
   );

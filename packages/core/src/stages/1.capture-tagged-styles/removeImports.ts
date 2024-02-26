@@ -1,5 +1,6 @@
 import type { PluginObj, PluginPass } from "@babel/core";
 import { isCasablancaImport } from "@casablanca/utils";
+import { getImportedName } from "./getImportedName";
 import type { BabelState } from "./types";
 
 const tagNames = new Set(["css", "injectGlobal"]);
@@ -16,15 +17,9 @@ export function removeImportsPlugin(): PluginObj<PluginPass & BabelState> {
                   return;
                 }
                 for (const item of path_.get("specifiers")) {
-                  if (!item.isImportSpecifier()) {
-                    continue;
-                  }
-                  const imported = item.get("imported");
-                  if (imported.isIdentifier()) {
-                    const importedName = imported.node.name;
-                    if (tagNames.has(importedName)) {
-                      item.remove();
-                    }
+                  const importedName = getImportedName(item);
+                  if (importedName && tagNames.has(importedName)) {
+                    item.remove();
                   }
                 }
                 if (!path_.get("specifiers").length) {
