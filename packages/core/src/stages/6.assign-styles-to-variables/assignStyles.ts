@@ -1,6 +1,8 @@
 import type { PluginObj, PluginPass } from "@babel/core";
 import type babel from "@babel/core";
 import { isTopLevelStatement } from "@casablanca/utils";
+import { removeTemporalVariable } from "./removeTemporalVariable";
+import { replaceOriginalVariable } from "./replaceOriginalVariable";
 import type { Options } from "./types";
 
 type BabelState = {
@@ -50,19 +52,13 @@ export function assignStylesPlugin({
               continue;
             }
             const name = id.node.name;
-            const removeTarget = temporalVariableNames.get(name);
-            if (removeTarget && path.parentPath.isExportNamedDeclaration()) {
-              path.parentPath.remove();
-              return;
-            }
-            const replaceTarget = originalToTemporalMap.get(name);
-            if (replaceTarget) {
-              declaration
-                .get("init")
-                .replaceWith(
-                  t.memberExpression(stylesId, t.stringLiteral(name), true),
-                );
-            }
+            removeTemporalVariable({ name, path, temporalVariableNames });
+            replaceOriginalVariable({
+              declaration,
+              name,
+              originalToTemporalMap,
+              stylesId,
+            });
           }
         },
       },
