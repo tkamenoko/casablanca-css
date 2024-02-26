@@ -69,7 +69,7 @@
       "dependencies": [
         "../utils:build",
         "../core:build"
-      ], 
+      ],
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
@@ -84,7 +84,8 @@
       "command": "biome check --apply ./",
       "files": [
         "./src/**/*.{ts,tsx}",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "../../biome.json"
       ],
       "output": []
     },

@@ -67,7 +67,8 @@
       "command": "biome check --apply ./",
       "files": [
         "./src/**/*.{ts,tsx}",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "../../biome.json"
       ],
       "output": []
     },
