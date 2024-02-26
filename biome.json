@@ -6,7 +6,10 @@
   "linter": {
     "rules": {
       "recommended": true,
-      "complexity": { "useLiteralKeys": "off" },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "error",
+        "useLiteralKeys": "off"
+      },
       "nursery": {
         "useImportType": "error",
         "useNodejsImportProtocol": "error",

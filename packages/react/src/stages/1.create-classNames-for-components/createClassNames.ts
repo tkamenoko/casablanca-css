@@ -9,6 +9,7 @@ import { buildInnerJsxElement } from "./builders/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./builders/buildNewClassNameAssignmentStatement";
 import { buildPropsCleaningStatement } from "./builders/buildPropsCleaningStatement";
 import { getAnnotatedParams } from "./getAnnotatedParams";
+import { getImportedNameFromImportSpecifier } from "./getImportedNameFromImportSpecifier";
 
 export function createClassNamesPlugin({
   types: t,
@@ -35,15 +36,9 @@ export function createClassNamesPlugin({
                   return;
                 }
                 for (const item of p.get("specifiers")) {
-                  if (!item.isImportSpecifier()) {
-                    continue;
-                  }
-                  const imported = item.get("imported");
-                  if (imported.isIdentifier()) {
-                    const importedName = imported.node.name;
-                    if (importedName === "styled") {
-                      item.remove();
-                    }
+                  const importedName = getImportedNameFromImportSpecifier(item);
+                  if (importedName === "styled") {
+                    item.remove();
                   }
                 }
               },
