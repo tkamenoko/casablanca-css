@@ -163,17 +163,18 @@ export function plugin(
 
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
         {
-          cssModule: {
-            importId: cssModuleImportId,
-            originalToTemporalMap: capturedVariableNames,
-            temporalVariableNames,
+          css: {
+            modules: {
+              importId: cssModuleImportId,
+              originalToTemporalMap: capturedVariableNames,
+              temporalVariableNames,
+            },
+            globals: {
+              importId: globalStyleImportId,
+              temporalVariableNames: capturedGlobalStylesTempNames,
+            },
           },
-          globalStyle: {
-            importId: globalStyleImportId,
-            temporalVariableNames: capturedGlobalStylesTempNames,
-          },
-          originalCode: code,
-          replaced: replacedAst,
+          stage2Result: { ast: replacedAst },
           isDev,
         },
       );

@@ -7,17 +7,21 @@ import { importGlobalStylePlugin } from "./importGlobalStyle";
 import type { Options } from "./types";
 
 type AssignStylesToCapturedVariablesArgs = {
-  replaced: types.File;
-  originalCode: string;
-  cssModule: {
-    temporalVariableNames: CapturedVariableNames;
-    originalToTemporalMap: CapturedVariableNames;
-    importId: VirtualCssModuleId;
+  stage2Result: {
+    ast: types.File;
   };
-  globalStyle: {
-    temporalVariableNames: string[];
-    importId: VirtualGlobalStyleId;
+  css: {
+    modules: {
+      temporalVariableNames: CapturedVariableNames;
+      originalToTemporalMap: CapturedVariableNames;
+      importId: VirtualCssModuleId;
+    };
+    globals: {
+      temporalVariableNames: string[];
+      importId: VirtualGlobalStyleId;
+    };
   };
+
   isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
@@ -25,17 +29,15 @@ export type AssignStylesToCapturedVariablesReturn = {
 };
 
 export async function assignStylesToCapturedVariables({
-  replaced,
-  originalCode,
-  cssModule,
-  globalStyle,
+  css,
+  stage2Result,
   isDev,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
-    cssModule,
-    globalStyle,
+    cssModule: css.modules,
+    globalStyle: css.globals,
   };
-  const result = await transformFromAstAsync(replaced, originalCode, {
+  const result = await transformFromAstAsync(stage2Result.ast, undefined, {
     plugins: [
       [assignStylesPlugin, pluginOption],
       [importGlobalStylePlugin, pluginOption],
