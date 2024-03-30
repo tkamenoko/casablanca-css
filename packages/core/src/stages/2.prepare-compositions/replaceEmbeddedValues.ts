@@ -3,8 +3,8 @@ import type { PluginObj, PluginPass } from "@babel/core";
 import { isTopLevelStatement } from "@casablanca/utils";
 import { buildComposeInternalExpression } from "./buildComposeInternalExpression";
 import { collectComposeArgsValues } from "./collectComposeArgsValues";
+import { extractPathsFromDeclaration } from "./extractPathsFromDeclaration";
 import { extractPathsFromQuasi } from "./extractPathsFromQuasi";
-import { extractPathsFromDeclaration } from "./extractPathsFromdeclaration";
 import { markImportedSelectorsAsGlobal } from "./markImportedSelectorsAsGlobal";
 import type { EmbeddedToClassNameMap, UuidToStylesMap } from "./types";
 
