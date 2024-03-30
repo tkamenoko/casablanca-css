@@ -26,28 +26,24 @@ export function importGlobalStylePlugin({
           }
         },
       },
-
-      VariableDeclaration: {
+      VariableDeclarator: {
         enter: (path, state) => {
-          if (!isTopLevelStatement(path)) {
+          const declaration = path.parentPath;
+          if (
+            !(declaration.isDeclaration() && isTopLevelStatement(declaration))
+          ) {
             return;
           }
-
           const { temporalVariableNames } = state.opts.globalStyle;
-          if (!temporalVariableNames.length) {
+          const id = path.get("id");
+          if (!id.isIdentifier()) {
             return;
           }
-          for (const declaration of path.get("declarations")) {
-            const id = declaration.get("id");
-            if (!id.isIdentifier()) {
-              continue;
-            }
-            const name = id.node.name;
-            if (!temporalVariableNames.includes(name)) {
-              return;
-            }
-            declaration.remove();
+          const name = id.node.name;
+          if (!temporalVariableNames.includes(name)) {
+            return;
           }
+          path.remove();
         },
       },
     },
