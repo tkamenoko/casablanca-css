@@ -29,7 +29,9 @@ export function captureVariableNamesPlugin({
       VariableDeclarator: {
         enter: (path, state) => {
           const declaration = path.parentPath;
-          if (!isTopLevelStatement(declaration)) {
+          if (
+            !(declaration.isDeclaration() && isTopLevelStatement(declaration))
+          ) {
             return;
           }
           const init = path.get("init");

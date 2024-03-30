@@ -3,16 +3,16 @@ import type { CapturedVariableNames } from "../1.capture-tagged-styles";
 
 export function removeTemporalVariable({
   temporalVariableNames,
-  path,
+  declaration,
   name,
 }: {
   temporalVariableNames: CapturedVariableNames;
-  path: NodePath<types.VariableDeclaration>;
+  declaration: NodePath<types.VariableDeclaration>;
   name: string;
 }): void {
   const removeTarget = temporalVariableNames.get(name);
-  if (removeTarget && path.parentPath.isExportNamedDeclaration()) {
-    path.parentPath.remove();
+  if (removeTarget && declaration.parentPath.isExportNamedDeclaration()) {
+    declaration.parentPath.remove();
     return;
   }
 }

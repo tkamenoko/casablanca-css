@@ -34,10 +34,15 @@ export function assignStylesPlugin({
           }
         },
       },
-
-      VariableDeclaration: {
+      VariableDeclarator: {
         enter: (path, state) => {
-          if (!isTopLevelStatement(path)) {
+          const declaration = path.parentPath;
+          if (
+            !(
+              declaration.isVariableDeclaration() &&
+              isTopLevelStatement(declaration)
+            )
+          ) {
             return;
           }
           if (!state.importIdName) {
@@ -46,20 +51,22 @@ export function assignStylesPlugin({
           const { temporalVariableNames, originalToTemporalMap } =
             state.opts.cssModule;
           const stylesId = t.identifier(state.importIdName);
-          for (const declaration of path.get("declarations")) {
-            const id = declaration.get("id");
-            if (!id.isIdentifier()) {
-              continue;
-            }
-            const name = id.node.name;
-            removeTemporalVariable({ name, path, temporalVariableNames });
-            replaceOriginalVariable({
-              declaration,
-              name,
-              originalToTemporalMap,
-              stylesId,
-            });
+          const id = path.get("id");
+          if (!id.isIdentifier()) {
+            return;
           }
+          const name = id.node.name;
+          removeTemporalVariable({
+            name,
+            declaration,
+            temporalVariableNames,
+          });
+          replaceOriginalVariable({
+            declarator: path,
+            name,
+            originalToTemporalMap,
+            stylesId,
+          });
         },
       },
     },
