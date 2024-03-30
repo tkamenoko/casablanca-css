@@ -1,3 +1,4 @@
+import { transformFromAstAsync, type types } from "@babel/core";
 import type { ViteDevServer } from "vite";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { createLinker as createLinkerForProduction } from "./build";
@@ -8,7 +9,7 @@ import type { EvaluateModuleReturn, TransformContext } from "./types";
 export type { EvaluateModuleReturn } from "./types";
 
 type Evaluator = (args: {
-  code: string;
+  ast: types.File;
   uuidToStylesMap: UuidToStylesMap;
   temporalVariableNames: Map<
     string,
@@ -37,11 +38,15 @@ export function createEvaluator({
       server,
     });
     const evaluator: Evaluator = async ({
-      code,
+      ast,
       temporalVariableNames,
       temporalGlobalStyles,
       uuidToStylesMap,
     }) => {
+      const { code } = (await transformFromAstAsync(ast)) ?? {};
+      if (!code) {
+        throw new Error("Failed");
+      }
       return await evaluate({
         code,
         linker,
@@ -58,11 +63,15 @@ export function createEvaluator({
   });
 
   const evaluator: Evaluator = async ({
-    code,
+    ast,
     temporalVariableNames,
     temporalGlobalStyles,
     uuidToStylesMap,
   }) => {
+    const { code } = (await transformFromAstAsync(ast)) ?? {};
+    if (!code) {
+      throw new Error("Failed");
+    }
     return await evaluate({
       code,
       linker,

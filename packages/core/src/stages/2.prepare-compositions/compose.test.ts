@@ -1,3 +1,4 @@
+import { transformFromAstAsync } from "@babel/core";
 import { build } from "vite";
 import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
@@ -26,7 +27,10 @@ test("should replace `compose: ...` with uuid", async ({
   const r = transformResult[moduleId];
   assert(r);
 
-  const { transformed } = r.stages[2] ?? {};
+  const { ast } = r.stages[2] ?? {};
+  assert(ast);
+  const { code: transformed } = (await transformFromAstAsync(ast)) ?? {};
+
   assert(transformed);
   expect(transformed).not.toMatch(/compose:/);
   expect(transformed).toMatch(

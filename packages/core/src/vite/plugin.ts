@@ -114,15 +114,12 @@ export function plugin(
       }
 
       // replace `compose` calls to temporal strings
-      const {
-        transformed: replacedCode,
-        uuidToStylesMap,
-        ast: replacedAst,
-      } = await prepareCompositions({
-        captured: capturedAst,
-        code: capturedCode,
-        temporalVariableNames: [...temporalVariableNames.keys()],
-        importSources,
+      const { uuidToStylesMap, ast: replacedAst } = await prepareCompositions({
+        stage1Result: {
+          ast: capturedAst,
+          importSources,
+          variableNames: [...capturedVariableNames.values()],
+        },
         projectRoot: config.root,
         isDev,
         resolve: async (importSource) => {
@@ -139,7 +136,7 @@ export function plugin(
 
       const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
         await evaluateModule({
-          code: replacedCode,
+          ast: replacedAst,
           temporalVariableNames,
           temporalGlobalStyles: capturedGlobalStylesTempNames,
           uuidToStylesMap,
@@ -234,7 +231,6 @@ export function plugin(
               ast: capturedAst,
             },
             "2": {
-              transformed: replacedCode,
               ast: replacedAst,
               uuidToStylesMap,
             },

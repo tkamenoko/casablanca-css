@@ -11,26 +11,23 @@ import {
 import type { UuidToStylesMap } from "./types";
 
 type PrepareCompositionsArgs = {
-  captured: types.File;
-  code: string;
+  stage1Result: {
+    ast: types.File;
+    variableNames: { originalName: string; temporalName: string }[];
+    importSources: ImportSource[];
+  };
   isDev: boolean;
-  temporalVariableNames: string[];
-  importSources: ImportSource[];
   projectRoot: string;
   resolve: (id: string) => Promise<string | null>;
 };
 
 export type PrepareCompositionsReturn = {
-  transformed: string;
   ast: types.File;
   uuidToStylesMap: UuidToStylesMap;
 };
 
 export async function prepareCompositions({
-  captured,
-  code,
-  temporalVariableNames,
-  importSources,
+  stage1Result,
   projectRoot,
   resolve,
   isDev,
@@ -41,7 +38,7 @@ export async function prepareCompositions({
     { className: string; cssId: ResolvedCssModuleId; uuid: string }
   >();
   await Promise.all(
-    importSources.map(async ({ names, source }) => {
+    stage1Result.importSources.map(async ({ names, source }) => {
       const resolvedId = await resolve(source);
       if (!resolvedId) {
         return;
@@ -61,22 +58,25 @@ export async function prepareCompositions({
   // replace `compose` calls with `composes: ...;` expressions.
   const uuidToStylesMap: UuidToStylesMap = new Map();
   const pluginOption: Options = {
-    temporalVariableNames,
+    temporalVariableNames: stage1Result.variableNames.map(
+      (v) => v.temporalName,
+    ),
     embeddedToClassNameMap,
     uuidToStylesMap,
   };
-  const result = await transformFromAstAsync(captured, code, {
+  const result = await transformFromAstAsync(stage1Result.ast, undefined, {
     plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
+    code: false,
   });
   if (!result) {
     throw new Error("Failed");
   }
-  const { code: transformed, ast } = result;
-  if (!(transformed && ast)) {
+  const { ast } = result;
+  if (!ast) {
     throw new Error("Failed");
   }
 
-  return { transformed, uuidToStylesMap, ast };
+  return { uuidToStylesMap, ast };
 }
