@@ -1,21 +1,21 @@
 import type { NodePath, types } from "@babel/core";
 
-type ExtractPathsFromDeclarationReturn = {
+type ExtractTemplatePathFromDeclaratorReturn = {
   init: NodePath<types.TemplateLiteral>;
 } | null;
 
-export function extractPathsFromDeclaration({
-  declaration,
+export function extractTemplatePathFromDeclarator({
+  declarator,
   temporalVariableNames,
 }: {
-  declaration: NodePath<types.VariableDeclarator>;
+  declarator: NodePath<types.VariableDeclarator>;
   temporalVariableNames: string[];
-}): ExtractPathsFromDeclarationReturn {
-  const id = declaration.get("id");
+}): ExtractTemplatePathFromDeclaratorReturn {
+  const id = declarator.get("id");
   if (!id.isIdentifier() || !temporalVariableNames.includes(id.node.name)) {
     return null;
   }
-  const init = declaration.get("init");
+  const init = declarator.get("init");
   if (!init.isTemplateLiteral()) {
     return null;
   }
