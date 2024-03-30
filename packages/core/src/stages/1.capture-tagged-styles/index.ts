@@ -7,7 +7,6 @@ import { removeImportsPlugin } from "./removeImports";
 import type { ImportSource, Options } from "./types";
 
 type CaptureTaggedStylesArgs = {
-  code: string;
   ast: types.File;
   isDev: boolean;
 };
@@ -18,7 +17,6 @@ export type CapturedVariableNames = Map<
 >;
 
 export type CaptureTaggedStylesReturn = {
-  transformed: string;
   ast: types.File;
   capturedVariableNames: CapturedVariableNames;
   capturedGlobalStylesTempNames: string[];
@@ -28,7 +26,6 @@ export type CaptureTaggedStylesReturn = {
 // find tagged templates, then remove all tags.
 // enforce variables to export.
 export async function captureTaggedStyles({
-  code,
   ast,
   isDev,
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
@@ -37,7 +34,7 @@ export async function captureTaggedStyles({
     capturedGlobalStylesTempNames: [],
     importSources: [],
   };
-  const result = await transformFromAstAsync(ast, code, {
+  const result = await transformFromAstAsync(ast, undefined, {
     plugins: [
       [collectImportSourcesPlugin, pluginOption],
       [captureVariableNamesPlugin, pluginOption],
@@ -46,18 +43,18 @@ export async function captureTaggedStyles({
     ],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
+    code: false,
   });
   if (!result) {
     throw new Error("Failed");
   }
-  const { code: transformed, ast: capturedAst } = result;
-  if (!(transformed && capturedAst)) {
+  const { ast: capturedAst } = result;
+  if (!capturedAst) {
     throw new Error("Failed");
   }
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
     capturedGlobalStylesTempNames: pluginOption.capturedGlobalStylesTempNames,
-    transformed,
     ast: capturedAst,
     importSources: pluginOption.importSources,
   };

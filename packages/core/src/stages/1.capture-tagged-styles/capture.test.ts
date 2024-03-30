@@ -1,3 +1,4 @@
+import { transformFromAstAsync } from "@babel/core";
 import { build } from "vite";
 import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
@@ -25,7 +26,7 @@ test("should capture variable names initialized with css tag", async ({
 
   const r = transformResult[moduleId];
   assert(r);
-  const { capturedVariableNames, transformed, capturedGlobalStylesTempNames } =
+  const { capturedVariableNames, ast, capturedGlobalStylesTempNames } =
     r.stages[1] ?? {};
 
   expect(capturedGlobalStylesTempNames?.length).toEqual(2);
@@ -39,6 +40,8 @@ test("should capture variable names initialized with css tag", async ({
     ],
   ]);
 
+  assert(ast);
+  const { code: transformed } = (await transformFromAstAsync(ast)) ?? {};
   assert(transformed);
   expect(transformed).not.toMatch(/{ *css/);
   expect(transformed).not.toMatch(/@casablanca\/core/);

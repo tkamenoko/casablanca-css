@@ -98,10 +98,9 @@ export function plugin(
       const {
         capturedVariableNames,
         capturedGlobalStylesTempNames,
-        transformed: capturedCode,
         ast: capturedAst,
         importSources,
-      } = await captureTaggedStyles({ code, ast: parsed, isDev });
+      } = await captureTaggedStyles({ ast: parsed, isDev });
 
       const temporalVariableNames = new Map(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
@@ -227,7 +226,6 @@ export function plugin(
               capturedVariableNames,
               importSources,
               capturedGlobalStylesTempNames,
-              transformed: capturedCode,
               ast: capturedAst,
             },
             "2": {
