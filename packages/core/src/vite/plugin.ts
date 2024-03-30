@@ -98,7 +98,7 @@ export function plugin(
       const {
         capturedVariableNames,
         capturedGlobalStylesTempNames,
-        ast: capturedAst,
+        ast: stage1CapturedAst,
         importSources,
       } = await captureTaggedStyles({ ast: parsed, isDev });
 
@@ -113,19 +113,20 @@ export function plugin(
       }
 
       // replace `compose` calls to temporal strings
-      const { uuidToStylesMap, ast: replacedAst } = await prepareCompositions({
-        stage1Result: {
-          ast: capturedAst,
-          importSources,
-          variableNames: [...capturedVariableNames.values()],
-        },
-        projectRoot: config.root,
-        isDev,
-        resolve: async (importSource) => {
-          const resolved = await this.resolve(importSource, path);
-          return resolved?.id ?? null;
-        },
-      });
+      const { uuidToStylesMap, ast: stage2ReplacedAst } =
+        await prepareCompositions({
+          stage1Result: {
+            ast: stage1CapturedAst,
+            importSources,
+            variableNames: [...capturedVariableNames.values()],
+          },
+          projectRoot: config.root,
+          isDev,
+          resolve: async (importSource) => {
+            const resolved = await this.resolve(importSource, path);
+            return resolved?.id ?? null;
+          },
+        });
 
       const evaluateModule = createEvaluator({
         server,
@@ -135,7 +136,7 @@ export function plugin(
 
       const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
         await evaluateModule({
-          ast: replacedAst,
+          ast: stage2ReplacedAst,
           temporalVariableNames,
           temporalGlobalStyles: capturedGlobalStylesTempNames,
           uuidToStylesMap,
@@ -154,33 +155,30 @@ export function plugin(
         projectRoot: config.root,
       });
 
-      const { importId: cssModuleImportId, style: cssModuleStyle } = cssModule;
-      const { importId: globalStyleImportId } = globalStyle;
-
       const { transformed: resultCode } = await assignStylesToCapturedVariables(
         {
           css: {
             modules: {
-              importId: cssModuleImportId,
+              importId: cssModule.importId,
               originalToTemporalMap: capturedVariableNames,
               temporalVariableNames,
             },
             globals: {
-              importId: globalStyleImportId,
+              importId: globalStyle.importId,
               temporalVariableNames: capturedGlobalStylesTempNames,
             },
           },
-          stage2Result: { ast: replacedAst },
+          stage2Result: { ast: stage2ReplacedAst },
           isDev,
         },
       );
 
       const resolvedCssModuleId =
         buildResolvedCssModuleIdFromVirtualCssModuleId({
-          id: cssModuleImportId,
+          id: cssModule.importId,
         });
       cssModulesLookup.set(resolvedCssModuleId, {
-        style: cssModuleStyle,
+        style: cssModule.style,
         classNameToStyleMap: new Map(
           composedStyles.map(({ style, originalName }) => [
             originalName,
@@ -190,13 +188,13 @@ export function plugin(
       });
       jsToCssModuleLookup.set(path, {
         resolvedId: resolvedCssModuleId,
-        virtualId: cssModuleImportId,
-        style: cssModuleStyle,
+        virtualId: cssModule.importId,
+        style: cssModule.style,
       });
 
       const resolvedGlobalStyleId =
         buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
-          id: globalStyleImportId,
+          id: globalStyle.importId,
         });
       globalStylesLookup.set(resolvedGlobalStyleId, {
         style: globalStyle.style,
@@ -204,7 +202,7 @@ export function plugin(
       jsToGlobalStyleLookup.set(path, {
         resolvedId: resolvedGlobalStyleId,
         style: globalStyle.style,
-        virtualId: globalStyleImportId,
+        virtualId: globalStyle.importId,
       });
 
       if (server) {
@@ -226,10 +224,10 @@ export function plugin(
               capturedVariableNames,
               importSources,
               capturedGlobalStylesTempNames,
-              ast: capturedAst,
+              ast: stage1CapturedAst,
             },
             "2": {
-              ast: replacedAst,
+              ast: stage2ReplacedAst,
               uuidToStylesMap,
             },
             "3": {
