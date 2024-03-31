@@ -5,6 +5,7 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "dependencies": {
+    "@ampproject/remapping": "^2.3.0",
     "@babel/core": "^7.23.9",
     "@casablanca/utils": "0.0.1",
     "happy-dom": "^13.3.8"
