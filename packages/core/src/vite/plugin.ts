@@ -100,7 +100,11 @@ export function plugin(
         capturedGlobalStylesTempNames,
         ast: stage1CapturedAst,
         importSources,
-      } = await captureTaggedStyles({ ast: parsed, isDev });
+      } = await captureTaggedStyles({
+        ast: parsed,
+        isDev,
+        filename: path,
+      });
 
       const temporalVariableNames = new Map(
         [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
@@ -121,6 +125,7 @@ export function plugin(
             variableNames: [...capturedVariableNames.values()],
           },
           projectRoot: config.root,
+          filename: path,
           isDev,
           resolve: async (importSource) => {
             const resolved = await this.resolve(importSource, path);
@@ -155,8 +160,8 @@ export function plugin(
         projectRoot: config.root,
       });
 
-      const { transformed: resultCode } = await assignStylesToCapturedVariables(
-        {
+      const { transformed: resultCode, map } =
+        await assignStylesToCapturedVariables({
           css: {
             modules: {
               importId: cssModule.importId,
@@ -170,8 +175,9 @@ export function plugin(
           },
           stage2Result: { ast: stage2ReplacedAst },
           isDev,
-        },
-      );
+          filename: path,
+          root: config.root,
+        });
 
       const resolvedCssModuleId =
         buildResolvedCssModuleIdFromVirtualCssModuleId({
@@ -185,6 +191,7 @@ export function plugin(
             { style, className: originalName },
           ]),
         ),
+        map: null,
       });
       jsToCssModuleLookup.set(path, {
         resolvedId: resolvedCssModuleId,
@@ -238,7 +245,7 @@ export function plugin(
               composedStyles,
             },
             "5": { cssModule, globalStyle },
-            "6": { transformed: resultCode },
+            "6": { transformed: resultCode, map },
           },
           transformed: resultCode,
         });
@@ -246,6 +253,7 @@ export function plugin(
 
       return {
         code: resultCode,
+        map,
       };
     },
     configResolved(config_) {

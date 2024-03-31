@@ -2,13 +2,15 @@ import { extractPathAndParamsFromId } from "@casablanca/utils";
 import { isResolvedCssModuleId } from "../../helpers/isResolvedCssModuleId";
 import type { CssModulesLookup } from "../../types";
 
+type LoadCssModuleReturn = { code: string; map: string | null };
+
 export function loadCssModule({
   cssModulesLookup,
   id,
 }: {
   id: string;
   cssModulesLookup: CssModulesLookup;
-}): string | null {
+}): LoadCssModuleReturn | null {
   const { path } = extractPathAndParamsFromId(id);
   if (!isResolvedCssModuleId(path)) {
     return null;
@@ -18,5 +20,6 @@ export function loadCssModule({
   if (!found) {
     return null;
   }
-  return found.style;
+
+  return { code: found.style, map: found.map?.toString() ?? null };
 }

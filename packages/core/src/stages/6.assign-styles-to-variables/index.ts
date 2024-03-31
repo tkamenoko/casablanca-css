@@ -1,5 +1,6 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
+import type { Rollup } from "vite";
 import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles";
 import { assignStylesPlugin } from "./assignStyles";
@@ -21,17 +22,21 @@ type AssignStylesToCapturedVariablesArgs = {
       importId: VirtualGlobalStyleId;
     };
   };
-
+  filename: string;
+  root: string;
   isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
+  map: Rollup.ExistingRawSourceMap | null;
 };
 
 export async function assignStylesToCapturedVariables({
   css,
   stage2Result,
+  filename,
   isDev,
+  root,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
     cssModule: css.modules,
@@ -42,15 +47,32 @@ export async function assignStylesToCapturedVariables({
       [assignStylesPlugin, pluginOption],
       [importGlobalStylePlugin, pluginOption],
     ],
-    sourceMaps: isDev ? "inline" : false,
+    sourceMaps: isDev,
+    filename,
   });
   if (!result) {
     throw new Error("Failed");
   }
-  const { code: transformed } = result;
+  const { code: transformed, map } = result;
   if (!transformed) {
     throw new Error("Failed");
   }
 
-  return { transformed };
+  if (!isDev) {
+    return { transformed, map: null };
+  }
+  if (!map) {
+    throw new Error("Failed");
+  }
+
+  const { code: previousCode } =
+    (await transformFromAstAsync(stage2Result.ast)) ?? {};
+  if (!previousCode) {
+    throw new Error("Failed");
+  }
+
+  return {
+    transformed,
+    map: { ...map, sourceRoot: root, sourcesContent: [previousCode] },
+  };
 }

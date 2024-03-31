@@ -18,6 +18,7 @@ type PrepareCompositionsArgs = {
   };
   isDev: boolean;
   projectRoot: string;
+  filename: string;
   resolve: (id: string) => Promise<string | null>;
 };
 
@@ -29,6 +30,7 @@ export type PrepareCompositionsReturn = {
 export async function prepareCompositions({
   stage1Result,
   projectRoot,
+  filename,
   resolve,
   isDev,
 }: PrepareCompositionsArgs): Promise<PrepareCompositionsReturn> {
@@ -69,6 +71,7 @@ export async function prepareCompositions({
     sourceMaps: isDev ? "inline" : false,
     ast: true,
     code: false,
+    filename,
   });
   if (!result) {
     throw new Error("Failed");

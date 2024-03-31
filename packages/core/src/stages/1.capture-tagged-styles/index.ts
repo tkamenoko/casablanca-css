@@ -8,6 +8,7 @@ import type { ImportSource, Options } from "./types";
 
 type CaptureTaggedStylesArgs = {
   ast: types.File;
+  filename: string;
   isDev: boolean;
 };
 
@@ -28,6 +29,7 @@ export type CaptureTaggedStylesReturn = {
 export async function captureTaggedStyles({
   ast,
   isDev,
+  filename,
 }: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
@@ -41,9 +43,10 @@ export async function captureTaggedStyles({
       [captureGlobalStylesPlugin, pluginOption],
       [removeImportsPlugin, pluginOption],
     ],
-    sourceMaps: isDev ? "inline" : false,
+    sourceMaps: isDev ? "both" : false,
     ast: true,
     code: false,
+    filename,
   });
   if (!result) {
     throw new Error("Failed");
