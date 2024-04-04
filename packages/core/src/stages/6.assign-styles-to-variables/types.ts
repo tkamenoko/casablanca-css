@@ -1,9 +1,9 @@
 import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
-import type { CapturedVariableNames } from "../1.capture-tagged-styles";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 
 export type Options = {
   cssModule: {
-    temporalVariableNames: CapturedVariableNames;
+    temporalVariableNames: Set<string>;
     originalToTemporalMap: CapturedVariableNames;
     importId: VirtualCssModuleId;
   };

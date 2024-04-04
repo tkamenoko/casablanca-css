@@ -1,4 +1,3 @@
-import type { SourceMap } from "@ampproject/remapping";
 import type { TransformOptions } from "vite";
 
 export type PluginOption = {
@@ -15,7 +14,7 @@ export type CssModulesLookup = Map<
   ResolvedCssModuleId,
   {
     style: string;
-    map: SourceMap | null;
+    map: string | null;
     classNameToStyleMap: Map<string, { style: string }>;
   }
 >;

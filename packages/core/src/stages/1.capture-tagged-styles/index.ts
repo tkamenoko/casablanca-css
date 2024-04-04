@@ -4,18 +4,13 @@ import { captureGlobalStylesPlugin } from "./captureGlobalStyles";
 import { captureVariableNamesPlugin } from "./captureVariables";
 import { collectImportSourcesPlugin } from "./collectImportSources";
 import { removeImportsPlugin } from "./removeImports";
-import type { ImportSource, Options } from "./types";
+import type { CapturedVariableNames, ImportSource, Options } from "./types";
 
 type CaptureTaggedStylesArgs = {
   ast: types.File;
   filename: string;
   isDev: boolean;
 };
-
-export type CapturedVariableNames = Map<
-  string,
-  { originalName: string; temporalName: string }
->;
 
 export type CaptureTaggedStylesReturn = {
   ast: types.File;

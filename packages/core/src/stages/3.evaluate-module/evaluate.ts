@@ -1,5 +1,6 @@
 import type { ModuleLinker } from "node:vm";
 import vm from "node:vm";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { createComposeInternal } from "./createComposeInternal";
 import { injectReactRefresh } from "./injectReactRefresh";
@@ -9,13 +10,7 @@ import type { EvaluateModuleReturn } from "./types";
 type EvaluateArgs = {
   code: string;
   uuidToStylesMap: UuidToStylesMap;
-  temporalVariableNames: Map<
-    string,
-    {
-      originalName: string;
-      temporalName: string;
-    }
-  >;
+  capturedVariableNames: CapturedVariableNames;
   temporalGlobalStyles: string[];
   linker: ModuleLinker;
 };
@@ -23,7 +18,7 @@ type EvaluateArgs = {
 export async function evaluate({
   code,
   linker,
-  temporalVariableNames,
+  capturedVariableNames,
   temporalGlobalStyles,
   uuidToStylesMap,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
@@ -56,7 +51,7 @@ export async function evaluate({
 
   const mapOfClassNamesToStyles: EvaluateModuleReturn["mapOfClassNamesToStyles"] =
     new Map();
-  for (const { originalName, temporalName } of temporalVariableNames.values()) {
+  for (const { originalName, temporalName } of capturedVariableNames.values()) {
     const style = captured[temporalName];
     if (typeof style !== "string") {
       throw new Error(`Failed to capture variable ${temporalName}`);

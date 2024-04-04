@@ -1,4 +1,7 @@
+import type { types } from "@babel/core";
 import type { Plugin } from "vite";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
+import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 
 type VariableName = string;
 
@@ -13,6 +16,14 @@ export type EvaluateModuleReturn = {
   >;
   evaluatedGlobalStyles: string[];
 };
+
+export type Evaluator = (args: {
+  ast: types.File;
+  uuidToStylesMap: UuidToStylesMap;
+  capturedVariableNames: CapturedVariableNames;
+  temporalGlobalStyles: string[];
+}) => Promise<EvaluateModuleReturn>;
+
 export type TransformContext = ThisParameterType<
   Exclude<NonNullable<Plugin["transform"]>, { order?: unknown }>
 >;

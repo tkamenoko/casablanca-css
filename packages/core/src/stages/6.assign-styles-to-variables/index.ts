@@ -2,7 +2,7 @@ import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
 import type { Rollup } from "vite";
 import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
-import type { CapturedVariableNames } from "../1.capture-tagged-styles";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 import { assignStylesPlugin } from "./assignStyles";
 import { importGlobalStylePlugin } from "./importGlobalStyle";
 import type { Options } from "./types";
@@ -13,7 +13,6 @@ type AssignStylesToCapturedVariablesArgs = {
   };
   css: {
     modules: {
-      temporalVariableNames: CapturedVariableNames;
       originalToTemporalMap: CapturedVariableNames;
       importId: VirtualCssModuleId;
     };
@@ -39,7 +38,14 @@ export async function assignStylesToCapturedVariables({
   root,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
-    cssModule: css.modules,
+    cssModule: {
+      ...css.modules,
+      temporalVariableNames: new Set(
+        [...css.modules.originalToTemporalMap.values()].map(
+          (v) => v.temporalName,
+        ),
+      ),
+    },
     globalStyle: css.globals,
   };
   const result = await transformFromAstAsync(stage2Result.ast, undefined, {

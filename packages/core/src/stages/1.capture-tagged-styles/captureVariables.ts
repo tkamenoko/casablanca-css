@@ -44,6 +44,15 @@ export function captureVariableNamesPlugin({
             return;
           }
           const originalName = id.node.name;
+
+          if (!path.node.loc) {
+            throw new Error(`Missing node location: ${originalName}`);
+          }
+          const originalPosition = {
+            start: { ...path.node.loc.start },
+            end: { ...path.node.loc.end },
+          };
+
           const temporalId = path.scope.generateUidIdentifier(
             `temporal_${originalName}`,
           );
@@ -63,6 +72,8 @@ export function captureVariableNamesPlugin({
           state.opts.capturedVariableNames.set(originalName, {
             originalName,
             temporalName: temporalId.name,
+            start: originalPosition.start,
+            end: originalPosition.end,
           });
         },
       },

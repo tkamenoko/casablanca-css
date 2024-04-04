@@ -21,5 +21,5 @@ export function loadCssModule({
     return null;
   }
 
-  return { code: found.style, map: found.map?.toString() ?? null };
+  return { code: found.style, map: found.map };
 }

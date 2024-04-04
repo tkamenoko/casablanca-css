@@ -106,10 +106,6 @@ export function plugin(
         filename: path,
       });
 
-      const temporalVariableNames = new Map(
-        [...capturedVariableNames.values()].map((v) => [v.temporalName, v]),
-      );
-
       if (
         !(capturedVariableNames.size || capturedGlobalStylesTempNames.length)
       ) {
@@ -142,7 +138,7 @@ export function plugin(
       const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
         await evaluateModule({
           ast: stage2ReplacedAst,
-          temporalVariableNames,
+          capturedVariableNames,
           temporalGlobalStyles: capturedGlobalStylesTempNames,
           uuidToStylesMap,
         });
@@ -158,6 +154,13 @@ export function plugin(
         evaluatedGlobalStyles,
         importerPath: path,
         projectRoot: config.root,
+        originalInfo: isDev
+          ? {
+              ast: parsed,
+              filename: path,
+              jsPositions: capturedVariableNames,
+            }
+          : null,
       });
 
       const { transformed: resultCode, map } =
@@ -166,7 +169,6 @@ export function plugin(
             modules: {
               importId: cssModule.importId,
               originalToTemporalMap: capturedVariableNames,
-              temporalVariableNames,
             },
             globals: {
               importId: globalStyle.importId,
@@ -191,7 +193,7 @@ export function plugin(
             { style, className: originalName },
           ]),
         ),
-        map: null,
+        map: cssModule.map,
       });
       jsToCssModuleLookup.set(path, {
         resolvedId: resolvedCssModuleId,
@@ -244,7 +246,14 @@ export function plugin(
             "4": {
               composedStyles,
             },
-            "5": { cssModule, globalStyle },
+            "5": {
+              cssModule: {
+                importId: cssModule.importId,
+                map: cssModule.map ?? "",
+                style: cssModule.style,
+              },
+              globalStyle,
+            },
             "6": { transformed: resultCode, map },
           },
           transformed: resultCode,

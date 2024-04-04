@@ -1,25 +1,11 @@
-import { transformFromAstAsync, type types } from "@babel/core";
+import { transformFromAstAsync } from "@babel/core";
 import type { ViteDevServer } from "vite";
-import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { createLinker as createLinkerForProduction } from "./build";
 import { evaluate } from "./evaluate";
 import { createLinker as createLinkerForServer } from "./serve";
-import type { EvaluateModuleReturn, TransformContext } from "./types";
+import type { Evaluator, TransformContext } from "./types";
 
 export type { EvaluateModuleReturn } from "./types";
-
-type Evaluator = (args: {
-  ast: types.File;
-  uuidToStylesMap: UuidToStylesMap;
-  temporalVariableNames: Map<
-    string,
-    {
-      originalName: string;
-      temporalName: string;
-    }
-  >;
-  temporalGlobalStyles: string[];
-}) => Promise<EvaluateModuleReturn>;
 
 type CreateEvaluatorArgs = {
   modulePath: string;
@@ -39,7 +25,7 @@ export function createEvaluator({
     });
     const evaluator: Evaluator = async ({
       ast,
-      temporalVariableNames,
+      capturedVariableNames,
       temporalGlobalStyles,
       uuidToStylesMap,
     }) => {
@@ -50,7 +36,7 @@ export function createEvaluator({
       return await evaluate({
         code,
         linker,
-        temporalVariableNames,
+        capturedVariableNames,
         temporalGlobalStyles,
         uuidToStylesMap,
       });
@@ -64,7 +50,7 @@ export function createEvaluator({
 
   const evaluator: Evaluator = async ({
     ast,
-    temporalVariableNames,
+    capturedVariableNames,
     temporalGlobalStyles,
     uuidToStylesMap,
   }) => {
@@ -75,7 +61,7 @@ export function createEvaluator({
     return await evaluate({
       code,
       linker,
-      temporalVariableNames,
+      capturedVariableNames,
       temporalGlobalStyles,
       uuidToStylesMap,
     });

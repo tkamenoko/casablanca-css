@@ -1,5 +1,5 @@
 import { type NodePath, types } from "@babel/core";
-import type { CapturedVariableNames } from "../1.capture-tagged-styles";
+import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 
 export function replaceOriginalVariable({
   originalToTemporalMap,

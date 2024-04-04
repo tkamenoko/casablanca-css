@@ -1,18 +1,18 @@
 import type { NodePath, types } from "@babel/core";
-import type { CapturedVariableNames } from "../1.capture-tagged-styles";
 
 export function removeTemporalVariable({
   temporalVariableNames,
   declaration,
   name,
 }: {
-  temporalVariableNames: CapturedVariableNames;
+  temporalVariableNames: Set<string>;
   declaration: NodePath<types.VariableDeclaration>;
   name: string;
 }): void {
-  const removeTarget = temporalVariableNames.get(name);
-  if (removeTarget && declaration.parentPath.isExportNamedDeclaration()) {
+  if (
+    temporalVariableNames.has(name) &&
+    declaration.parentPath.isExportNamedDeclaration()
+  ) {
     declaration.parentPath.remove();
-    return;
   }
 }
