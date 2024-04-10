@@ -1,7 +1,7 @@
-import { buildGlobalStyleImportId } from "#@/vite/helpers/buildGlobalStyleImportId";
-import type { VirtualGlobalStyleId } from "#@/vite/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 
 export type BuildForProductionArgs = {
   importerPath: string;
@@ -43,7 +43,7 @@ export function buildForProduction({
       map: null,
     },
     globalStyle: {
-      importId: buildGlobalStyleImportId({ importerPath, projectRoot }),
+      importId: buildVirtualGlobalStyleId({ importerPath, projectRoot }),
       style: evaluatedGlobalStyles.join(""),
     },
   };

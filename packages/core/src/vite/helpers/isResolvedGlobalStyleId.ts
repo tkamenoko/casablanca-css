@@ -1,6 +1,6 @@
 import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { ResolvedGlobalStyleId } from "../types";
-import { isVirtualGlobalStyleId } from "./isVirtualGlobalStyleId";
+import { isVirtualGlobalStyleId } from "../virtualGlobalStyleId";
 
 export function isResolvedGlobalStyleId(
   id: string,

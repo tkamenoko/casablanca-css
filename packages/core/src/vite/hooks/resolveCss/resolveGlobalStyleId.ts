@@ -1,7 +1,7 @@
-import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "../../helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
-import { isResolvedGlobalStyleId } from "../../helpers/isResolvedGlobalStyleId";
-import { isVirtualGlobalStyleId } from "../../helpers/isVirtualGlobalStyleId";
-import type { ResolvedGlobalStyleId } from "../../types";
+import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "#@/vite/helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
+import { isResolvedGlobalStyleId } from "#@/vite/helpers/isResolvedGlobalStyleId";
+import type { ResolvedGlobalStyleId } from "#@/vite/types";
+import { isVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 
 export function resolveGlobalStyleId({
   id,

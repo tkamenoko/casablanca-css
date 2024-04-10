@@ -1,7 +1,6 @@
-import type { VirtualGlobalStyleId } from "../types";
-import { globalStyleIdPrefix } from "../types";
+import { type VirtualGlobalStyleId, globalStyleIdPrefix } from "./types";
 
-export function buildGlobalStyleImportId({
+export function buildVirtualGlobalStyleId({
   importerPath: importerId,
   projectRoot,
 }: {

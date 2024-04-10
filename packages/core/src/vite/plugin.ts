@@ -29,9 +29,9 @@ import type {
   JsToCssModuleLookup,
   JsToGlobalStyleLookup,
   PluginOption,
-  VirtualGlobalStyleId,
 } from "./types";
 import type { VirtualCssModuleId } from "./virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "./virtualGlobalStyleId";
 
 export type TransformResult = {
   id: string;

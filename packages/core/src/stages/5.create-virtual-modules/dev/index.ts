@@ -1,9 +1,9 @@
 import { transformFromAstSync, type types } from "@babel/core";
 import { SourceMapGenerator } from "source-map";
-import { buildGlobalStyleImportId } from "#@/vite/helpers/buildGlobalStyleImportId";
-import type { VirtualGlobalStyleId } from "#@/vite/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 
 export type BuildForDevArgs = {
   importerPath: string;
@@ -99,7 +99,7 @@ export function buildForDev({
       map: moduleMapGen.toString(),
     },
     globalStyle: {
-      importId: buildGlobalStyleImportId({ importerPath, projectRoot }),
+      importId: buildVirtualGlobalStyleId({ importerPath, projectRoot }),
       style: evaluatedGlobalStyles.join(""),
     },
   };

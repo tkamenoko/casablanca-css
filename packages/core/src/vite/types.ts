@@ -1,6 +1,7 @@
 import type { TransformOptions } from "vite";
 import type { ResolvedCssModuleId } from "./resolvedCssModuleId";
 import type { VirtualCssModuleId } from "./virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "./virtualGlobalStyleId";
 
 export type PluginOption = {
   babelOptions: TransformOptions;
@@ -25,9 +26,6 @@ export type JsToCssModuleLookup = Map<
   }
 >;
 
-export const globalStyleIdPrefix = "virtual:casablanca-globals/";
-export type GlobalStyleIdPrefix = typeof globalStyleIdPrefix;
-export type VirtualGlobalStyleId = `${GlobalStyleIdPrefix}${string}.css`;
 export type ResolvedGlobalStyleId = `\0${VirtualGlobalStyleId}`;
 export type GlobalStylesLookup = Map<
   ResolvedGlobalStyleId,
