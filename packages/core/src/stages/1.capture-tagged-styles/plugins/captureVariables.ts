@@ -5,7 +5,7 @@ import {
   isCasablancaImport,
   isTopLevelStatement,
 } from "@casablanca/utils";
-import type { BabelState } from "./types";
+import type { BabelState } from "../types";
 
 export function captureVariableNamesPlugin({
   types: t,

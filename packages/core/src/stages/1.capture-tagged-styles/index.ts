@@ -1,9 +1,9 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import { captureGlobalStylesPlugin } from "./captureGlobalStyles";
-import { captureVariableNamesPlugin } from "./captureVariables";
-import { collectImportSourcesPlugin } from "./collectImportSources";
-import { removeImportsPlugin } from "./removeImports";
+import { captureGlobalStylesPlugin } from "./plugins/captureGlobalStyles";
+import { captureVariableNamesPlugin } from "./plugins/captureVariables";
+import { collectImportSourcesPlugin } from "./plugins/collectImportSources";
+import { removeImportsPlugin } from "./plugins/removeImports";
 import type { CapturedVariableNames, ImportSource, Options } from "./types";
 
 type CaptureTaggedStylesArgs = {

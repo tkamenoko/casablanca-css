@@ -1,6 +1,6 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import { isCasablancaImport } from "@casablanca/utils";
-import type { BabelState, ImportSource } from "./types";
+import type { BabelState, ImportSource } from "../types";
 
 export function collectImportSourcesPlugin(): PluginObj<
   PluginPass & BabelState

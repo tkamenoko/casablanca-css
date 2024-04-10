@@ -1,7 +1,7 @@
 import type { PluginObj, PluginPass } from "@babel/core";
 import { isCasablancaImport } from "@casablanca/utils";
-import { getImportedName } from "./getImportedName";
-import type { BabelState } from "./types";
+import { getImportedName } from "../getImportedName";
+import type { BabelState } from "../types";
 
 const tagNames = new Set(["css", "injectGlobal"]);
 
