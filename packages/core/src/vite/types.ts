@@ -1,5 +1,6 @@
 import type { TransformOptions } from "vite";
 import type { ResolvedCssModuleId } from "./resolvedCssModuleId";
+import type { ResolvedGlobalStyleId } from "./resolvedGlobalStyleId";
 import type { VirtualCssModuleId } from "./virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "./virtualGlobalStyleId";
 
@@ -26,7 +27,6 @@ export type JsToCssModuleLookup = Map<
   }
 >;
 
-export type ResolvedGlobalStyleId = `\0${VirtualGlobalStyleId}`;
 export type GlobalStylesLookup = Map<
   ResolvedGlobalStyleId,
   {

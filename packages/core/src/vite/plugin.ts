@@ -15,14 +15,14 @@ import {
 } from "#@/stages/5.create-virtual-modules";
 import type { AssignStylesToCapturedVariablesReturn } from "#@/stages/6.assign-styles-to-variables";
 import { assignStylesToCapturedVariables } from "#@/stages/6.assign-styles-to-variables";
-import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
 import { extractTargetFilePath } from "./helpers/extractTargetFilePath";
 import { invalidateModule } from "./helpers/invalidateModule";
 import { loadCssModule } from "./hooks/loadCss/loadCssModule";
 import { loadGlobalStyle } from "./hooks/loadCss/loadGlobalStyle";
 import { resolveCssModuleId } from "./hooks/resolveCss/resolveCssModuleId";
 import { resolveGlobalStyleId } from "./hooks/resolveCss/resolveGlobalStyleId";
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./resolvedCssModuleId/buildResolvedCssModuleIdFromVirtualCssModuleId";
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./resolvedCssModuleId";
+import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./resolvedGlobalStyleId";
 import type {
   CssModulesLookup,
   GlobalStylesLookup,

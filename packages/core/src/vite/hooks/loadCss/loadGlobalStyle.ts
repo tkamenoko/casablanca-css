@@ -1,5 +1,5 @@
 import { extractPathAndParamsFromId } from "@casablanca/utils";
-import { isResolvedGlobalStyleId } from "#@/vite/helpers/isResolvedGlobalStyleId";
+import { isResolvedGlobalStyleId } from "#@/vite/resolvedGlobalStyleId";
 import type { GlobalStylesLookup } from "#@/vite/types";
 
 export function loadGlobalStyle({
