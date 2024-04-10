@@ -1,5 +1,5 @@
 import vm, { type Module } from "node:vm";
-import { isVirtualCssModuleId } from "#@/vite/helpers/isVirtualCssModuleId";
+import { isVirtualCssModuleId } from "#@/vite/cssModuleId";
 import { isVirtualGlobalStyleId } from "#@/vite/helpers/isVirtualGlobalStyleId";
 import type { TransformContext } from "../../types";
 

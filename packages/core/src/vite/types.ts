@@ -1,4 +1,6 @@
 import type { TransformOptions } from "vite";
+import type { VirtualCssModuleId } from "./cssModuleId";
+import type { ResolvedCssModuleId } from "./resolvedCssModuleId";
 
 export type PluginOption = {
   babelOptions: TransformOptions;
@@ -6,10 +8,6 @@ export type PluginOption = {
   includes: string[];
 };
 
-export const cssModuleIdPrefix = "virtual:casablanca-modules/";
-export type CssModuleIdPrefix = typeof cssModuleIdPrefix;
-export type VirtualCssModuleId = `${CssModuleIdPrefix}${string}.module.css`;
-export type ResolvedCssModuleId = `\0${VirtualCssModuleId}`;
 export type CssModulesLookup = Map<
   ResolvedCssModuleId,
   {

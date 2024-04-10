@@ -1,5 +1,5 @@
 import type { types } from "@babel/core";
-import type { ResolvedCssModuleId } from "#@/vite/types";
+import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
 import type { ComposeInternalArg } from "../3.evaluate-module/createComposeInternal";
 
 export type UuidToStylesMap = Map<

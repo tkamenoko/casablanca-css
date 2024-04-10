@@ -1,7 +1,7 @@
 import { extractPathAndParamsFromId } from "@casablanca/utils";
-import { buildCssModuleImportId } from "#@/vite/helpers/buildCssModuleImportId";
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "#@/vite/helpers/buildResolvedCssModuleIdFromVirtualCssModuleId";
-import type { ResolvedCssModuleId } from "#@/vite/types";
+import { buildVirtualCssModuleId } from "#@/vite/cssModuleId";
+import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "#@/vite/resolvedCssModuleId";
+import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
 
 export function buildResolvedIdFromJsId({
   jsId,
@@ -11,6 +11,9 @@ export function buildResolvedIdFromJsId({
   projectRoot: string;
 }): ResolvedCssModuleId {
   const { path } = extractPathAndParamsFromId(jsId);
-  const virtualId = buildCssModuleImportId({ importerPath: path, projectRoot });
+  const virtualId = buildVirtualCssModuleId({
+    importerPath: path,
+    projectRoot,
+  });
   return buildResolvedCssModuleIdFromVirtualCssModuleId({ id: virtualId });
 }

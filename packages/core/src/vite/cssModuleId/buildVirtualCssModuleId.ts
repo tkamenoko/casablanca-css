@@ -1,7 +1,6 @@
-import type { VirtualCssModuleId } from "../types";
-import { cssModuleIdPrefix } from "../types";
+import { type VirtualCssModuleId, cssModuleIdPrefix } from "./types";
 
-export function buildCssModuleImportId({
+export function buildVirtualCssModuleId({
   importerPath: importerId,
   projectRoot,
 }: {

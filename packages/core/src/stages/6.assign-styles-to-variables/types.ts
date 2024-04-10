@@ -1,4 +1,5 @@
-import type { VirtualCssModuleId, VirtualGlobalStyleId } from "#@/vite/types";
+import type { VirtualCssModuleId } from "#@/vite/cssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/types";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 
 export type Options = {

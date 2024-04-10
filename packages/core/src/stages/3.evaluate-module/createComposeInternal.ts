@@ -1,5 +1,5 @@
 import type { TaggedStyle } from "@casablanca/utils";
-import type { ResolvedCssModuleId } from "#@/vite/types";
+import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 
 export type ComposeInternalArg = {
