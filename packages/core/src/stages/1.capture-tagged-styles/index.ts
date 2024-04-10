@@ -25,7 +25,7 @@ export async function captureTaggedStyles({
   ast,
   isDev,
   filename,
-}: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn> {
+}: CaptureTaggedStylesArgs): Promise<CaptureTaggedStylesReturn | null> {
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
     capturedGlobalStylesTempNames: [],
@@ -50,6 +50,16 @@ export async function captureTaggedStyles({
   if (!capturedAst) {
     throw new Error("Failed");
   }
+
+  if (
+    !(
+      pluginOption.capturedVariableNames.size ||
+      pluginOption.capturedGlobalStylesTempNames.length
+    )
+  ) {
+    return null;
+  }
+
   return {
     capturedVariableNames: pluginOption.capturedVariableNames,
     capturedGlobalStylesTempNames: pluginOption.capturedGlobalStylesTempNames,

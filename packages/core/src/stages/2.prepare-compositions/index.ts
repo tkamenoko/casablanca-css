@@ -19,7 +19,7 @@ type PrepareCompositionsArgs = {
   isDev: boolean;
   projectRoot: string;
   filename: string;
-  resolve: (id: string) => Promise<string | null>;
+  resolve: (id: string) => Promise<string | null | undefined>;
 };
 
 export type PrepareCompositionsReturn = {
