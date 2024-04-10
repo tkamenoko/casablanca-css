@@ -9,11 +9,16 @@ import type { BabelState } from "../types";
 
 export function captureGlobalStylesPlugin({
   types: t,
-}: typeof babel): PluginObj<PluginPass & BabelState> {
+}: typeof babel): PluginObj<
+  PluginPass & BabelState & { captureGlobalStyles: { shouldTraverse: boolean } }
+> {
   return {
+    pre() {
+      this.captureGlobalStyles = { shouldTraverse: true };
+    },
     visitor: {
       Program: {
-        enter: (path) => {
+        enter: (path, state) => {
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
@@ -21,13 +26,16 @@ export function captureGlobalStylesPlugin({
             );
 
           if (!found) {
-            path.stop();
+            state.captureGlobalStyles.shouldTraverse = false;
             return;
           }
         },
       },
       ExpressionStatement: {
         enter: (path, state) => {
+          if (!state.captureGlobalStyles.shouldTraverse) {
+            return;
+          }
           if (!isTopLevelStatement(path)) {
             return;
           }
