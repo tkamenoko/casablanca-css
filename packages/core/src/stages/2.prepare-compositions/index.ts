@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import { buildResolvedIdFromJsId } from "#@/vite/helpers/buildResolvedIdFromJsId";
+import { buildResolvedIdFromJsId } from "#@/stages/2.prepare-compositions/buildResolvedIdFromJsId";
 import type { ResolvedCssModuleId } from "#@/vite/types";
 import type { ImportSource } from "../1.capture-tagged-styles/types";
 import {
