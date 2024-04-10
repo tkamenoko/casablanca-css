@@ -15,7 +15,6 @@ import {
 } from "#@/stages/5.create-virtual-modules";
 import type { AssignStylesToCapturedVariablesReturn } from "#@/stages/6.assign-styles-to-variables";
 import { assignStylesToCapturedVariables } from "#@/stages/6.assign-styles-to-variables";
-import type { VirtualCssModuleId } from "./cssModuleId";
 import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./helpers/buildResolvedGlobalStyleIdFromVirtualGlobalStyleId";
 import { extractTargetFilePath } from "./helpers/extractTargetFilePath";
 import { invalidateModule } from "./helpers/invalidateModule";
@@ -32,6 +31,7 @@ import type {
   PluginOption,
   VirtualGlobalStyleId,
 } from "./types";
+import type { VirtualCssModuleId } from "./virtualCssModuleId";
 
 export type TransformResult = {
   id: string;

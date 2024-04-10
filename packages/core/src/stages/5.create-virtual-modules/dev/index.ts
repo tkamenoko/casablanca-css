@@ -1,9 +1,9 @@
 import { transformFromAstSync, type types } from "@babel/core";
 import { SourceMapGenerator } from "source-map";
-import type { VirtualCssModuleId } from "#@/vite/cssModuleId";
-import { buildVirtualCssModuleId } from "#@/vite/cssModuleId";
 import { buildGlobalStyleImportId } from "#@/vite/helpers/buildGlobalStyleImportId";
 import type { VirtualGlobalStyleId } from "#@/vite/types";
+import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
+import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 
 export type BuildForDevArgs = {
   importerPath: string;

@@ -1,6 +1,6 @@
 import type { TransformOptions } from "vite";
-import type { VirtualCssModuleId } from "./cssModuleId";
 import type { ResolvedCssModuleId } from "./resolvedCssModuleId";
+import type { VirtualCssModuleId } from "./virtualCssModuleId";
 
 export type PluginOption = {
   babelOptions: TransformOptions;

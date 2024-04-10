@@ -1,8 +1,8 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
 import type { Rollup } from "vite";
-import type { VirtualCssModuleId } from "#@/vite/cssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/types";
+import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 import { assignStylesPlugin } from "./assignStyles";
 import { importGlobalStylePlugin } from "./importGlobalStyle";
