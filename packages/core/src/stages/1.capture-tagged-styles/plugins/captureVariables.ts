@@ -9,11 +9,16 @@ import type { BabelState } from "../types";
 
 export function captureVariableNamesPlugin({
   types: t,
-}: typeof babel): PluginObj<PluginPass & BabelState> {
+}: typeof babel): PluginObj<
+  PluginPass & BabelState & { captureVariables: { shouldTraverse: boolean } }
+> {
   return {
+    pre() {
+      this.captureVariables = { shouldTraverse: true };
+    },
     visitor: {
       Program: {
-        enter: (path) => {
+        enter: (path, state) => {
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
@@ -21,13 +26,16 @@ export function captureVariableNamesPlugin({
             );
 
           if (!found) {
-            path.stop();
+            state.captureVariables.shouldTraverse = false;
             return;
           }
         },
       },
       VariableDeclarator: {
         enter: (path, state) => {
+          if (!state.captureVariables.shouldTraverse) {
+            return;
+          }
           const declaration = path.parentPath;
           if (
             !(declaration.isDeclaration() && isTopLevelStatement(declaration))
