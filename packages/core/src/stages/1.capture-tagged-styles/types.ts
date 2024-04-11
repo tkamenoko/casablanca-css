@@ -29,4 +29,5 @@ export type Options = {
 
 export type BabelState = {
   opts: Options;
+  shouldTraverse: boolean;
 };
