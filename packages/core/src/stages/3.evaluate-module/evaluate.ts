@@ -3,8 +3,8 @@ import vm from "node:vm";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { createComposeInternal } from "./createComposeInternal";
+import { createGlobalContext } from "./createGlobalContext";
 import { injectReactRefresh } from "./injectReactRefresh";
-import { createGlobalContext } from "./injectRegisterGlobals";
 import type { EvaluateModuleReturn } from "./types";
 
 type EvaluateArgs = {
