@@ -1,12 +1,12 @@
 import type babel from "@babel/core";
 import type { PluginObj, PluginPass } from "@babel/core";
 import { isTopLevelStatement } from "@casablanca/utils";
-import { buildComposeInternalExpression } from "./buildComposeInternalExpression";
-import { collectComposeArgsValues } from "./collectComposeArgsValues";
-import { extractPathsFromQuasi } from "./extractPathsFromQuasi";
-import { extractTemplatePathFromDeclarator } from "./extractTemplatePathFromDeclarator";
-import { markImportedSelectorsAsGlobal } from "./markImportedSelectorsAsGlobal";
-import type { EmbeddedToClassNameMap, UuidToStylesMap } from "./types";
+import type { EmbeddedToClassNameMap, UuidToStylesMap } from "../types";
+import { buildComposeInternalExpression } from "./helpers/buildComposeInternalExpression";
+import { collectComposeArgsValues } from "./helpers/collectComposeArgsValues";
+import { extractPathsFromQuasi } from "./helpers/extractPathsFromQuasi";
+import { extractTemplatePathFromDeclarator } from "./helpers/extractTemplatePathFromDeclarator";
+import { markImportedSelectorsAsGlobal } from "./helpers/markImportedSelectorsAsGlobal";
 
 export type Options = {
   temporalVariableNames: string[];
@@ -18,7 +18,7 @@ type BabelState = {
   opts: Options;
 };
 
-export function replaceEmbeddedValuesPlugin({
+export function plugin({
   types: t,
 }: typeof babel): PluginObj<PluginPass & BabelState> {
   return {

@@ -1,5 +1,5 @@
 import { types } from "@babel/core";
-import type { ComposeArg } from "./types";
+import type { ComposeArg } from "../../types";
 
 export function buildComposeInternalExpression({
   composeArgs,

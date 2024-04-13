@@ -1,13 +1,8 @@
-import { randomUUID } from "node:crypto";
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import { buildResolvedIdFromJsId } from "#@/stages/2.prepare-compositions/buildResolvedIdFromJsId";
-import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
 import type { ImportSource } from "../1.capture-tagged-styles/types";
-import {
-  type Options,
-  replaceEmbeddedValuesPlugin,
-} from "./replaceEmbeddedValues";
+import { buildEmbeddedToClassNameMap } from "./buildEmbeddedToClassNameMap";
+import { type Options, plugin } from "./plugin";
 import type { UuidToStylesMap } from "./types";
 
 type PrepareCompositionsArgs = {
@@ -34,28 +29,11 @@ export async function prepareCompositions({
   resolve,
   isDev,
 }: PrepareCompositionsArgs): Promise<PrepareCompositionsReturn> {
-  // create embeddedName-to-className+resolvedId map
-  const embeddedToClassNameMap = new Map<
-    string,
-    { className: string; cssId: ResolvedCssModuleId; uuid: string }
-  >();
-  await Promise.all(
-    stage1Result.importSources.map(async ({ names, source }) => {
-      const resolvedId = await resolve(source);
-      if (!resolvedId) {
-        return;
-      }
-
-      const cssId = buildResolvedIdFromJsId({ jsId: resolvedId, projectRoot });
-      for (const { className, localName } of names) {
-        embeddedToClassNameMap.set(localName, {
-          className,
-          cssId,
-          uuid: randomUUID(),
-        });
-      }
-    }),
-  );
+  const embeddedToClassNameMap = await buildEmbeddedToClassNameMap({
+    importSources: stage1Result.importSources,
+    projectRoot,
+    resolve,
+  });
 
   // replace `compose` calls with `composes: ...;` expressions.
   const uuidToStylesMap: UuidToStylesMap = new Map();
@@ -67,7 +45,7 @@ export async function prepareCompositions({
     uuidToStylesMap,
   };
   const result = await transformFromAstAsync(stage1Result.ast, undefined, {
-    plugins: [[replaceEmbeddedValuesPlugin, pluginOption]],
+    plugins: [[plugin, pluginOption]],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
     code: false,

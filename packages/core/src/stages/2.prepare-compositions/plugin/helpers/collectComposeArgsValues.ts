@@ -4,7 +4,7 @@ import type {
   ComposeArg,
   EmbeddedToClassNameMap,
   UuidToStylesMap,
-} from "./types";
+} from "../../types";
 
 export function collectComposeArgsValues({
   ids,
