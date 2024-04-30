@@ -3,7 +3,7 @@ import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
 import { test } from "../fixtures/extendedTest";
 
-test("should compose styles", async ({ expect, plugin, transformResult }) => {
+test("should assign styles", async ({ expect, plugin, transformResult }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/composing.tsx",
     root: import.meta.url,
