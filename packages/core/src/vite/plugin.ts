@@ -216,7 +216,7 @@ export function plugin(
           ? {
               ast: parsed,
               filename: path,
-              jsPositions: capturedVariableNames,
+              jsClassNamePositions: capturedVariableNames,
             }
           : null,
       });

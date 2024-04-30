@@ -1,9 +1,9 @@
 import { transformFromAstSync, type types } from "@babel/core";
-import { SourceMapGenerator } from "source-map";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { buildCssModule } from "./buildCssModule";
 
 export type BuildForDevArgs = {
   importerPath: string;
@@ -16,7 +16,7 @@ export type BuildForDevArgs = {
   originalInfo: {
     ast: types.File;
     filename: string;
-    jsPositions: Map<
+    jsClassNamePositions: Map<
       string,
       {
         originalName: string;
@@ -41,62 +41,25 @@ export function buildForDev({
   evaluatedGlobalStyles,
   importerPath,
   projectRoot,
-  originalInfo: { ast, filename, jsPositions },
+  originalInfo: { ast, filename, jsClassNamePositions },
 }: BuildForDevArgs): BuildForDevReturn {
-  const moduleMapGen = new SourceMapGenerator();
   const { code: content } = transformFromAstSync(ast) ?? {};
   if (!content) {
     throw new Error("Unreachable");
   }
-  moduleMapGen.setSourceContent(filename, content);
-  const cssModuleStyles = evaluatedCssModuleStyles.map(
-    ({ style, originalName }) => {
-      return `
-.${originalName} {${style}}
-`;
-    },
-  );
 
-  evaluatedCssModuleStyles.reduce<{ styleParts: string[]; line: number }>(
-    (
-      { line, styleParts },
-      { originalName, style },
-    ): { styleParts: string[]; line: number } => {
-      const part = `
-.${originalName} {${style}}
-`;
-      const partLines = part.split("\n").length;
-      const originalPosition = jsPositions.get(originalName);
-      if (!originalPosition) {
-        throw new Error(`position "${originalName}" was not found.`);
-      }
-      moduleMapGen.addMapping({
-        generated: { column: 0, line: line + 2 },
-        original: {
-          ...originalPosition.start,
-        },
-        source: filename,
-        name: originalName,
-      });
-      moduleMapGen.addMapping({
-        generated: { column: 0, line: line + partLines },
-        original: {
-          ...originalPosition.end,
-        },
-        source: filename,
-        name: originalName,
-      });
-      styleParts.push(part);
-      return { line: line + partLines, styleParts };
-    },
-    { styleParts: [], line: 0 },
-  );
+  const cssModuleResult = buildCssModule({
+    evaluatedCssModuleStyles,
+    filename,
+    jsClassNamePositions,
+    content,
+  });
 
   return {
     cssModule: {
       importId: buildVirtualCssModuleId({ importerPath, projectRoot }),
-      style: cssModuleStyles.join(""),
-      map: moduleMapGen.toString(),
+      style: cssModuleResult.style,
+      map: cssModuleResult.map,
     },
     globalStyle: {
       importId: buildVirtualGlobalStyleId({ importerPath, projectRoot }),
