@@ -75,16 +75,16 @@ export function buildForDev({
         original: {
           ...originalPosition.start,
         },
-        source: content,
-        name: filename,
+        source: filename,
+        name: originalName,
       });
       moduleMapGen.addMapping({
         generated: { column: 0, line: line + partLines },
         original: {
           ...originalPosition.end,
         },
-        source: content,
-        name: filename,
+        source: filename,
+        name: originalName,
       });
       styleParts.push(part);
       return { line: line + partLines, styleParts };
