@@ -137,7 +137,7 @@ export function plugin(
         return;
       }
 
-      const { cssModule, globalStyle, js, partialResults } = transformResult;
+      const { cssModule, globalStyle, js, stageResults } = transformResult;
 
       registerCssModule({
         classNameToStyle: new Map(
@@ -164,7 +164,7 @@ export function plugin(
         jsToCssModuleLookup,
         jsToGlobalStyleLookup,
         path,
-        stages: partialResults,
+        stages: stageResults,
         transformed: js.code,
       });
 

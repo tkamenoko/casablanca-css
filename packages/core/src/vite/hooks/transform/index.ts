@@ -1,32 +1,15 @@
 import type { ParseResult } from "@babel/core";
 import type { Rollup, ViteDevServer } from "vite";
-import {
-  type CaptureTaggedStylesReturn,
-  captureTaggedStyles,
-} from "#@/stages/1.capture-tagged-styles";
-import {
-  type PrepareCompositionsReturn,
-  prepareCompositions,
-} from "#@/stages/2.prepare-compositions";
-import {
-  type EvaluateModuleReturn,
-  createEvaluator,
-} from "#@/stages/3.evaluate-module";
-import {
-  type ReplaceUuidToStylesReturn,
-  replaceUuidWithStyles,
-} from "#@/stages/4.assign-composed-styles-to-uuid";
-import {
-  type CreateVirtualModulesReturn,
-  createVirtualModules,
-} from "#@/stages/5.create-virtual-modules";
-import {
-  type AssignStylesToCapturedVariablesReturn,
-  assignStylesToCapturedVariables,
-} from "#@/stages/6.assign-styles-to-variables";
 import type { CssModulesLookup } from "#@/vite/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { captureTaggedStyles } from "./stages/1.capture-tagged-styles";
+import { prepareCompositions } from "./stages/2.prepare-compositions";
+import { createEvaluator } from "./stages/3.evaluate-module";
+import { replaceUuidWithStyles } from "./stages/4.assign-composed-styles-to-uuid";
+import { createVirtualModules } from "./stages/5.create-virtual-modules";
+import { assignStylesToCapturedVariables } from "./stages/6.assign-styles-to-variables";
+import type { StageResults } from "./types";
 
 type TransformReturn = {
   cssModule: {
@@ -41,14 +24,7 @@ type TransformReturn = {
   };
   globalStyle: { style: string; importId: VirtualGlobalStyleId; map: string };
   js: { code: string; map: Rollup.ExistingRawSourceMap | null };
-  partialResults: {
-    1: CaptureTaggedStylesReturn;
-    2: PrepareCompositionsReturn;
-    3: EvaluateModuleReturn;
-    4: ReplaceUuidToStylesReturn;
-    5: CreateVirtualModulesReturn;
-    6: AssignStylesToCapturedVariablesReturn;
-  };
+  stageResults: StageResults;
 } | null;
 
 export async function transform({
@@ -171,7 +147,7 @@ export async function transform({
       map: "map" in globalStyle ? globalStyle.map : "",
     },
     js: { code: resultCode, map },
-    partialResults: {
+    stageResults: {
       "1": {
         ast: stage1CapturedAst,
         capturedGlobalStylesTempNames,

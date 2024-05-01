@@ -1,9 +1,9 @@
 import { transformFromAstSync, type types } from "@babel/core";
-import type { GlobalStylePositions } from "#@/stages/1.capture-tagged-styles/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
 import { buildCssModule } from "./buildCssModule";
 import { buildGlobalStyle } from "./buildGlobalStyle";
 

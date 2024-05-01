@@ -1,5 +1,5 @@
 import { SourceMapGenerator } from "source-map";
-import type { GlobalStylePositions } from "#@/stages/1.capture-tagged-styles/types";
+import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
 
 type BuildGlobalStyle = {
   style: string;
