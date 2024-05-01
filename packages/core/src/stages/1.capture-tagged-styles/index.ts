@@ -1,7 +1,12 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
 import { plugin } from "./plugin";
-import type { CapturedVariableNames, ImportSource, Options } from "./types";
+import type {
+  CapturedVariableNames,
+  GlobalStylePositions,
+  ImportSource,
+  Options,
+} from "./types";
 
 type CaptureTaggedStylesArgs = {
   ast: types.File;
@@ -13,6 +18,7 @@ export type CaptureTaggedStylesReturn = {
   ast: types.File;
   capturedVariableNames: CapturedVariableNames;
   capturedGlobalStylesTempNames: string[];
+  globalStylePositions: GlobalStylePositions;
   importSources: ImportSource[];
 };
 
@@ -26,6 +32,7 @@ export async function captureTaggedStyles({
   const pluginOption: Options = {
     capturedVariableNames: new Map(),
     capturedGlobalStylesTempNames: [],
+    globalStylePositions: [],
     importSources: [],
   };
   const result = await transformFromAstAsync(ast, undefined, {
@@ -56,6 +63,7 @@ export async function captureTaggedStyles({
     capturedVariableNames: pluginOption.capturedVariableNames,
     capturedGlobalStylesTempNames: pluginOption.capturedGlobalStylesTempNames,
     ast: capturedAst,
+    globalStylePositions: pluginOption.globalStylePositions,
     importSources: pluginOption.importSources,
   };
 }

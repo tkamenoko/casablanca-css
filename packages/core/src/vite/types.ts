@@ -31,6 +31,7 @@ export type GlobalStylesLookup = Map<
   ResolvedGlobalStyleId,
   {
     style: string;
+    map: string | null;
   }
 >;
 export type JsToGlobalStyleLookup = Map<

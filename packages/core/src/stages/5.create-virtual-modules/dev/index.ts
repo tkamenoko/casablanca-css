@@ -1,9 +1,11 @@
 import { transformFromAstSync, type types } from "@babel/core";
+import type { GlobalStylePositions } from "#@/stages/1.capture-tagged-styles/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { buildCssModule } from "./buildCssModule";
+import { buildGlobalStyle } from "./buildGlobalStyle";
 
 export type BuildForDevArgs = {
   importerPath: string;
@@ -24,6 +26,7 @@ export type BuildForDevArgs = {
         end: { line: number; column: number };
       }
     >;
+    jsGlobalStylePositions: GlobalStylePositions;
   };
 };
 
@@ -33,7 +36,7 @@ export type BuildForDevReturn = {
     importId: VirtualCssModuleId;
     map: string;
   };
-  globalStyle: { style: string; importId: VirtualGlobalStyleId };
+  globalStyle: { style: string; importId: VirtualGlobalStyleId; map: string };
 };
 
 export function buildForDev({
@@ -41,19 +44,29 @@ export function buildForDev({
   evaluatedGlobalStyles,
   importerPath,
   projectRoot,
-  originalInfo: { ast, filename, jsClassNamePositions },
+  originalInfo: { ast, filename, jsClassNamePositions, jsGlobalStylePositions },
 }: BuildForDevArgs): BuildForDevReturn {
   const { code: content } = transformFromAstSync(ast) ?? {};
   if (!content) {
     throw new Error("Unreachable");
   }
 
-  const cssModuleResult = buildCssModule({
-    evaluatedCssModuleStyles,
-    filename,
-    jsClassNamePositions,
-    content,
-  });
+  const cssModuleResult = evaluatedCssModuleStyles.length
+    ? buildCssModule({
+        evaluatedCssModuleStyles,
+        filename,
+        jsClassNamePositions,
+        content,
+      })
+    : { style: "", map: "" };
+  const globalStyleResult = evaluatedGlobalStyles.length
+    ? buildGlobalStyle({
+        content,
+        evaluatedGlobalStyles,
+        filename,
+        jsGlobalStylePositions,
+      })
+    : { style: "", map: "" };
 
   return {
     cssModule: {
@@ -63,7 +76,8 @@ export function buildForDev({
     },
     globalStyle: {
       importId: buildVirtualGlobalStyleId({ importerPath, projectRoot }),
-      style: evaluatedGlobalStyles.join(""),
+      style: globalStyleResult.style,
+      map: globalStyleResult.map,
     },
   };
 }

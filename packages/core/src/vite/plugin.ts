@@ -106,10 +106,12 @@ export function plugin(
   const registerGlobalStyle = ({
     virtualId,
     style,
+    map,
     path,
   }: {
     virtualId: VirtualGlobalStyleId;
     style: string;
+    map: string | null;
     path: string;
   }): void => {
     const resolvedId = buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
@@ -117,6 +119,7 @@ export function plugin(
     });
     globalStylesLookup.set(resolvedId, {
       style,
+      map,
     });
     jsToGlobalStyleLookup.set(path, {
       resolvedId,
@@ -168,6 +171,7 @@ export function plugin(
         capturedGlobalStylesTempNames,
         ast: stage1CapturedAst,
         importSources,
+        globalStylePositions,
       } = stage1Result;
 
       // replace `compose` calls to temporal strings
@@ -217,6 +221,7 @@ export function plugin(
               ast: parsed,
               filename: path,
               jsClassNamePositions: capturedVariableNames,
+              jsGlobalStylePositions: globalStylePositions,
             }
           : null,
       });
@@ -246,7 +251,7 @@ export function plugin(
             { style, className: originalName },
           ]),
         ),
-        map: cssModule.map,
+        map: "map" in cssModule ? cssModule.map : null,
         path,
         style: cssModule.style,
         virtualId: cssModule.importId,
@@ -254,6 +259,7 @@ export function plugin(
       registerGlobalStyle({
         path,
         style: globalStyle.style,
+        map: "map" in globalStyle ? globalStyle.map : null,
         virtualId: globalStyle.importId,
       });
 
@@ -268,6 +274,7 @@ export function plugin(
             capturedVariableNames,
             importSources,
             capturedGlobalStylesTempNames,
+            globalStylePositions,
             ast: stage1CapturedAst,
           },
           "2": {
@@ -282,11 +289,7 @@ export function plugin(
             composedStyles,
           },
           "5": {
-            cssModule: {
-              importId: cssModule.importId,
-              map: cssModule.map ?? "",
-              style: cssModule.style,
-            },
+            cssModule,
             globalStyle,
           },
           "6": { transformed: resultCode, map },

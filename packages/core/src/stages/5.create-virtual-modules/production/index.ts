@@ -18,7 +18,6 @@ export type BuildForProductionReturn = {
   cssModule: {
     style: string;
     importId: VirtualCssModuleId;
-    map: null;
   };
   globalStyle: { style: string; importId: VirtualGlobalStyleId };
 };
@@ -40,7 +39,6 @@ export function buildForProduction({
     cssModule: {
       importId: buildVirtualCssModuleId({ importerPath, projectRoot }),
       style: cssModuleStyles.join(""),
-      map: null,
     },
     globalStyle: {
       importId: buildVirtualGlobalStyleId({ importerPath, projectRoot }),

@@ -1,49 +1,38 @@
 import { SourceMapGenerator } from "source-map";
+import type { GlobalStylePositions } from "#@/stages/1.capture-tagged-styles/types";
 
-type BuildCssModuleReturn = {
+type BuildGlobalStyle = {
   style: string;
   map: string;
 };
 
-export function buildCssModule({
-  evaluatedCssModuleStyles,
-  jsClassNamePositions,
-  filename,
+export function buildGlobalStyle({
   content,
+  filename,
+  evaluatedGlobalStyles,
+  jsGlobalStylePositions,
 }: {
-  evaluatedCssModuleStyles: {
-    originalName: string;
-    style: string;
-  }[];
-  jsClassNamePositions: Map<
-    string,
-    {
-      originalName: string;
-      start: { line: number; column: number };
-      end: { line: number; column: number };
-    }
-  >;
   filename: string;
   content: string;
-}): BuildCssModuleReturn {
+  evaluatedGlobalStyles: string[];
+  jsGlobalStylePositions: GlobalStylePositions;
+}): BuildGlobalStyle {
   const mapGen = new SourceMapGenerator();
   mapGen.setSourceContent(filename, content);
 
-  const result = evaluatedCssModuleStyles.reduce<{
+  const result = evaluatedGlobalStyles.reduce<{
     styleParts: string[];
     line: number;
   }>(
     (
       { line, styleParts },
-      { originalName, style },
+      currentPart,
+      index,
     ): { styleParts: string[]; line: number } => {
-      const part = `
-.${originalName} {${style}}
-`;
-      const partLines = part.split("\n").length;
-      const originalPosition = jsClassNamePositions.get(originalName);
+      const partLines = currentPart.split("\n").length;
+      const originalPosition = jsGlobalStylePositions.at(index);
       if (!originalPosition) {
-        throw new Error(`position "${originalName}" was not found.`);
+        throw new Error("global style position was not found.");
       }
 
       mapGen.addMapping({
@@ -52,7 +41,6 @@ export function buildCssModule({
           ...originalPosition.start,
         },
         source: filename,
-        name: originalName,
       });
       mapGen.addMapping({
         generated: { column: 0, line: line + partLines },
@@ -60,14 +48,16 @@ export function buildCssModule({
           ...originalPosition.end,
         },
         source: filename,
-        name: originalName,
       });
 
-      styleParts.push(part);
+      styleParts.push(currentPart);
 
       return { line: line + partLines, styleParts };
     },
-    { styleParts: [], line: 0 },
+    {
+      styleParts: [],
+      line: 0,
+    },
   );
 
   return { map: mapGen.toString(), style: result.styleParts.join("") };
