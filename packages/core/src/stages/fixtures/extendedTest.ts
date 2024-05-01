@@ -1,6 +1,6 @@
 import { test as t } from "vitest";
-import type { TransformResult } from "#@/vite/plugin";
 import { plugin as plugin_ } from "#@/vite/plugin";
+import type { TransformResult } from "#@/vite/types";
 
 type TestContext = {
   plugin: ReturnType<typeof plugin_>;
@@ -11,7 +11,7 @@ export const test = t.extend<TestContext>({
   plugin: async ({ transformResult }, use) => {
     const plugin = plugin_({
       onExitTransform: async (p) => {
-        transformResult[p.id] = p;
+        transformResult[p.path] = p;
       },
     });
     await use(plugin);

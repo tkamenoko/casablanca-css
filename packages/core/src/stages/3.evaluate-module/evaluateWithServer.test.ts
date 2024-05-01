@@ -1,6 +1,7 @@
 import { type ViteDevServer, createServer } from "vite";
 import { assert, test as t } from "vitest";
-import { type TransformResult, plugin } from "#@/vite/plugin";
+import { plugin } from "#@/vite/plugin";
+import type { TransformResult } from "#@/vite/types";
 import { buildModuleId } from "../fixtures/buildModuleId";
 import * as globalStyleModuleExports from "./fixtures/globalStyles";
 import { testObjectHasEvaluatedStyles } from "./fixtures/testHelpers";
@@ -19,7 +20,7 @@ const test = t.extend<TestContext>({
       plugins: [
         plugin({
           onExitTransform: async (p) => {
-            transformResult[p.id] = p;
+            transformResult[p.path] = p;
           },
         }),
       ],

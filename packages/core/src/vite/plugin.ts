@@ -1,26 +1,13 @@
 import { parseAsync } from "@babel/core";
 import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import type { CaptureTaggedStylesReturn } from "#@/stages/1.capture-tagged-styles";
-import { captureTaggedStyles } from "#@/stages/1.capture-tagged-styles";
-import type { PrepareCompositionsReturn } from "#@/stages/2.prepare-compositions";
-import { prepareCompositions } from "#@/stages/2.prepare-compositions";
-import type { EvaluateModuleReturn } from "#@/stages/3.evaluate-module";
-import { createEvaluator } from "#@/stages/3.evaluate-module";
-import type { ReplaceUuidToStylesReturn } from "#@/stages/4.assign-composed-styles-to-uuid";
-import { replaceUuidWithStyles } from "#@/stages/4.assign-composed-styles-to-uuid";
-import {
-  type CreateVirtualModulesReturn,
-  createVirtualModules,
-} from "#@/stages/5.create-virtual-modules";
-import type { AssignStylesToCapturedVariablesReturn } from "#@/stages/6.assign-styles-to-variables";
-import { assignStylesToCapturedVariables } from "#@/stages/6.assign-styles-to-variables";
 import { extractTargetFilePath } from "./helpers/extractTargetFilePath";
 import { invalidateModule } from "./helpers/invalidateModule";
 import { loadCssModule } from "./hooks/loadCss/loadCssModule";
 import { loadGlobalStyle } from "./hooks/loadCss/loadGlobalStyle";
 import { resolveCssModuleId } from "./hooks/resolveCss/resolveCssModuleId";
 import { resolveGlobalStyleId } from "./hooks/resolveCss/resolveGlobalStyleId";
+import { transform } from "./hooks/transform";
 import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "./resolvedCssModuleId";
 import { buildResolvedGlobalStyleIdFromVirtualGlobalStyleId } from "./resolvedGlobalStyleId";
 import type {
@@ -28,29 +15,11 @@ import type {
   GlobalStylesLookup,
   JsToCssModuleLookup,
   JsToGlobalStyleLookup,
+  OnExitTransform,
   PluginOption,
 } from "./types";
 import type { VirtualCssModuleId } from "./virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "./virtualGlobalStyleId";
-
-export type TransformResult = {
-  id: string;
-  transformed: string;
-  cssModulesLookup: CssModulesLookup;
-  jsToCssModuleLookup: JsToCssModuleLookup;
-  globalStylesLookup: GlobalStylesLookup;
-  jsToGlobalStyleLookup: JsToGlobalStyleLookup;
-  stages: {
-    1?: CaptureTaggedStylesReturn;
-    2?: PrepareCompositionsReturn;
-    3?: EvaluateModuleReturn;
-    4?: ReplaceUuidToStylesReturn;
-    5?: CreateVirtualModulesReturn;
-    6?: AssignStylesToCapturedVariablesReturn;
-  };
-};
-
-type OnExitTransform = (params: TransformResult) => Promise<void>;
 
 export function plugin(
   options?: Partial<PluginOption> & {
@@ -68,7 +37,7 @@ export function plugin(
   const {
     babelOptions = {},
     extensions = [".mjs", ".cjs", ".js", ".jsx", ".mts", ".cts", ".ts", ".tsx"],
-    onExitTransform = () => {},
+    onExitTransform = async () => {},
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
 
@@ -155,103 +124,29 @@ export function plugin(
         return;
       }
 
-      // find tagged templates, then remove all tags.
-      const stage1Result = await captureTaggedStyles({
-        ast: parsed,
+      const transformResult = await transform({
+        cssModulesLookup,
+        ctx: this,
         isDev,
-        filename: path,
+        originalAst: parsed,
+        path,
+        projectRoot: config.root,
+        server,
       });
-
-      if (!stage1Result) {
+      if (!transformResult) {
         return;
       }
 
-      const {
-        capturedVariableNames,
-        capturedGlobalStylesTempNames,
-        ast: stage1CapturedAst,
-        importSources,
-        globalStylePositions,
-      } = stage1Result;
-
-      // replace `compose` calls to temporal strings
-      const { uuidToStylesMap, ast: stage2ReplacedAst } =
-        await prepareCompositions({
-          stage1Result: {
-            ast: stage1CapturedAst,
-            importSources,
-            variableNames: [...capturedVariableNames.values()],
-          },
-          projectRoot: config.root,
-          filename: path,
-          isDev,
-          resolve: async (importSource) => {
-            const resolved = await this.resolve(importSource, path);
-            return resolved?.id;
-          },
-        });
-
-      const evaluateModule = createEvaluator({
-        server,
-        transformContext: this,
-        modulePath: path,
-      });
-
-      const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =
-        await evaluateModule({
-          ast: stage2ReplacedAst,
-          capturedVariableNames,
-          temporalGlobalStyles: capturedGlobalStylesTempNames,
-          uuidToStylesMap,
-        });
-
-      const { composedStyles } = replaceUuidWithStyles({
-        cssModulesLookup,
-        ownedClassNamesToStyles: mapOfClassNamesToStyles,
-        uuidToStylesMap,
-      });
-
-      const { cssModule, globalStyle } = createVirtualModules({
-        evaluatedCssModuleStyles: composedStyles,
-        evaluatedGlobalStyles,
-        importerPath: path,
-        projectRoot: config.root,
-        originalInfo: isDev
-          ? {
-              ast: parsed,
-              filename: path,
-              jsClassNamePositions: capturedVariableNames,
-              jsGlobalStylePositions: globalStylePositions,
-            }
-          : null,
-      });
-
-      const { transformed: resultCode, map } =
-        await assignStylesToCapturedVariables({
-          css: {
-            modules: {
-              importId: cssModule.importId,
-              originalToTemporalMap: capturedVariableNames,
-            },
-            globals: {
-              importId: globalStyle.importId,
-              temporalVariableNames: capturedGlobalStylesTempNames,
-            },
-          },
-          stage2Result: { ast: stage2ReplacedAst },
-          isDev,
-          filename: path,
-          root: config.root,
-        });
+      const { cssModule, globalStyle, js, partialResults } = transformResult;
 
       registerCssModule({
         classNameToStyle: new Map(
-          composedStyles.map(({ style, originalName }) => [
+          cssModule.composedStyles.map(({ style, originalName }) => [
             originalName,
             { style, className: originalName },
           ]),
         ),
-        map: "map" in cssModule ? cssModule.map : null,
+        map: cssModule.map || null,
         path,
         style: cssModule.style,
         virtualId: cssModule.importId,
@@ -259,47 +154,23 @@ export function plugin(
       registerGlobalStyle({
         path,
         style: globalStyle.style,
-        map: "map" in globalStyle ? globalStyle.map : null,
+        map: globalStyle.map || null,
         virtualId: globalStyle.importId,
       });
 
       await onExitTransform({
         cssModulesLookup,
-        id,
-        jsToCssModuleLookup,
         globalStylesLookup,
+        jsToCssModuleLookup,
         jsToGlobalStyleLookup,
-        stages: {
-          "1": {
-            capturedVariableNames,
-            importSources,
-            capturedGlobalStylesTempNames,
-            globalStylePositions,
-            ast: stage1CapturedAst,
-          },
-          "2": {
-            ast: stage2ReplacedAst,
-            uuidToStylesMap,
-          },
-          "3": {
-            mapOfClassNamesToStyles,
-            evaluatedGlobalStyles,
-          },
-          "4": {
-            composedStyles,
-          },
-          "5": {
-            cssModule,
-            globalStyle,
-          },
-          "6": { transformed: resultCode, map },
-        },
-        transformed: resultCode,
+        path,
+        stages: partialResults,
+        transformed: js.code,
       });
 
       return {
-        code: resultCode,
-        map,
+        code: js.code,
+        map: js.map,
       };
     },
     configResolved(config_) {
