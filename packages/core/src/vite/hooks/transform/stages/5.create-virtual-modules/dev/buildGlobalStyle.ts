@@ -1,7 +1,18 @@
+import remapping from "@ampproject/remapping";
 import { SourceMapGenerator } from "source-map";
+import type { Rollup } from "vite";
 import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
 
-type BuildGlobalStyle = {
+type BuildGlobalStyleArgs = {
+  filename: string;
+  content: string;
+  projectRoot: string;
+  evaluatedGlobalStyles: string[];
+  jsGlobalStylePositions: GlobalStylePositions;
+  previousSourceMap: Rollup.SourceMap;
+};
+
+type BuildGlobalStyleReturn = {
   style: string;
   map: string;
 };
@@ -11,14 +22,13 @@ export function buildGlobalStyle({
   filename,
   evaluatedGlobalStyles,
   jsGlobalStylePositions,
-}: {
-  filename: string;
-  content: string;
-  evaluatedGlobalStyles: string[];
-  jsGlobalStylePositions: GlobalStylePositions;
-}): BuildGlobalStyle {
+  projectRoot,
+  previousSourceMap,
+}: BuildGlobalStyleArgs): BuildGlobalStyleReturn {
+  const relativePath = filename.replace(projectRoot, "").replace(/^\//, "");
+
   const mapGen = new SourceMapGenerator();
-  mapGen.setSourceContent(filename, content);
+  mapGen.setSourceContent(relativePath, content);
 
   const result = evaluatedGlobalStyles.reduce<{
     styleParts: string[];
@@ -26,9 +36,10 @@ export function buildGlobalStyle({
   }>(
     (
       { line, styleParts },
-      currentPart,
+      rawPart,
       index,
     ): { styleParts: string[]; line: number } => {
+      const currentPart = rawPart.trim();
       const partLines = currentPart.split("\n").length;
       const originalPosition = jsGlobalStylePositions.at(index);
       if (!originalPosition) {
@@ -36,18 +47,18 @@ export function buildGlobalStyle({
       }
 
       mapGen.addMapping({
-        generated: { column: 0, line: line + 2 },
+        generated: { column: 0, line: line },
         original: {
           ...originalPosition.start,
         },
-        source: filename,
+        source: relativePath,
       });
       mapGen.addMapping({
-        generated: { column: 0, line: line + partLines },
+        generated: { column: 0, line: line + partLines - 1 },
         original: {
           ...originalPosition.end,
         },
-        source: filename,
+        source: relativePath,
       });
 
       styleParts.push(currentPart);
@@ -56,9 +67,17 @@ export function buildGlobalStyle({
     },
     {
       styleParts: [],
-      line: 0,
+      line: 1,
     },
   );
 
-  return { map: mapGen.toString(), style: result.styleParts.join("") };
+  const remapped = remapping(
+    [JSON.stringify(mapGen.toJSON()), JSON.stringify(previousSourceMap)],
+    () => null,
+  );
+
+  return {
+    map: remapped.toString(),
+    style: result.styleParts.join("\n"),
+  };
 }

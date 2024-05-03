@@ -1,16 +1,8 @@
+import remapping from "@ampproject/remapping";
 import { SourceMapGenerator } from "source-map";
+import type { Rollup } from "vite";
 
-type BuildCssModuleReturn = {
-  style: string;
-  map: string;
-};
-
-export function buildCssModule({
-  evaluatedCssModuleStyles,
-  jsClassNamePositions,
-  filename,
-  content,
-}: {
+type BuildCssModuleArgs = {
   evaluatedCssModuleStyles: {
     originalName: string;
     style: string;
@@ -23,11 +15,29 @@ export function buildCssModule({
       end: { line: number; column: number };
     }
   >;
+  projectRoot: string;
   filename: string;
+  previousSourceMap: Rollup.SourceMap;
   content: string;
-}): BuildCssModuleReturn {
+};
+
+type BuildCssModuleReturn = {
+  style: string;
+  map: string;
+};
+
+export function buildCssModule({
+  evaluatedCssModuleStyles,
+  jsClassNamePositions,
+  filename,
+  projectRoot,
+  content,
+  previousSourceMap,
+}: BuildCssModuleArgs): BuildCssModuleReturn {
+  const relativePath = filename.replace(projectRoot, "").replace(/^\//, "");
+
   const mapGen = new SourceMapGenerator();
-  mapGen.setSourceContent(filename, content);
+  mapGen.setSourceContent(relativePath, content);
 
   const result = evaluatedCssModuleStyles.reduce<{
     styleParts: string[];
@@ -37,9 +47,7 @@ export function buildCssModule({
       { line, styleParts },
       { originalName, style },
     ): { styleParts: string[]; line: number } => {
-      const part = `
-.${originalName} {${style}}
-`;
+      const part = `.${originalName} {${style}}`;
       const partLines = part.split("\n").length;
       const originalPosition = jsClassNamePositions.get(originalName);
       if (!originalPosition) {
@@ -47,19 +55,19 @@ export function buildCssModule({
       }
 
       mapGen.addMapping({
-        generated: { column: 0, line: line + 2 },
+        generated: { column: 0, line: line },
         original: {
           ...originalPosition.start,
         },
-        source: filename,
+        source: relativePath,
         name: originalName,
       });
       mapGen.addMapping({
-        generated: { column: 0, line: line + partLines },
+        generated: { column: 0, line: line + partLines - 1 },
         original: {
           ...originalPosition.end,
         },
-        source: filename,
+        source: relativePath,
         name: originalName,
       });
 
@@ -67,8 +75,16 @@ export function buildCssModule({
 
       return { line: line + partLines, styleParts };
     },
-    { styleParts: [], line: 0 },
+    { styleParts: [], line: 1 },
   );
 
-  return { map: mapGen.toString(), style: result.styleParts.join("") };
+  const remapped = remapping(
+    [JSON.stringify(mapGen.toJSON()), JSON.stringify(previousSourceMap)],
+    () => null,
+  );
+
+  return {
+    map: remapped.toString(),
+    style: result.styleParts.join("\n"),
+  };
 }

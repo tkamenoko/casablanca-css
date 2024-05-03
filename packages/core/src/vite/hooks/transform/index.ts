@@ -112,6 +112,7 @@ export async function transform({
           filename: path,
           jsClassNamePositions: capturedVariableNames,
           jsGlobalStylePositions: globalStylePositions,
+          previousSourceMap: ctx.getCombinedSourcemap(),
         }
       : null,
   });
