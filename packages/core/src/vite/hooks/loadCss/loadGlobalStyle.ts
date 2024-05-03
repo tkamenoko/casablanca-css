@@ -1,6 +1,8 @@
 import { extractPathAndParamsFromId } from "@casablanca/utils";
-import { isResolvedGlobalStyleId } from "#@/vite/helpers/isResolvedGlobalStyleId";
+import { isResolvedGlobalStyleId } from "#@/vite/resolvedGlobalStyleId";
 import type { GlobalStylesLookup } from "#@/vite/types";
+
+type LoadGlobalStyleReturn = { code: string; map: string | null };
 
 export function loadGlobalStyle({
   globalStylesLookup,
@@ -8,7 +10,7 @@ export function loadGlobalStyle({
 }: {
   id: string;
   globalStylesLookup: GlobalStylesLookup;
-}): string | null {
+}): LoadGlobalStyleReturn | null {
   const { path } = extractPathAndParamsFromId(id);
   if (!isResolvedGlobalStyleId(path)) {
     return null;
@@ -18,5 +20,6 @@ export function loadGlobalStyle({
   if (!found) {
     return null;
   }
-  return found.style;
+
+  return { code: found.style, map: found.map };
 }
