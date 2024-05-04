@@ -33,7 +33,7 @@ export function plugin(
   const {
     babelOptions = {},
     extensions = [".js", ".jsx", ".ts", ".tsx"],
-    onExitTransform,
+    onExitTransform = () => {},
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
 
@@ -86,16 +86,14 @@ export function plugin(
         isDev,
       });
 
-      if (onExitTransform) {
-        await onExitTransform({
-          id,
-          transformed: resultCode,
-          stages: {
-            "1": { ast: astWithClassNames, code: codeWithClassNames },
-            "2": { code: resultCode },
-          },
-        });
-      }
+      await onExitTransform({
+        id,
+        transformed: resultCode,
+        stages: {
+          "1": { ast: astWithClassNames, code: codeWithClassNames },
+          "2": { code: resultCode },
+        },
+      });
 
       return resultCode;
     },
