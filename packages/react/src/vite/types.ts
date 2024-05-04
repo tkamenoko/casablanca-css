@@ -1,5 +1,5 @@
-import type { CreateClassNamesFromComponentsReturn } from "#@/stages/1.create-classNames-for-components";
-import type { ModifyEmbeddedComponentsReturn } from "#@/stages/2.modify-embedded-components";
+import type { CreateClassNamesFromComponentsReturn } from "./hooks/transform/stages/1.create-classNames-for-components";
+import type { ModifyEmbeddedComponentsReturn } from "./hooks/transform/stages/2.modify-embedded-components";
 
 export type StageResults = {
   1: CreateClassNamesFromComponentsReturn;

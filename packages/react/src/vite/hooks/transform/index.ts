@@ -1,7 +1,7 @@
 import type { ParseResult } from "@babel/core";
-import { createClassNamesFromComponents } from "#@/stages/1.create-classNames-for-components";
-import { modifyEmbeddedComponents } from "#@/stages/2.modify-embedded-components";
 import type { StageResults } from "#@/vite/types";
+import { createClassNamesFromComponents } from "./stages/1.create-classNames-for-components";
+import { modifyEmbeddedComponents } from "./stages/2.modify-embedded-components";
 
 type TransformArgs = { originalAst: ParseResult; isDev: boolean };
 type TransformReturn = {
