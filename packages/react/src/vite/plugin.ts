@@ -2,27 +2,14 @@ import type { TransformOptions } from "@babel/core";
 import { parseAsync } from "@babel/core";
 import { extractPathAndParamsFromId } from "@casablanca/utils";
 import type { Plugin, ResolvedConfig } from "vite";
-import type { CreateClassNamesFromComponentsReturn } from "#@/stages/1.create-classNames-for-components";
-import { createClassNamesFromComponents } from "#@/stages/1.create-classNames-for-components";
-import type { ModifyEmbeddedComponentsReturn } from "#@/stages/2.modify-embedded-components";
-import { modifyEmbeddedComponents } from "#@/stages/2.modify-embedded-components";
+import { transform } from "./hooks/transform";
+import type { OnExitTransform } from "./types";
 
 export type PluginOption = {
   babelOptions: TransformOptions;
   extensions: `.${string}`[];
   includes: string[];
 };
-
-export type TransformResult = {
-  id: string;
-  transformed: string;
-  stages: {
-    1?: CreateClassNamesFromComponentsReturn;
-    2?: ModifyEmbeddedComponentsReturn;
-  };
-};
-
-type OnExitTransform = (params: TransformResult) => Promise<void>;
 
 export function plugin(
   options?: Partial<PluginOption> & {
@@ -73,26 +60,15 @@ export function plugin(
         return;
       }
 
-      const { ast: astWithClassNames, code: codeWithClassNames } =
-        await createClassNamesFromComponents({
-          ast: parsed,
-          code,
-          isDev,
-        });
-
-      const { code: resultCode } = await modifyEmbeddedComponents({
-        ast: astWithClassNames,
-        code: codeWithClassNames,
+      const { code: resultCode, stageResults } = await transform({
         isDev,
+        originalAst: parsed,
       });
 
       await onExitTransform({
         id,
         transformed: resultCode,
-        stages: {
-          "1": { ast: astWithClassNames, code: codeWithClassNames },
-          "2": { code: resultCode },
-        },
+        stages: stageResults,
       });
 
       return resultCode;

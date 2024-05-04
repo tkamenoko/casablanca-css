@@ -1,3 +1,4 @@
+import { transformFromAstAsync } from "@babel/core";
 import { build } from "vite";
 import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
@@ -25,7 +26,10 @@ test("should create css-tagged styles from styled-tagged components", async ({
 
   assert(transformResult);
   const { stages } = transformResult[moduleId] ?? {};
-  const { code } = stages?.[1] ?? {};
+  const { ast } = stages?.[1] ?? {};
+  assert(ast);
+  const { code } = (await transformFromAstAsync(ast)) ?? {};
+
   assert(code);
   expect(code).not.toMatch(`import { styled } from '@casablanca/react';`);
   expect(code).toMatch("casablanca/core");

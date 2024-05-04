@@ -4,7 +4,6 @@ import { modifyCompositionsPlugin } from "./modifyComposition";
 
 type ModifyEmbeddedComponentsArgs = {
   ast: types.File;
-  code: string;
   isDev: boolean;
 };
 
@@ -12,10 +11,9 @@ export type ModifyEmbeddedComponentsReturn = { code: string };
 
 export async function modifyEmbeddedComponents({
   ast,
-  code,
   isDev,
 }: ModifyEmbeddedComponentsArgs): Promise<ModifyEmbeddedComponentsReturn> {
-  const result = await transformFromAstAsync(ast, code, {
+  const result = await transformFromAstAsync(ast, undefined, {
     plugins: [[modifyCompositionsPlugin, {}]],
     sourceMaps: isDev ? "inline" : false,
   });
