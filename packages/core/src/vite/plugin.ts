@@ -132,6 +132,7 @@ export function plugin(
         path,
         projectRoot: config.root,
         server,
+        originalCode: code,
       });
       if (!transformResult) {
         return;
