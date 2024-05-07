@@ -1,29 +1,29 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
 import { isCasablancaCssTemplate, isCasablancaImport } from "@casablanca/utils";
-import { extractPathsFromExpressions } from "./extractPathsFromExpressions";
-import { isImportedComponent } from "./isImportedComponent";
+import { extractPathsFromExpressions } from "./helpers/extractPathsFromExpressions";
+import { isImportedComponent } from "./helpers/isImportedComponent";
 
-export function modifyCompositionsPlugin({
+export function plugin({
   types: t,
-}: typeof babel): PluginObj<PluginPass> {
+}: typeof babel): PluginObj<PluginPass & { shouldTraverse: boolean }> {
   return {
     visitor: {
       Program: {
-        enter: (path) => {
+        enter: (path, state) => {
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
               isCasablancaImport(p, "core"),
             );
-          if (!found) {
-            path.stop();
-            return;
-          }
+          state.shouldTraverse = Boolean(found);
         },
       },
       TaggedTemplateExpression: {
-        enter: (path) => {
+        enter: (path, state) => {
+          if (!state.shouldTraverse) {
+            return;
+          }
           if (!isCasablancaCssTemplate(path, "css")) {
             return;
           }

@@ -1,6 +1,6 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import { modifyCompositionsPlugin } from "./modifyComposition";
+import { plugin } from "./plugin";
 
 type ModifyEmbeddedComponentsArgs = {
   ast: types.File;
@@ -14,7 +14,7 @@ export async function modifyEmbeddedComponents({
   isDev,
 }: ModifyEmbeddedComponentsArgs): Promise<ModifyEmbeddedComponentsReturn> {
   const result = await transformFromAstAsync(ast, undefined, {
-    plugins: [[modifyCompositionsPlugin, {}]],
+    plugins: [[plugin, {}]],
     sourceMaps: isDev ? "inline" : false,
   });
   if (!result) {
