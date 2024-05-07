@@ -114,7 +114,7 @@ export function plugin({
               t.taggedTemplateExpression(t.identifier("css"), cssTemplate.node),
             ),
           ]);
-          insertNodeOnTopLevel(declaration, cssNode, "before");
+
           // extract functions from template for dynamic styling
           const arrowFunctionPaths = cssTemplate
             .get("expressions")
@@ -211,9 +211,10 @@ export function plugin({
               cssTaggedId,
             ),
           );
+
           insertNodeOnTopLevel(
             declaration,
-            [assignRawClassName, assignModularizedClassName],
+            [assignRawClassName, cssNode, assignModularizedClassName],
             "after",
           );
         },

@@ -3,6 +3,7 @@ import { plugin } from "./plugin";
 
 type CreateClassNamesFromComponentsArgs = {
   ast: types.File;
+  originalCode: string;
   isDev: boolean;
 };
 export type CreateClassNamesFromComponentsReturn = {
@@ -12,8 +13,9 @@ export type CreateClassNamesFromComponentsReturn = {
 export async function createClassNamesFromComponents({
   ast,
   isDev,
+  originalCode,
 }: CreateClassNamesFromComponentsArgs): Promise<CreateClassNamesFromComponentsReturn> {
-  const result = await transformFromAstAsync(ast, undefined, {
+  const result = await transformFromAstAsync(ast, originalCode, {
     plugins: [[plugin, {}]],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
@@ -26,5 +28,6 @@ export async function createClassNamesFromComponents({
   if (!transformedAst) {
     throw new Error("Failed");
   }
+
   return { ast: transformedAst };
 }

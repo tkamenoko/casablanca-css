@@ -7,7 +7,10 @@ type ModifyEmbeddedComponentsArgs = {
   isDev: boolean;
 };
 
-export type ModifyEmbeddedComponentsReturn = { code: string };
+export type ModifyEmbeddedComponentsReturn = {
+  code: string;
+  map: string | null;
+};
 
 export async function modifyEmbeddedComponents({
   ast,
@@ -15,14 +18,21 @@ export async function modifyEmbeddedComponents({
 }: ModifyEmbeddedComponentsArgs): Promise<ModifyEmbeddedComponentsReturn> {
   const result = await transformFromAstAsync(ast, undefined, {
     plugins: [[plugin, {}]],
-    sourceMaps: isDev ? "inline" : false,
+    sourceMaps: isDev,
   });
   if (!result) {
     throw new Error("Failed");
   }
-  const { code: transformed } = result;
+  const { code: transformed, map } = result;
   if (!transformed) {
     throw new Error("Failed");
   }
-  return { code: transformed };
+  if (!isDev) {
+    return { code: transformed, map: null };
+  }
+  if (!map) {
+    throw new Error("Failed");
+  }
+
+  return { code: transformed, map: JSON.stringify(map) };
 }

@@ -60,9 +60,14 @@ export function plugin(
         return;
       }
 
-      const { code: resultCode, stageResults } = await transform({
+      const {
+        code: resultCode,
+        stageResults,
+        map,
+      } = await transform({
         isDev,
         originalAst: parsed,
+        originalCode: code,
       });
 
       await onExitTransform({
@@ -71,7 +76,7 @@ export function plugin(
         stages: stageResults,
       });
 
-      return resultCode;
+      return { code: resultCode, map };
     },
     configResolved(config_) {
       config = config_;
