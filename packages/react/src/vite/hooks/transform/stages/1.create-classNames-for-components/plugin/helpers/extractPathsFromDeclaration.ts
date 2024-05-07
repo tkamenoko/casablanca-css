@@ -1,5 +1,5 @@
 import type { NodePath, types } from "@babel/core";
-import { isCasablancaStyledTemplate } from "../helpers/isCasablancaStyledTemplate";
+import { isCasablancaStyledTemplate } from "../../../helpers/isCasablancaStyledTemplate";
 
 type ExtractPathsFromDeclarationReturn = {
   init: NodePath<types.TaggedTemplateExpression>;

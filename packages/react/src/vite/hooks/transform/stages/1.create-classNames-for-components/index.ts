@@ -1,5 +1,5 @@
 import { transformFromAstAsync, type types } from "@babel/core";
-import { createClassNamesPlugin } from "./createClassNames";
+import { plugin } from "./plugin";
 
 type CreateClassNamesFromComponentsArgs = {
   ast: types.File;
@@ -14,7 +14,7 @@ export async function createClassNamesFromComponents({
   isDev,
 }: CreateClassNamesFromComponentsArgs): Promise<CreateClassNamesFromComponentsReturn> {
   const result = await transformFromAstAsync(ast, undefined, {
-    plugins: [[createClassNamesPlugin, {}]],
+    plugins: [[plugin, {}]],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
     code: false,
