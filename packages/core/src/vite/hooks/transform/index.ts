@@ -23,7 +23,7 @@ type TransformReturn = {
     }[];
   };
   globalStyle: { style: string; importId: VirtualGlobalStyleId; map: string };
-  js: { code: string; map: Rollup.ExistingRawSourceMap | null };
+  js: { code: string; map: string | null };
   stageResults: StageResults;
 } | null;
 
@@ -134,7 +134,6 @@ export async function transform({
       stage2Result: { ast: stage2ReplacedAst },
       isDev,
       filename: path,
-      root: projectRoot,
     });
 
   return {
