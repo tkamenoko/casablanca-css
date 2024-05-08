@@ -5,7 +5,7 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "devDependencies": {
-    "@biomejs/biome": "1.6.3",
+    "@biomejs/biome": "1.7.3",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@tsconfig/strictest": "^2.0.2",
     "@types/prettier": "^3.0.0",
@@ -33,7 +33,10 @@
   "type": "module",
   "wireit": {
     "test-all": {
-      "dependencies": ["./packages/core:test", "./packages/styled:test"]
+      "dependencies": [
+        "./packages/core:test",
+        "./packages/styled:test"
+      ]
     },
     "types-all": {
       "dependencies": [
@@ -43,5 +46,8 @@
       ]
     }
   },
-  "workspaces": ["./packages/*", "./examples/*"]
+  "workspaces": [
+    "./packages/*",
+    "./examples/*"
+  ]
 }
