@@ -1,5 +1,5 @@
 import { casablanca } from "@casablanca/core/vite";
-import { casablancaReact } from "@casablanca/react/vite";
+import { casablancaStyled } from "@casablanca/styled/vite";
 import react from "@vitejs/plugin-react";
 import rakkas from "rakkasjs/vite-plugin";
 import { defineConfig } from "vite";
@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     react(),
-    casablancaReact(),
+    casablancaStyled(),
     casablanca(),
     rakkas(),
   ],

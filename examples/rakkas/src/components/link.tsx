@@ -1,4 +1,4 @@
-import { styled } from "@casablanca/react";
+import { styled } from "@casablanca/styled";
 import { StyledLink } from "rakkasjs";
 
 export const LinkWithBorder = styled(StyledLink)`

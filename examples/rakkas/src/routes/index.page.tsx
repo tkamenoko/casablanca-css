@@ -1,4 +1,4 @@
-import { styled } from "@casablanca/react";
+import { styled } from "@casablanca/styled";
 import { modularScale } from "polished";
 import type { Page } from "rakkasjs";
 import { LinkWithBorder } from "#@/components/link";

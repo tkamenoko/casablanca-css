@@ -1,4 +1,4 @@
-import { styled } from "@casablanca/react";
+import { styled } from "@casablanca/styled";
 import type { FC } from "react";
 
 const Component: FC<{ dataFoo: string }> = ({ dataFoo, ...rest }) => {

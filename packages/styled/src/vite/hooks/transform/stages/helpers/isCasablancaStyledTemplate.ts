@@ -22,7 +22,7 @@ export function isCasablancaStyledTemplate(
   }
   const importDec = tagBinding.path.parentPath;
 
-  if (!(importDec && isCasablancaImport(importDec, "react"))) {
+  if (!(importDec && isCasablancaImport(importDec, "styled"))) {
     return false;
   }
   const imported = tagBinding.path.get("imported");

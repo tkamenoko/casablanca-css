@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@casablanca/core": "0.0.1",
-    "@casablanca/react": "0.0.1",
+    "@casablanca/styled": "0.0.1",
     "@ladle/react": "^4.0.2",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "^18.2.55",
@@ -31,7 +31,7 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/styled:build"
       ]
     }
   }

@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@casablanca/core": "0.0.1",
-    "@casablanca/react": "0.0.1",
+    "@casablanca/styled": "0.0.1",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.18",
@@ -34,7 +34,7 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/styled:build"
       ]
     },
     "build": {
@@ -44,7 +44,7 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/styled:build"
       ],
       "files": [
         "./src/",

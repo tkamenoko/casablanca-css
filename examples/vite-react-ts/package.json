@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@casablanca/core": "0.0.1",
-    "@casablanca/react": "0.0.1",
+    "@casablanca/styled": "0.0.1",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@vitejs/plugin-react": "^4.2.1",
     "postcss-nested": "^6.0.1",
@@ -36,7 +36,7 @@
       ],
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/styled:build"
       ],
       "output": [
         "./dist/**"
@@ -50,7 +50,7 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/react:build"
+        "../../packages/styled:build"
       ]
     },
     "preview": {

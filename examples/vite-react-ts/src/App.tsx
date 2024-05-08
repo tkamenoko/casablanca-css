@@ -1,4 +1,5 @@
-import { styled } from "@casablanca/react";
+import { css } from "@casablanca/core";
+import { styled } from "@casablanca/styled";
 import { modularScale } from "polished";
 import { type FC, useState } from "react";
 import { Button } from "./Button";
@@ -16,6 +17,10 @@ const StyledPWithAdditionalProps = styled("p")<{
 
 const StyledH1 = styled("h1")`
   font-size: ${modularScale(2)};
+`;
+
+const fontSize = css`
+  font-size: 3rem;
 `;
 
 const ContainerDiv = styled("div")`
@@ -48,6 +53,7 @@ export const App: FC = () => {
       >
         ChangeColor
       </button>
+      <p className={fontSize}>Foobar</p>
     </ContainerDiv>
   );
 };

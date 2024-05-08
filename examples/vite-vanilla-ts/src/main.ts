@@ -15,7 +15,7 @@ const h1Style = css`
   border: 1px solid red;
 `;
 
-const divStyle = css`
+const divStyle: string = css`
   composes: ${grid};
   grid-template-columns: auto;
   justify-content: center;
