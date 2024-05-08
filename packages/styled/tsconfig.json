@@ -6,7 +6,7 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "paths": {
-      "@casablanca/react": ["./src"],
+      "@casablanca/styled": ["./src"],
       "#@/*": ["./src/*"]
     },
     "types": ["vite/client"],

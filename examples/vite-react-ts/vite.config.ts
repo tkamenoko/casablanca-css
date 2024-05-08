@@ -1,5 +1,5 @@
 import { casablanca } from "@casablanca/core/vite";
-import { casablancaReact } from "@casablanca/react/vite";
+import { casablancaStyled } from "@casablanca/styled/vite";
 import react from "@vitejs/plugin-react";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   css: {
     postcss: { plugins: [postcssNested()] },
+    devSourcemap: true,
   },
-  plugins: [react(), casablancaReact(), casablanca()],
+  plugins: [react(), casablancaStyled(), casablanca()],
 });

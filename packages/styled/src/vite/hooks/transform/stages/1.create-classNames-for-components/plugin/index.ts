@@ -22,7 +22,7 @@ export function plugin({
           const found = path
             .get("body")
             .find((p): p is NodePath<types.ImportDeclaration> =>
-              isCasablancaImport(p, "react"),
+              isCasablancaImport(p, "styled"),
             );
           state.shouldTraverse = Boolean(found);
         },
@@ -33,7 +33,7 @@ export function plugin({
           path.traverse({
             ImportDeclaration: {
               enter: (p) => {
-                if (!isCasablancaImport(p, "react")) {
+                if (!isCasablancaImport(p, "styled")) {
                   return;
                 }
                 for (const item of p.get("specifiers")) {
@@ -44,7 +44,7 @@ export function plugin({
                 }
               },
               exit: (path) => {
-                if (!isCasablancaImport(path, "react")) {
+                if (!isCasablancaImport(path, "styled")) {
                   return;
                 }
                 if (!path.get("specifiers").length) {

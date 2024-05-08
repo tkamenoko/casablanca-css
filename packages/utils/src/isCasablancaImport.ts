@@ -2,7 +2,7 @@ import type { NodePath, types } from "@babel/core";
 
 export function isCasablancaImport(
   path: NodePath<types.Node>,
-  packageName: "core" | "react" | "utils",
+  packageName: "core" | "styled" | "utils",
 ): path is NodePath<types.ImportDeclaration> {
   if (!path.isImportDeclaration()) {
     return false;

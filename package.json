@@ -33,12 +33,12 @@
   "type": "module",
   "wireit": {
     "test-all": {
-      "dependencies": ["./packages/core:test", "./packages/react:test"]
+      "dependencies": ["./packages/core:test", "./packages/styled:test"]
     },
     "types-all": {
       "dependencies": [
         "./packages/core:types",
-        "./packages/react:types",
+        "./packages/styled:types",
         "./packages/utils:types"
       ]
     }
