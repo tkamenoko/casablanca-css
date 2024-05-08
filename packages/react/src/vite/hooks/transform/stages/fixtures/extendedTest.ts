@@ -1,6 +1,6 @@
 import { test as t } from "vitest";
-import type { TransformResult } from "#@/vite/plugin";
 import { plugin as plugin_ } from "#@/vite/plugin";
+import type { TransformResult } from "#@/vite/types";
 
 type TestContext = {
   plugin: ReturnType<typeof plugin_>;

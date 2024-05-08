@@ -1,6 +1,5 @@
 import type { types } from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import type { Rollup } from "vite";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
@@ -23,12 +22,11 @@ type AssignStylesToCapturedVariablesArgs = {
     };
   };
   filename: string;
-  root: string;
   isDev: boolean;
 };
 export type AssignStylesToCapturedVariablesReturn = {
   transformed: string;
-  map: Rollup.ExistingRawSourceMap | null;
+  map: string | null;
 };
 
 export async function assignStylesToCapturedVariables({
@@ -36,7 +34,6 @@ export async function assignStylesToCapturedVariables({
   stage2Result,
   filename,
   isDev,
-  root,
 }: AssignStylesToCapturedVariablesArgs): Promise<AssignStylesToCapturedVariablesReturn> {
   const pluginOption: Options = {
     cssModule: {
@@ -72,14 +69,8 @@ export async function assignStylesToCapturedVariables({
     throw new Error("Failed");
   }
 
-  const { code: previousCode } =
-    (await transformFromAstAsync(stage2Result.ast)) ?? {};
-  if (!previousCode) {
-    throw new Error("Failed");
-  }
-
   return {
     transformed,
-    map: { ...map, sourceRoot: root, sourcesContent: [previousCode] },
+    map: JSON.stringify(map),
   };
 }

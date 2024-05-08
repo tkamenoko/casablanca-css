@@ -1,4 +1,3 @@
-import { transformFromAstSync, type types } from "@babel/core";
 import type { Rollup } from "vite";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
@@ -17,7 +16,7 @@ export type BuildForDevArgs = {
   }[];
   evaluatedGlobalStyles: string[];
   originalInfo: {
-    ast: types.File;
+    content: string;
     filename: string;
     previousSourceMap: Rollup.SourceMap;
     jsClassNamePositions: Map<
@@ -47,18 +46,13 @@ export function buildForDev({
   importerPath,
   projectRoot,
   originalInfo: {
-    ast,
+    content,
     filename,
     jsClassNamePositions,
     jsGlobalStylePositions,
     previousSourceMap,
   },
 }: BuildForDevArgs): BuildForDevReturn {
-  const { code: content } = transformFromAstSync(ast) ?? {};
-  if (!content) {
-    throw new Error("Unreachable");
-  }
-
   const cssModuleResult = evaluatedCssModuleStyles.length
     ? buildCssModule({
         evaluatedCssModuleStyles,

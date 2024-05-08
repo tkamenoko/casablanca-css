@@ -23,7 +23,7 @@ type TransformReturn = {
     }[];
   };
   globalStyle: { style: string; importId: VirtualGlobalStyleId; map: string };
-  js: { code: string; map: Rollup.ExistingRawSourceMap | null };
+  js: { code: string; map: string | null };
   stageResults: StageResults;
 } | null;
 
@@ -31,6 +31,7 @@ export async function transform({
   ctx,
   path,
   originalAst,
+  originalCode,
   isDev,
   projectRoot,
   server,
@@ -38,6 +39,7 @@ export async function transform({
 }: {
   path: string;
   ctx: Rollup.TransformPluginContext;
+  originalCode: string;
   originalAst: ParseResult;
   isDev: boolean;
   projectRoot: string;
@@ -108,7 +110,7 @@ export async function transform({
     projectRoot,
     originalInfo: isDev
       ? {
-          ast: originalAst,
+          content: originalCode,
           filename: path,
           jsClassNamePositions: capturedVariableNames,
           jsGlobalStylePositions: globalStylePositions,
@@ -132,7 +134,6 @@ export async function transform({
       stage2Result: { ast: stage2ReplacedAst },
       isDev,
       filename: path,
-      root: projectRoot,
     });
 
   return {

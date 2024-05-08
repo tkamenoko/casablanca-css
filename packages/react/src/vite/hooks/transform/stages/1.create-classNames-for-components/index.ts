@@ -1,32 +1,33 @@
 import { transformFromAstAsync, type types } from "@babel/core";
-import { createClassNamesPlugin } from "./createClassNames";
+import { plugin } from "./plugin";
 
 type CreateClassNamesFromComponentsArgs = {
   ast: types.File;
-  code: string;
+  originalCode: string;
   isDev: boolean;
 };
 export type CreateClassNamesFromComponentsReturn = {
   ast: types.File;
-  code: string;
 };
 
 export async function createClassNamesFromComponents({
   ast,
-  code,
   isDev,
+  originalCode,
 }: CreateClassNamesFromComponentsArgs): Promise<CreateClassNamesFromComponentsReturn> {
-  const result = await transformFromAstAsync(ast, code, {
-    plugins: [[createClassNamesPlugin, {}]],
+  const result = await transformFromAstAsync(ast, originalCode, {
+    plugins: [[plugin, {}]],
     sourceMaps: isDev ? "inline" : false,
     ast: true,
+    code: false,
   });
   if (!result) {
     throw new Error("Failed");
   }
-  const { code: transformedCode, ast: transformedAst } = result;
-  if (!(transformedCode && transformedAst)) {
+  const { ast: transformedAst } = result;
+  if (!transformedAst) {
     throw new Error("Failed");
   }
-  return { ast: transformedAst, code: transformedCode };
+
+  return { ast: transformedAst };
 }
