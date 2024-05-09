@@ -17,6 +17,11 @@ export type EvaluateModuleReturn = {
   evaluatedGlobalStyles: string[];
 };
 
+export type EvaluateOptions = {
+  importMeta: Record<string, unknown>;
+  globals: Record<string, unknown>;
+};
+
 export type Evaluator = (args: {
   ast: types.File;
   uuidToStylesMap: UuidToStylesMap;
