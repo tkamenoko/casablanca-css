@@ -4,8 +4,9 @@ import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { createComposeInternal } from "./createComposeInternal";
 import { createGlobalContext } from "./createGlobalContext";
+import { buildInitializeImportMeta } from "./initializeImportMeta";
 import { injectReactRefresh } from "./injectReactRefresh";
-import type { EvaluateModuleReturn } from "./types";
+import type { EvaluateModuleReturn, EvaluateOptions } from "./types";
 
 type EvaluateArgs = {
   code: string;
@@ -13,7 +14,7 @@ type EvaluateArgs = {
   capturedVariableNames: CapturedVariableNames;
   temporalGlobalStyles: string[];
   linker: ModuleLinker;
-};
+} & EvaluateOptions;
 
 export async function evaluate({
   code,
@@ -21,6 +22,8 @@ export async function evaluate({
   capturedVariableNames,
   temporalGlobalStyles,
   uuidToStylesMap,
+  globals,
+  importMeta,
 }: EvaluateArgs): Promise<EvaluateModuleReturn> {
   const globalPropertyNames = Object.getOwnPropertyNames(
     globalThis,
@@ -35,11 +38,16 @@ export async function evaluate({
     ...reactGlobals,
     __composeInternal: createComposeInternal(uuidToStylesMap),
     ...createGlobalContext(),
+    ...globals,
   });
   // create module
   const targetModule = new vm.SourceTextModule(injectedCode, {
     context: contextifiedObject,
     identifier: "vm:module(*target*)",
+    initializeImportMeta: buildInitializeImportMeta({
+      contextifiedObject,
+      importMeta,
+    }),
   });
   await targetModule.link(linker);
 

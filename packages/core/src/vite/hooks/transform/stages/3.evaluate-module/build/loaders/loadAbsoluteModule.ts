@@ -1,19 +1,24 @@
 import vm, { type Module } from "node:vm";
 import { isVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { isVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { buildInitializeImportMeta } from "../../initializeImportMeta";
 import type { TransformContext } from "../../types";
+
+type LoadAbsoluteModuleArgs = {
+  modulesCache: Map<string, Module>;
+  specifier: string;
+  referencingModule: Module;
+  ctx: TransformContext;
+  importMeta: Record<string, unknown>;
+};
 
 export async function loadAbsoluteModule({
   modulesCache,
   specifier,
   referencingModule,
   ctx,
-}: {
-  modulesCache: Map<string, Module>;
-  specifier: string;
-  referencingModule: Module;
-  ctx: TransformContext;
-}): Promise<Module | null> {
+  importMeta,
+}: LoadAbsoluteModuleArgs): Promise<Module | null> {
   // casablanca modules must be resolved by casablanca plugin.
   const skipSelf =
     !isVirtualCssModuleId(specifier) && !isVirtualGlobalStyleId(specifier);
@@ -40,6 +45,10 @@ export async function loadAbsoluteModule({
   const m = new vm.SourceTextModule(loaded.code, {
     context: referencingModule.context,
     identifier: `vm:module<absolute>(${resolvedAbsolutePath.id})`,
+    initializeImportMeta: buildInitializeImportMeta({
+      contextifiedObject: referencingModule.context,
+      importMeta,
+    }),
   });
   modulesCache.set(resolvedAbsolutePath.id, m);
   return m;

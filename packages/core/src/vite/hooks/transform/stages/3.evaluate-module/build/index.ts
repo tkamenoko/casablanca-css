@@ -6,6 +6,12 @@ import { loadAbsoluteModule } from "./loaders/loadAbsoluteModule";
 import { loadRelativeModule } from "./loaders/loadRelativeModule";
 import { loadViteModule } from "./loaders/loadViteModule";
 
+type CreateLinkerArgs = {
+  modulePath: string;
+  transformContext: TransformContext;
+  importMeta: Record<string, unknown>;
+};
+
 type CreateLinkerReturn = {
   linker: ModuleLinker;
 };
@@ -13,10 +19,8 @@ type CreateLinkerReturn = {
 export function createLinker({
   modulePath,
   transformContext: ctx,
-}: {
-  modulePath: string;
-  transformContext: TransformContext;
-}): CreateLinkerReturn {
+  importMeta,
+}: CreateLinkerArgs): CreateLinkerReturn {
   const modulesCache = new Map<string, Module>();
   const linker: ModuleLinker = async (specifier, referencingModule) => {
     const referencingPath =
@@ -37,12 +41,14 @@ export function createLinker({
         modulesCache,
         referencingModule,
         specifier,
+        importMeta,
       })) ??
       (await loadAbsoluteModule({
         ctx,
         modulesCache,
         referencingModule,
         specifier,
+        importMeta,
       })) ??
       (await loadRelativeModule({
         basePath,
@@ -50,6 +56,7 @@ export function createLinker({
         modulesCache,
         referencingModule,
         specifier,
+        importMeta,
       }));
 
     if (loadedModule) {

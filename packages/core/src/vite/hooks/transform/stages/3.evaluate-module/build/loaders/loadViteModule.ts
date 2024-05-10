@@ -1,17 +1,22 @@
 import vm, { type Module } from "node:vm";
+import { buildInitializeImportMeta } from "../../initializeImportMeta";
 import type { TransformContext } from "../../types";
+
+type LoadViteModuleArgs = {
+  modulesCache: Map<string, Module>;
+  specifier: string;
+  referencingModule: Module;
+  ctx: TransformContext;
+  importMeta: Record<string, unknown>;
+};
 
 export async function loadViteModule({
   modulesCache,
   specifier,
   referencingModule,
   ctx,
-}: {
-  modulesCache: Map<string, Module>;
-  specifier: string;
-  referencingModule: Module;
-  ctx: TransformContext;
-}): Promise<Module | null> {
+  importMeta,
+}: LoadViteModuleArgs): Promise<Module | null> {
   const cached = modulesCache.get(specifier);
   if (cached) {
     return cached;
@@ -30,6 +35,10 @@ export async function loadViteModule({
   const m = new vm.SourceTextModule(loaded.code, {
     context: referencingModule.context,
     identifier: `vm:module<vite>(${specifier})`,
+    initializeImportMeta: buildInitializeImportMeta({
+      contextifiedObject: referencingModule.context,
+      importMeta,
+    }),
   });
   modulesCache.set(specifier, m);
   return m;

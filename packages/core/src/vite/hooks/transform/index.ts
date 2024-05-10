@@ -6,10 +6,23 @@ import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { captureTaggedStyles } from "./stages/1.capture-tagged-styles";
 import { prepareCompositions } from "./stages/2.prepare-compositions";
 import { createEvaluator } from "./stages/3.evaluate-module";
+import type { EvaluateOptions } from "./stages/3.evaluate-module/types";
 import { replaceUuidWithStyles } from "./stages/4.assign-composed-styles-to-uuid";
 import { createVirtualModules } from "./stages/5.create-virtual-modules";
 import { assignStylesToCapturedVariables } from "./stages/6.assign-styles-to-variables";
 import type { StageResults } from "./types";
+
+type TransformArgs = {
+  path: string;
+  ctx: Rollup.TransformPluginContext;
+  originalCode: string;
+  originalAst: ParseResult;
+  isDev: boolean;
+  projectRoot: string;
+  server: ViteDevServer | null;
+  cssModulesLookup: CssModulesLookup;
+  evaluateOptions: Partial<EvaluateOptions>;
+};
 
 type TransformReturn = {
   cssModule: {
@@ -36,16 +49,8 @@ export async function transform({
   projectRoot,
   server,
   cssModulesLookup,
-}: {
-  path: string;
-  ctx: Rollup.TransformPluginContext;
-  originalCode: string;
-  originalAst: ParseResult;
-  isDev: boolean;
-  projectRoot: string;
-  server: ViteDevServer | null;
-  cssModulesLookup: CssModulesLookup;
-}): Promise<TransformReturn> {
+  evaluateOptions,
+}: TransformArgs): Promise<TransformReturn> {
   // find tagged templates, then remove all tags.
   const stage1Result = await captureTaggedStyles({
     ast: originalAst,
@@ -87,6 +92,7 @@ export async function transform({
     server,
     transformContext: ctx,
     modulePath: path,
+    evaluateOptions,
   });
 
   const { mapOfClassNamesToStyles, evaluatedGlobalStyles } =

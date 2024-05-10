@@ -1,4 +1,5 @@
 import type { TransformOptions } from "vite";
+import type { EvaluateOptions } from "./hooks/transform/stages/3.evaluate-module/types";
 import type { StageResults } from "./hooks/transform/types";
 import type { ResolvedCssModuleId } from "./resolvedCssModuleId";
 import type { ResolvedGlobalStyleId } from "./resolvedGlobalStyleId";
@@ -7,6 +8,7 @@ import type { VirtualGlobalStyleId } from "./virtualGlobalStyleId";
 
 export type PluginOption = {
   babelOptions: TransformOptions;
+  evaluateOptions: Partial<EvaluateOptions>;
   extensions: `.${string}`[];
   includes: string[];
 };

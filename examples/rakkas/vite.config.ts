@@ -10,7 +10,7 @@ export default defineConfig({
     tsconfigPaths(),
     react(),
     casablancaStyled(),
-    casablanca(),
+    casablanca({ evaluateOptions: { globals: { rakkas: {} } } }),
     rakkas(),
   ],
 });

@@ -6,6 +6,8 @@ import { loadRelativeModule } from "./loaders/loadRelativeModule";
 import { loadViteModule } from "./loaders/loadViteModule";
 import { normalizeSpecifier } from "./normalizeSpecifier";
 
+type CreateLinkerArgs = { modulePath: string; server: ViteDevServer };
+
 type CreateLinkerReturn = {
   linker: ModuleLinker;
 };
@@ -13,10 +15,7 @@ type CreateLinkerReturn = {
 export function createLinker({
   modulePath,
   server,
-}: {
-  modulePath: string;
-  server: ViteDevServer;
-}): CreateLinkerReturn {
+}: CreateLinkerArgs): CreateLinkerReturn {
   const modulesCache = new Map<string, Module>();
   const linker: ModuleLinker = async (specifier, referencingModule) => {
     const referencingPath =

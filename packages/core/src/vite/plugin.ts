@@ -38,6 +38,7 @@ export function plugin(
     babelOptions = {},
     extensions = [".mjs", ".cjs", ".js", ".jsx", ".mts", ".cts", ".ts", ".tsx"],
     onExitTransform = async () => {},
+    evaluateOptions = {},
   } = options ?? {};
   const include = new Set(options?.includes ?? []);
 
@@ -133,6 +134,7 @@ export function plugin(
         projectRoot: config.root,
         server,
         originalCode: code,
+        evaluateOptions,
       });
       if (!transformResult) {
         return;
