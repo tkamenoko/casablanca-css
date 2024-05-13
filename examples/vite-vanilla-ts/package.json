@@ -3,7 +3,7 @@
   "description": "casablanca-css example for vanilla-ts.",
   "version": "0.0.0",
   "dependencies": {
-    "polished": "^4.3.1"
+    "open-props": "^1.7.4"
   },
   "devDependencies": {
     "@casablanca/core": "0.0.1",
