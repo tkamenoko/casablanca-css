@@ -1,5 +1,5 @@
 import { styled } from "@casablanca/styled";
-// import { modularScale } from "polished";
+import openProps from "open-props";
 import type { Page } from "rakkasjs";
 import { LinkWithBorder } from "#@/components/link";
 
@@ -11,7 +11,7 @@ const ContainerDiv = styled("div")`
 
 const StyledH1 = styled("h1")`
   text-align: center;
-  font-size: 4rem;
+  font-size: ${openProps.fontSize6};
 `;
 
 const Home: Page = () => {

@@ -1,6 +1,6 @@
 import { css } from "@casablanca/core";
 import { styled } from "@casablanca/styled";
-import { modularScale } from "polished";
+import openProps from "open-props";
 import { type FC, useState } from "react";
 import { Button } from "./Button";
 
@@ -16,7 +16,7 @@ const StyledPWithAdditionalProps = styled("p")<{
 `;
 
 const StyledH1 = styled("h1")`
-  font-size: ${modularScale(2)};
+  font-size: ${openProps.fontSize6};
 `;
 
 const fontSize = css`
