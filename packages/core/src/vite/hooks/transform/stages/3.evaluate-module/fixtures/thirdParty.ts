@@ -1,6 +1,6 @@
 import { css } from "@casablanca/core";
-import { modularScale } from "polished";
+import openProps from "open-props";
 
-export const styleWithPolished = css`
-  font-size: ${modularScale(2)};
+export const styleWithOpenProps = css`
+  border-radius: ${openProps.radiusBlob1};
 `;

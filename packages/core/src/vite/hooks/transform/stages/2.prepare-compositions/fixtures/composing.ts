@@ -1,8 +1,8 @@
 import { css } from "@casablanca/core";
-import { modularScale } from "polished";
+import openProps from "open-props";
 import { styleA as imported } from "./composed";
 
 export const styleB = css`
   composes: ${imported};
-  font-size: ${modularScale(2)};
+  font-size: ${openProps.fontSize4};
 `;

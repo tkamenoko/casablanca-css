@@ -1,3 +1,3 @@
-import { modularScale } from "polished";
+import openProps from "open-props";
 
-export const modular3 = modularScale(3);
+export const fontSize3 = openProps.fontSize3;
