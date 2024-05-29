@@ -1,21 +1,24 @@
 import { styled } from "@casablanca/styled";
-import { type Page, StyledLink } from "rakkasjs";
+import openProps from "open-props";
+import type { Page } from "rakkasjs";
 import { useState } from "react";
+import { LinkWithBorder } from "#@/components/link";
 
 const CountButton = styled("button")`
-  border: 3px solid green;
+  padding: .5rem 1rem;
+  border: 3px solid ${openProps.red4};
   font-size: 2rem;
 `;
 
 const Counter: Page = () => {
   const [count, setCount] = useState(0);
   return (
-    <div>
-      <StyledLink href="/">Back to top</StyledLink>
+    <>
       <CountButton onClick={() => setCount((prev) => prev + 1)}>
-        count: {count}
+        Count: {count}
       </CountButton>
-    </div>
+      <LinkWithBorder href="/">Back to top</LinkWithBorder>
+    </>
   );
 };
 
