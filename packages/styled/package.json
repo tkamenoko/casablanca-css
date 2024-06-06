@@ -51,6 +51,9 @@
   "wireit": {
     "build": {
       "command": "vite build",
+      "dependencies": [
+        "../utils:build"
+      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
