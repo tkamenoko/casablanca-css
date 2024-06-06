@@ -58,7 +58,7 @@ test("should evaluate module using third party modules", async ({
   plugin,
   transformResult,
 }) => {
-  const variableNames = ["styleWithPolished"] as const;
+  const variableNames = ["styleWithOpenProps"] as const;
   const moduleId = buildModuleId({
     relativePath: "./fixtures/thirdParty.ts",
     root: import.meta.url,

@@ -1,3 +1,3 @@
-import { modular3 } from "./themes";
+import { fontSize3 } from "./themes";
 
-export const fontSize = modular3;
+export const fontSize = fontSize3;

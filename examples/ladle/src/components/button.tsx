@@ -1,14 +1,18 @@
 import { css } from "@casablanca/core";
 import { styled } from "@casablanca/styled";
+import openProps from "open-props";
 import type { FC } from "react";
 import { useState } from "react";
 
 export const StyledButton = styled("button")`
-  border: 1px solid green;
+  border: 4px solid ${openProps.green6};
+  border-radius: ${openProps.radius3};
 `;
 
 const buttonClass = css`
-  border: 1px solid red;
+  padding: .5rem 1rem;
+  border: 7px solid ${openProps.red8};
+  border-radius: ${openProps.radiusBlob3};
 `;
 
 export const CustomButton: FC = () => {

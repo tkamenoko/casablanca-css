@@ -1,6 +1,6 @@
 import { css } from "@casablanca/core";
 import type { TaggedStyle } from "@casablanca/utils";
-import { modularScale } from "polished";
+import openProps from "open-props";
 import type { FC } from "react";
 import { Component, composedStyle } from "./composed";
 import { composedStyle as anotherComposedStyle } from "./deps/composed";
@@ -19,7 +19,7 @@ LocalComponent.__modularizedClassName = _styledLocalComponent;
 LocalComponent.__rawClassName = "_styledLocalComponent";
 
 export const styleB = css`
-  font-size: ${modularScale(3)};
+  font-size: ${openProps.fontSizeFluid3};
   composes: ${[
     styleA,
     composedStyle,
