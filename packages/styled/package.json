@@ -15,10 +15,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
+      "development": "./src/vite/index.ts",
       "default": "./dist/vite.js"
     }
   },
@@ -49,9 +51,6 @@
   "wireit": {
     "build": {
       "command": "vite build",
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
@@ -63,17 +62,19 @@
     },
     "test": {
       "command": "vitest run",
-      "dependencies": [
-        "../utils:build",
-        "../core:build"
-      ],
       "env": {
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "../utils/src/**/*.{ts,tsx}",
+        "../utils/tsconfig.json",
+        "../utils/vite.config.ts",
+        "../core/src/**/*.{ts,tsx}",
+        "../core/tsconfig.json",
+        "../core/vite.config.ts"
       ],
       "output": []
     },
@@ -88,13 +89,16 @@
     },
     "types": {
       "command": "tsc --noEmit",
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "../utils/src/**/*.{ts,tsx}",
+        "../utils/tsconfig.json",
+        "../utils/vite.config.ts",
+        "../core/src/**/*.{ts,tsx}",
+        "../core/tsconfig.json",
+        "../core/vite.config.ts"
       ],
       "output": []
     }

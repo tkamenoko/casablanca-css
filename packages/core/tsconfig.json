@@ -2,11 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "./",
+    "rootDir": "./",
     "outDir": "./dist",
     "isolatedModules": true,
     "resolveJsonModule": true,
     "paths": {
-      "@casablanca/core": ["./src"],
       "#@/*": ["./src/*"]
     },
     "types": ["vite/client"],
