@@ -3,21 +3,16 @@ import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
 import { test } from "../fixtures/extendedTest";
 
-test("should assign styles", async ({ expect, plugin, transformResult }) => {
+test("should assign styles", async ({
+  expect,
+  buildInlineConfig,
+  transformResult,
+}) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/composing.tsx",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);

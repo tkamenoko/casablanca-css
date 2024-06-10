@@ -6,23 +6,14 @@ import { notCss, styleA } from "./fixtures/simple";
 
 test("should replace variable initializations with `styles[xxx]`, then append `import styles from 'xxx.css'`", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/simple.tsx",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const { transformed, jsToCssModuleLookup } = transformResult[moduleId] ?? {};
   assert(transformed && jsToCssModuleLookup);
@@ -37,23 +28,14 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
 
 test("should remove temporal variables, import global styles", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/globalOnly.ts",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const { transformed, jsToGlobalStyleLookup } =
     transformResult[moduleId] ?? {};
@@ -67,22 +49,13 @@ test("should remove temporal variables, import global styles", async ({
 test("should work with a file using both `css` and `injectGlobal`", async ({
   expect,
   transformResult,
-  plugin,
+  buildInlineConfig,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/mixed.ts",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const { transformed, jsToGlobalStyleLookup, jsToCssModuleLookup } =
     transformResult[moduleId] ?? {};

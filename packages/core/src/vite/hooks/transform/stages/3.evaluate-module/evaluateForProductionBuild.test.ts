@@ -10,7 +10,7 @@ import * as localModuleExports from "./fixtures/useLocalFile";
 
 test("should evaluate module to get exported styles", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const variableNames = ["staticStyle", "embedded", "functionCall"] as const;
@@ -19,16 +19,7 @@ test("should evaluate module to get exported styles", async ({
     root: import.meta.url,
   });
 
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);
@@ -55,7 +46,7 @@ test("should evaluate module to get exported styles", async ({
 
 test("should evaluate module using third party modules", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const variableNames = ["styleWithOpenProps"] as const;
@@ -63,15 +54,7 @@ test("should evaluate module using third party modules", async ({
     relativePath: "./fixtures/thirdParty.ts",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);
@@ -88,7 +71,7 @@ test("should evaluate module using third party modules", async ({
 
 test("should evaluate module using local modules", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const variableNames = ["styleWithLocalModule"] as const;
@@ -97,15 +80,7 @@ test("should evaluate module using local modules", async ({
     root: import.meta.url,
   });
 
-  await build({
-    configFile: false,
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);
@@ -122,7 +97,7 @@ test("should evaluate module using local modules", async ({
 
 test("should evaluate module using non-script modules", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const variableNames = ["className"] as const;
@@ -131,15 +106,7 @@ test("should evaluate module using non-script modules", async ({
     root: import.meta.url,
   });
 
-  await build({
-    configFile: false,
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);
@@ -156,7 +123,7 @@ test("should evaluate module using non-script modules", async ({
 
 test("should evaluate module injecting global styles", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const variableNames = ["staticStyle"] as const;
@@ -165,16 +132,7 @@ test("should evaluate module injecting global styles", async ({
     root: import.meta.url,
   });
 
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);

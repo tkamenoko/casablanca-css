@@ -1,8 +1,7 @@
 import { type ViteDevServer, createServer } from "vite";
-import { assert, test as t } from "vitest";
-import { plugin } from "#@/vite/plugin";
-import type { TransformResult } from "#@/vite/types";
+import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
+import { test as t } from "../fixtures/extendedTest";
 import * as globalStyleModuleExports from "./fixtures/globalStyles";
 import { testObjectHasEvaluatedStyles } from "./fixtures/testHelpers";
 import * as thirdPartyModuleExports from "./fixtures/thirdParty";
@@ -11,35 +10,13 @@ import * as localModuleExports from "./fixtures/useLocalFile";
 
 type TestContext = {
   server: ViteDevServer;
-  transformResult: Record<string, TransformResult>;
 };
 
 const test = t.extend<TestContext>({
-  server: async ({ transformResult }, use) => {
-    const server = await createServer({
-      plugins: [
-        plugin({
-          onExitTransform: async (p) => {
-            transformResult[p.path] = p;
-          },
-        }),
-      ],
-      appType: "custom",
-      server: {
-        middlewareMode: true,
-        hmr: false,
-        preTransformRequests: false,
-      },
-      configFile: false,
-      optimizeDeps: {
-        noDiscovery: true,
-      },
-    });
+  server: async ({ buildInlineConfig }, use) => {
+    const server = await createServer(buildInlineConfig(null));
     await use(server);
     await server.close();
-  },
-  transformResult: async ({ task: _ }, use) => {
-    await use({});
   },
 });
 
