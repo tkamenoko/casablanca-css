@@ -6,23 +6,14 @@ import { test } from "../fixtures/extendedTest";
 
 test("should create css-tagged styles from styled-tagged components", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/styled.tsx",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   assert(transformResult);
   const { stages } = transformResult[moduleId] ?? {};
