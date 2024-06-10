@@ -23,11 +23,13 @@
     ".": {
       "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
+      "production": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "development": "./src/vite/index.ts",
+      "production": "./src/vite/index.ts",
       "default": "./dist/vite.js"
     }
   },
@@ -55,13 +57,13 @@
   "wireit": {
     "build": {
       "command": "vite build",
-      "dependencies": [
-        "../utils:build"
-      ],
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "../utils/src/**/*.{ts,tsx}",
+        "../utils/tsconfig.json",
+        "../utils/vite.config.ts"
       ],
       "output": [
         "./dist/**/*.{js,d.ts}"
