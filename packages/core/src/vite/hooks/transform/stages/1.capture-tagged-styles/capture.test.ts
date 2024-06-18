@@ -6,23 +6,14 @@ import { test } from "../fixtures/extendedTest";
 
 test("should capture variable names initialized with css tag", async ({
   expect,
-  plugin,
+  buildInlineConfig,
   transformResult,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/static.tsx",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);

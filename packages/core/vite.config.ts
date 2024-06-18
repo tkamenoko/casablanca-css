@@ -15,7 +15,6 @@ export default defineConfig({
     target: ["node18"],
     minify: false,
   },
-
   plugins: [
     { ...nodeExternals(), enforce: "pre", apply: "build" },
     dts({
@@ -24,5 +23,4 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  test: {},
 });

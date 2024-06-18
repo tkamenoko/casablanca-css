@@ -13,12 +13,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "production": "./src/index.ts",
       "default": "./dist/index.js"
     }
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
-  "main": "./dist/index.js",
   "peerDependencies": {
     "@casablanca/core": "0.0.1",
     "vite": "^5.0.12"

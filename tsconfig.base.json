@@ -8,6 +8,7 @@
       {
         "name": "@styled/typescript-styled-plugin"
       }
-    ]
+    ],
+    "customConditions": ["development"]
   }
 }

@@ -6,22 +6,13 @@ import { test } from "../fixtures/extendedTest";
 test("should create css string from partial styles and importer id", async ({
   expect,
   transformResult,
-  plugin,
+  buildInlineConfig,
 }) => {
   const moduleId = buildModuleId({
     relativePath: "./fixtures/styles.ts",
     root: import.meta.url,
   });
-  await build({
-    configFile: false,
-    appType: "custom",
-    plugins: [plugin],
-    build: {
-      write: false,
-      lib: { entry: moduleId, formats: ["es"] },
-    },
-    optimizeDeps: { noDiscovery: true },
-  });
+  await build(buildInlineConfig(moduleId));
 
   const r = transformResult[moduleId];
   assert(r);
