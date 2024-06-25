@@ -12,10 +12,10 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/lib/index.d.ts",
       "development": "./src/index.ts",
       "production": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/lib/index.js"
     }
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
@@ -32,16 +32,16 @@
     "types": "wireit"
   },
   "type": "module",
-  "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/*.d.ts"
-      ]
-    }
-  },
+  "types": "dist/lib/index.d.ts",
   "wireit": {
     "build": {
+      "dependencies": [
+        "build:copy",
+        "build:package.json",
+        "build:transpile"
+      ]
+    },
+    "build:transpile": {
       "command": "vite build",
       "files": [
         "./src/**/*.ts",
@@ -49,7 +49,29 @@
         "./vite.config.ts"
       ],
       "output": [
-        "./dist/**/*.{js,d.ts}"
+        "./dist/lib/**/*.{js,d.ts}"
+      ]
+    },
+    "build:copy": {
+      "command": "vite-node ./scripts/build/copy.ts",
+      "files": [
+        "./README.md",
+        "../../LICENSE",
+        "./scripts/build/copy.ts"
+      ],
+      "output": [
+        "./dist/README.md",
+        "./dist/LICENSE"
+      ]
+    },
+    "build:package.json": {
+      "command": "vite-node ./scripts/build/package.ts && syncpack format --source ./dist/package.json",
+      "files": [
+        "./package.json",
+        "./scripts/build/package.ts"
+      ],
+      "output": [
+        "./dist/package.json"
       ]
     },
     "test": {

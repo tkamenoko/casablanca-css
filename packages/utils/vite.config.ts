@@ -13,6 +13,7 @@ export default defineConfig({
     },
     target: ["node18"],
     minify: false,
+    outDir: "./dist/lib",
   },
   plugins: [
     { ...nodeExternals(), enforce: "pre", apply: "build" },

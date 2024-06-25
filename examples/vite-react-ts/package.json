@@ -36,7 +36,8 @@
       ],
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/styled:build"
+        "../../packages/styled:build",
+        "../../packages/utils:build"
       ],
       "output": [
         "./dist/**"
@@ -50,7 +51,8 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/styled:build"
+        "../../packages/styled:build",
+        "../../packages/utils:build"
       ]
     },
     "preview": {

@@ -31,7 +31,8 @@
         "./vite.config.ts"
       ],
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/utils:build"
       ],
       "output": [
         "./dist/**"
@@ -44,7 +45,8 @@
         "NODE_OPTIONS": "--experimental-vm-modules"
       },
       "dependencies": [
-        "../../packages/core:build"
+        "../../packages/core:build",
+        "../../packages/utils:build"
       ]
     },
     "preview": {

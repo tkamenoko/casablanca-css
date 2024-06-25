@@ -35,7 +35,8 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/styled:build"
+        "../../packages/styled:build",
+        "../../packages/utils:build"
       ]
     },
     "build": {
@@ -45,7 +46,8 @@
       },
       "dependencies": [
         "../../packages/core:build",
-        "../../packages/styled:build"
+        "../../packages/styled:build",
+        "../../packages/utils:build"
       ],
       "files": [
         "./src/",
