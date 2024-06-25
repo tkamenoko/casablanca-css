@@ -1,5 +1,5 @@
-import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { ensureDir, writeJson } from "fs-extra";
 import {
   author,
   bugs,
@@ -18,6 +18,7 @@ import {
 
 async function main() {
   const dist = resolve("./dist/");
+  await ensureDir(dist);
   const packagePath = resolve(dist, "package.json");
   const { default: defaultExport, types: typesExport } = exports["."];
   const fixedTypes = types.replace("dist/", "");
@@ -42,7 +43,7 @@ async function main() {
     types: fixedTypes,
     version,
   };
-  await writeFile(packagePath, JSON.stringify(fixedPackage));
+  await writeJson(packagePath, fixedPackage);
 }
 
 await main();
