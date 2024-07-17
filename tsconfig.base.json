@@ -4,11 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "target": "ESNext",
-    "plugins": [
-      {
-        "name": "@styled/typescript-styled-plugin"
-      }
-    ],
     "customConditions": ["development"]
   }
 }

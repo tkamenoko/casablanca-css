@@ -8,6 +8,6 @@ export const LinkWithBorder = styled(StyledLink)`
   font-size: ${openProps.fontSize4};
   color: ${openProps.pink4};
   background-color: ${openProps.gray0};
-  border: 5px solid currentColor;
+  border: 5px solid currentcolor;
   border-radius: ${openProps.radius4};
 `;
