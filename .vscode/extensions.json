@@ -1,7 +1,3 @@
 {
-    "recommendations": [
-        "google.wireit",
-        "styled-components.vscode-styled-components",
-        "biomejs.biome"
-    ]
+  "recommendations": ["google.wireit", "biomejs.biome"]
 }

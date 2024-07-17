@@ -58,6 +58,7 @@ const PanelDiv = styled("div")`
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 1rem;
+
   & > div{
     display: grid;
     row-gap: 3px;
@@ -70,8 +71,7 @@ const ContainerDiv = styled("div")`
   padding: .5rem 0;
   grid-template-columns: auto;
   row-gap: 5px;
-  justify-content: center;
-  align-content: start;
+  place-content: start center;
   background-image: ${openProps.gradient7};
 `;
 

@@ -33,8 +33,7 @@ const divStyle: string = css`
   padding: .5rem 0;
   grid-template-columns: auto;
   row-gap: 5px;
-  justify-content: center;
-  align-content: start;
+  place-content: start center;
 
   & .${textAlign} {
     font-size: ${openProps.fontSize4};

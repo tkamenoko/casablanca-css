@@ -33,6 +33,7 @@
     "react": "^18.2.0",
     "vite": "^5.0.12"
   },
+  "private": true,
   "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
     "build": "wireit",
