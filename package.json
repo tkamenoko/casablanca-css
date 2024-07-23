@@ -5,7 +5,7 @@
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "devDependencies": {
-    "@biomejs/biome": "1.7.3",
+    "@biomejs/biome": "1.8.3",
     "@tsconfig/strictest": "^2.0.2",
     "@types/fs-extra": "~11.0.4",
     "@types/prettier": "^3.0.0",
@@ -18,10 +18,10 @@
     "syncpack": "^12.3.0",
     "typescript": "^5.3.3",
     "typesync": "^0.12.1",
-    "vite-node": "^1.6.0",
-    "vite-plugin-dts": "^3.7.2",
+    "vite-node": "2.0.3",
+    "vite-plugin-dts": "4.0.0-beta.1",
     "vite-tsconfig-paths": "^4.3.1",
-    "vitest": "^1.2.2",
+    "vitest": "2.0.3",
     "wireit": "^0.14.4"
   },
   "engines": {

@@ -37,7 +37,7 @@
     "editor.formatOnSave": true
   },
   "[css]": {
-    "editor.defaultFormatter": "vscode.css-language-features"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "stylelint.configFile": "stylelint.config.js",
   "stylelint.validate": ["css", "typescript", "typescriptreact"],

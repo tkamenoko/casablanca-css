@@ -14,5 +14,6 @@
   },
   "formatter": {
     "indentStyle": "space"
-  }
+  },
+  "css": { "formatter": { "enabled": true } }
 }
