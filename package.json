@@ -6,10 +6,14 @@
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@commitlint/types": "^19.0.3",
     "@tsconfig/strictest": "^2.0.2",
     "@types/fs-extra": "~11.0.4",
     "@types/prettier": "^3.0.0",
     "fs-extra": "^11.2.0",
+    "husky": "^9.1.4",
     "postcss-styled-syntax": "^0.6.4",
     "prettier": "^3.2.5",
     "rollup-plugin-node-externals": "^7.0.1",
@@ -33,7 +37,8 @@
   "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
     "test-all": "wireit",
-    "types-all": "wireit"
+    "types-all": "wireit",
+    "prepare": "husky || true"
   },
   "type": "module",
   "wireit": {
