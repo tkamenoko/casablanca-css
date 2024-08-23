@@ -1,0 +1,42 @@
+name: Push changes and create a new tag
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Set git config
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Set package version
+        run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}
+
+      - name: Commit updates
+        run: |
+          git add -N .
+          git commit -m "build(${{ inputs.package-name }}): Version ${{ inputs.version }}"
+
+      - name: Create tag
+        run: git tag "@casablanca-css/${{ inputs.package-name }}@v${{ inputs.version }}"
+
+      - name: Push to origin
+        run: |
+          git push origin
+          git push --tags
