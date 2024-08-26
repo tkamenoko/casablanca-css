@@ -43,5 +43,6 @@
   "stylelint.validate": ["css", "typescript", "typescriptreact"],
   "editor.codeActionsOnSave": {
     "source.fixAll.stylelint": "explicit"
-  }
+  },
+  "conventionalCommits.scopes": ["git-cliff", "github actions"]
 }

@@ -1,0 +1,53 @@
+name: Publish tagged package
+
+on:
+  push:
+    tags:
+      - "@casablanca-css/*@v[0-9]+.*"
+
+jobs:
+  package-name:
+    runs-on: ubuntu-latest
+    outputs:
+      package-name: ${{ steps.package-name.outputs.name }}
+    steps:
+      - name: Get publishing package name
+        id: package-name
+        run: echo "${{ github.ref_name }}" | sed -r 's/@casablanca-css\/([a-z]+)@v[0-9]+.*/name=\1/g' >> "$GITHUB_OUTPUT"
+
+  build-and-release:
+    runs-on: ubuntu-latest
+    needs: ["package-name"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - uses: google/wireit@setup-github-actions-caching/v1
+
+      - run: npm ci
+
+      - name: Build package
+        run: npm -w packages/${{ needs.package-name.outputs.package-name }} run build
+
+      - name: Publish to NPM
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: packages/${{ needs.package-name.outputs.package-name }}/dist
+          access: public
+
+      - name: Pick changes from changelog
+        id: pick
+        run: |
+          cat packages/${{ needs.package-name.outputs.package-name }}/CHANGELOG.md | csplit - '/---/' '{*}'
+          cat xx01 | tail -n +3 | echo "body=$(cat -)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.pick.outputs.body }}

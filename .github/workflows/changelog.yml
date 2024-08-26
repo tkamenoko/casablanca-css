@@ -1,0 +1,47 @@
+name: Generate a changelog on release workflow
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+    outputs:
+      changelog:
+        description: Content of the changelog.
+        value: ${{jobs.changelog.outputs.changelog}}
+      version:
+        description: Version of the latest release.
+        value: ${{jobs.changelog.outputs.version}}
+      is-changed:
+        description: Set "true" if a new changelog is created, otherwise "false".
+        value: ${{jobs.changelog.outputs.is-changed}}
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    outputs:
+      changelog: ${{steps.cliff.outputs.content}}
+      version: ${{steps.cliff.outputs.version}}
+      is-changed: ${{steps.changed.outputs.is-changed}}
+
+    steps:
+      - name: Generate a changelog
+        id: cliff
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --verbose --include-path "packages/${{inputs.package-name}}/**/*" --bump --tag-pattern "^@casablanca-css/${{inputs.package-name}}@v[0-9].*"
+        env:
+          OUTPUT: packages/${{inputs.package-name}}/CHANGELOG.md
+
+      - name: Diff
+        id: diff
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+        continue-on-error: true
+
+      - name: Set changed status
+        id: changed
+        run: echo "is-changed=${{ steps.diff.outcome == 'failure' }}" >> "$GITHUB_OUTPUT"
