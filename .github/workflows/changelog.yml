@@ -1,4 +1,4 @@
-name: Generate a changelog on release workflow
+name: Generate a changelog
 
 on:
   workflow_call:

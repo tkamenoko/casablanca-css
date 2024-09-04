@@ -1,0 +1,40 @@
+name: Bump package version
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Set git config
+        uses: ./.github/workflows/git-config.yml
+
+      - name: Set package version
+        run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}
+
+      - name: Update ${{ inputs.package-name }} version in other packages
+        run: |
+          npm run set-deps-version -- ${{ inputs.package-name }} ${{ inputs.version }}
+          npx syncpack format
+
+      - name: Commit and push updates
+        run: |
+          git add -N .
+          git commit -m "Set `${{ inputs.package-name }}` version ${{ inputs.version }}"
+          git push origin

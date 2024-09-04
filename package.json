@@ -37,9 +37,10 @@
   "private": true,
   "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
+    "prepare": "husky || true",
+    "set-deps-version": "wireit",
     "test-all": "wireit",
-    "types-all": "wireit",
-    "prepare": "husky || true"
+    "types-all": "wireit"
   },
   "type": "module",
   "wireit": {
@@ -55,6 +56,9 @@
         "./packages/styled:types",
         "./packages/utils:types"
       ]
+    },
+    "set-deps-version": {
+      "command": "vite-node ./scripts/set-deps-verson.ts"
     }
   },
   "workspaces": [
