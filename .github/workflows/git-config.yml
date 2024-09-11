@@ -1,0 +1,12 @@
+name: Set git config
+
+on: workflow_call
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set git config
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'

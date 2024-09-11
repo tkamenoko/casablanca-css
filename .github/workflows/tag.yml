@@ -1,12 +1,9 @@
-name: Push changes and create a new tag
+name: Create a new tag
 
 on:
   workflow_call:
     inputs:
       package-name:
-        required: true
-        type: string
-      version:
         required: true
         type: string
 
@@ -21,22 +18,24 @@ jobs:
           cache: "npm"
 
       - name: Set git config
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
+        uses: ./.github/workflows/git-config.yml
 
-      - name: Set package version
-        run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}
+      - name: Get package.json
+        id: package
+        run: echo "package=$(cat packages/${{ inputs.package-name }}/package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Commit updates
-        run: |
-          git add -N .
-          git commit -m "build(${{ inputs.package-name }}): Version ${{ inputs.version }}"
+      - name: Get package version
+        id: version
+        run: echo "version=${{ fromJson(steps.package.outputs.package).version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Find tag
+        id: find
+        run: echo "tag=$(git tag -l "@casablanca-css/${{ inputs.package-name }}@v${{ steps.version.outputs.version }}" | wc -l)" >> "$GITHUB_OUTPUT"
 
       - name: Create tag
-        run: git tag "@casablanca-css/${{ inputs.package-name }}@v${{ inputs.version }}"
+        if: ${{ steps.find.outputs.tag == 0 }}
+        run: git tag "@casablanca-css/${{ inputs.package-name }}@v${{ steps.version.outputs.version }}"
 
       - name: Push to origin
         run: |
-          git push origin
           git push --tags
