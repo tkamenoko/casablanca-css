@@ -1,4 +1,4 @@
-import { styled } from "@casablanca/styled";
+import { styled } from "@casablanca-css/styled";
 
 export const StyledDiv = styled("div")`
   border: 1px solid violet;

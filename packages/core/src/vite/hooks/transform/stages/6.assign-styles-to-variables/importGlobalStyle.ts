@@ -1,6 +1,6 @@
 import type { PluginObj, PluginPass } from "@babel/core";
 import type babel from "@babel/core";
-import { isTopLevelStatement } from "@casablanca/utils";
+import { isTopLevelStatement } from "@casablanca-css/utils";
 import type { Options } from "./types";
 
 type BabelState = {

@@ -2,7 +2,7 @@ import { type NodePath, type PluginPass, types } from "@babel/core";
 import {
   isCasablancaCssTemplate,
   isTopLevelStatement,
-} from "@casablanca/utils";
+} from "@casablanca-css/utils";
 import type { BabelState } from "../types";
 
 export function captureVariableNames(

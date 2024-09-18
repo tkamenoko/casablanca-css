@@ -1,5 +1,5 @@
-import { css } from "@casablanca/core";
-import type { TaggedStyle } from "@casablanca/utils";
+import { css } from "@casablanca-css/core";
+import type { TaggedStyle } from "@casablanca-css/utils";
 import type { FC } from "react";
 import { anotherComposedStyle } from "./deps/composed";
 

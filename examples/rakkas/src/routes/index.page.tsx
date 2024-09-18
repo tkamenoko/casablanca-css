@@ -1,4 +1,4 @@
-import { styled } from "@casablanca/styled";
+import { styled } from "@casablanca-css/styled";
 import openProps from "open-props";
 import type { Page } from "rakkasjs";
 import { LinkWithBorder } from "#@/components/link";

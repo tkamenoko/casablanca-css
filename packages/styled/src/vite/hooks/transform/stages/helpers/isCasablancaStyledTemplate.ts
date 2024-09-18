@@ -1,6 +1,6 @@
 import type { NodePath, types } from "@babel/core";
 import type { TaggedTemplateExpression } from "@babel/types";
-import { isCasablancaImport } from "@casablanca/utils";
+import { isCasablancaImport } from "@casablanca-css/utils";
 
 export function isCasablancaStyledTemplate(
   path: NodePath<types.Expression | null | undefined>,

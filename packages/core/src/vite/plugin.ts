@@ -1,5 +1,5 @@
 import { parseAsync } from "@babel/core";
-import { extractPathAndParamsFromId } from "@casablanca/utils";
+import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { extractTargetFilePath } from "./helpers/extractTargetFilePath";
 import { invalidateModule } from "./helpers/invalidateModule";

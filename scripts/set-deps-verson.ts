@@ -15,7 +15,7 @@ async function main() {
     })
   ).filter((x) => x !== packageName);
 
-  const packagePrefix = "@casablanca/";
+  const packagePrefix = "@casablanca-css/";
 
   for (const targetName of targetPackages) {
     const packageJsonPath = resolve(packagesDir, targetName, "package.json");

@@ -1,5 +1,5 @@
 {
-  "name": "@casablanca/core",
+  "name": "@casablanca-css/core",
   "description": "Zero-Runtime CSS-in-JS powered by vite.",
   "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
@@ -7,7 +7,7 @@
   "dependencies": {
     "@ampproject/remapping": "^2.3.0",
     "@babel/core": "^7.23.9",
-    "@casablanca/utils": "^0.0.1",
+    "@casablanca-css/utils": "^0.0.1",
     "happy-dom": "14.12.3",
     "source-map": "^0.7.4"
   },

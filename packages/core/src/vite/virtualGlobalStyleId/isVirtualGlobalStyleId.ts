@@ -1,4 +1,4 @@
-import { extractPathAndParamsFromId } from "@casablanca/utils";
+import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import { type VirtualGlobalStyleId, globalStyleIdPrefix } from "./types";
 
 export function isVirtualGlobalStyleId(p: string): p is VirtualGlobalStyleId {

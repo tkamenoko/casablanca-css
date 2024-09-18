@@ -1,6 +1,6 @@
 import type babel from "@babel/core";
 import type { PluginObj, PluginPass } from "@babel/core";
-import { isTopLevelStatement } from "@casablanca/utils";
+import { isTopLevelStatement } from "@casablanca-css/utils";
 import type { EmbeddedToClassNameMap, UuidToStylesMap } from "../types";
 import { buildComposeInternalExpression } from "./helpers/buildComposeInternalExpression";
 import { collectComposeArgsValues } from "./helpers/collectComposeArgsValues";

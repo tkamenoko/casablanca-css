@@ -1,5 +1,5 @@
 {
-  "name": "@casablanca/utils",
+  "name": "@casablanca-css/utils",
   "description": "Common utilities for casablanca-css.",
   "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
@@ -21,7 +21,7 @@
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
   "peerDependencies": {
-    "@casablanca/core": "0.0.1",
+    "@casablanca-css/core": "0.0.1",
     "vite": "^5.0.12"
   },
   "private": true,

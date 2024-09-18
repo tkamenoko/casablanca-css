@@ -1,4 +1,4 @@
-import { injectGlobal } from "@casablanca/core";
+import { injectGlobal } from "@casablanca-css/core";
 
 const fontSize = "16px";
 

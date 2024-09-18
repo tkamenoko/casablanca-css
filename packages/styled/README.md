@@ -1,4 +1,4 @@
-# @casablanca/styled
+# @casablanca-css/styled
 
 Styled-API of `casablanca-css` .
 
@@ -7,7 +7,7 @@ Styled-API of `casablanca-css` .
 ### Install
 
 ```sh
-npm install -D @casablanca/core @casablanca/styled
+npm install -D @casablanca-css/core @casablanca-css/styled
 npm install -D postcss-nested # recommended to support nested @-rule syntax
 ```
 
@@ -27,8 +27,8 @@ Env-var `NODE_OPTIONS=--experimental-vm-modules` is also required because `casab
 
 ```ts
 // vite.config.ts
-import { casablanca } from "@casablanca/core/vite";
-import { casablancaStyled } from "@casablanca/styled/vite";
+import { casablanca } from "@casablanca-css/core/vite";
+import { casablancaStyled } from "@casablanca-css/styled/vite";
 import react from "@vitejs/plugin-react";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
@@ -47,7 +47,7 @@ See [examples](/examples/) for other projects.
 ## Usage
 
 ```tsx
-import { styled } from "@casablanca/styled";
+import { styled } from "@casablanca-css/styled";
 import { MyComponent } from "./components";
 import { colors, baseButton } from "./themes";
 

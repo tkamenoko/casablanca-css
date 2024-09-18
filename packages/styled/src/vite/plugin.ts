@@ -1,6 +1,6 @@
 import type { TransformOptions } from "@babel/core";
 import { parseAsync } from "@babel/core";
-import { extractPathAndParamsFromId } from "@casablanca/utils";
+import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import type { Plugin, ResolvedConfig } from "vite";
 import { transform } from "./hooks/transform";
 import type { OnExitTransform } from "./types";

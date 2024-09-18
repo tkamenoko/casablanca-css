@@ -1,4 +1,4 @@
-import { extractPathAndParamsFromId } from "@casablanca/utils";
+import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import { isVirtualGlobalStyleId } from "../virtualGlobalStyleId";
 import type { ResolvedGlobalStyleId } from "./types";
 
