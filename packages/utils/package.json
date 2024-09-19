@@ -16,7 +16,8 @@
       "development": "./src/index.ts",
       "production": "./src/index.ts",
       "default": "./dist/lib/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",

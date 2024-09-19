@@ -26,6 +26,7 @@
       "production": "./src/index.ts",
       "default": "./dist/lib/index.js"
     },
+    "./package.json": "./package.json",
     "./vite": {
       "types": "./dist/lib/vite.d.ts",
       "development": "./src/vite/index.ts",
@@ -34,6 +35,12 @@
     }
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
+  "keywords": [
+    "css",
+    "css-in-js",
+    "vite",
+    "vite-plugin"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "vite": "^5.0.12"
