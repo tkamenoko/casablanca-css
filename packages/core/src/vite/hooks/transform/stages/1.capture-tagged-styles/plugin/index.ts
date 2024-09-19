@@ -1,5 +1,5 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
-import { isCasablancaImport } from "@casablanca/utils";
+import { isCasablancaImport } from "@casablanca-css/utils";
 import type { BabelState } from "../types";
 import { captureGlobalStyles } from "./captureGlobalStyles";
 import { captureVariableNames } from "./captureVariables";

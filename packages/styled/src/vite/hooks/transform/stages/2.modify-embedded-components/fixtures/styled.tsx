@@ -1,5 +1,5 @@
-import { css } from "@casablanca/core";
-import { styled } from "@casablanca/styled";
+import { css } from "@casablanca-css/core";
+import { styled } from "@casablanca-css/styled";
 import type { FC } from "react";
 import { StyledDiv } from "./externalComponent";
 

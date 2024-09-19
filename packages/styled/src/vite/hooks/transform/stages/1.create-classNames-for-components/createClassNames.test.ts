@@ -22,8 +22,8 @@ test("should create css-tagged styles from styled-tagged components", async ({
   const { code } = (await transformFromAstAsync(ast)) ?? {};
 
   assert(code);
-  expect(code).not.toMatch(`import { styled } from '@casablanca/styled';`);
-  expect(code).toMatch("casablanca/core");
+  expect(code).not.toMatch(`import { styled } from '@casablanca-css/styled';`);
+  expect(code).toMatch("@casablanca-css/core");
   expect(code).not.toMatch("NotExportedComponent = styled");
   expect(code).not.toMatch("${(p) =>}");
   expect(code).toMatch(/\${"var\(--.+\)"}/);

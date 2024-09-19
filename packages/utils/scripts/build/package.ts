@@ -33,6 +33,7 @@ async function main() {
         types: typesExport.replace("dist/", ""),
         default: defaultExport.replace("dist/", ""),
       },
+      "./package.json": exports["./package.json"],
     },
     homepage,
     license,

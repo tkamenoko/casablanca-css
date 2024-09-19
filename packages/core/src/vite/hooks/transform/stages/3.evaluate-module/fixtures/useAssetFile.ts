@@ -1,4 +1,4 @@
-import { css } from "@casablanca/core";
+import { css } from "@casablanca-css/core";
 import "./styles.css";
 
 export const className = css`

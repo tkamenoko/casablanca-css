@@ -1,4 +1,4 @@
-import type { TaggedStyle } from "@casablanca/utils";
+import type { TaggedStyle } from "@casablanca-css/utils";
 import type { ComponentType, FC, JSX } from "react";
 
 type TagFunction<T extends object> = <P extends object = T>(

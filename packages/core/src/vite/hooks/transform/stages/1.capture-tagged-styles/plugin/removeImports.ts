@@ -1,5 +1,5 @@
 import type { NodePath, types } from "@babel/core";
-import { isCasablancaImport } from "@casablanca/utils";
+import { isCasablancaImport } from "@casablanca-css/utils";
 import { getImportedName } from "./helpers/getImportedName";
 
 const tagNames = new Set(["css", "injectGlobal"]);

@@ -1,4 +1,4 @@
-import type { TaggedStyle } from "@casablanca/utils";
+import type { TaggedStyle } from "@casablanca-css/utils";
 
 export function css(
   strings: TemplateStringsArray,

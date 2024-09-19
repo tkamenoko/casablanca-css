@@ -1,4 +1,4 @@
-import { css, injectGlobal } from "@casablanca/core";
+import { css, injectGlobal } from "@casablanca-css/core";
 
 export const styleA = css`
   color: aliceblue;

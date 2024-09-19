@@ -1,5 +1,5 @@
-import { casablanca } from "@casablanca/core/vite";
-import { casablancaStyled } from "@casablanca/styled/vite";
+import { casablanca } from "@casablanca-css/core/vite";
+import { casablancaStyled } from "@casablanca-css/styled/vite";
 import react from "@vitejs/plugin-react";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";

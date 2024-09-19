@@ -1,4 +1,4 @@
-import { injectGlobal } from "@casablanca/core";
+import { injectGlobal } from "@casablanca-css/core";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";

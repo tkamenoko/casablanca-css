@@ -1,4 +1,4 @@
-import { css } from "@casablanca/core";
+import { css } from "@casablanca-css/core";
 
 export const staticStyle = css`
   color: blue;

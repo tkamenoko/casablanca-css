@@ -15,9 +15,9 @@ Zero-Runtime CSS-in-JS powered by vite.
 ### Install
 
 ```sh
-npm install -D @casablanca/core
+npm install -D @casablanca-css/core
 npm install -D postcss-nested  # recommended to support nested @-rule syntax
-npm install -D @casablanca/styled  # install if you want styled-components-like API
+npm install -D @casablanca-css/styled  # install if you want styled-components-like API
 ```
 
 ### Config package.json
@@ -38,7 +38,7 @@ Env-var `NODE_OPTIONS=--experimental-vm-modules` is also required because `casab
 
 ```ts
 // vite.config.ts
-import { casablanca } from "@casablanca/core/vite";
+import { casablanca } from "@casablanca-css/core/vite";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
 
@@ -55,8 +55,8 @@ export default defineConfig({
 
 ```ts
 // vite.config.ts
-import { casablanca } from "@casablanca/core/vite";
-import { casablancaStyled } from "@casablanca/styled/vite";
+import { casablanca } from "@casablanca-css/core/vite";
+import { casablancaStyled } from "@casablanca-css/styled/vite";
 import react from "@vitejs/plugin-react";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
@@ -79,7 +79,7 @@ See [examples](/examples/) for other projects.
 ### `css` tag
 
 ```tsx
-import { css } from "@casablanca/core";
+import { css } from "@casablanca-css/core";
 import { colors } from "./themes";
 
 const button = css`
@@ -93,7 +93,7 @@ export const Button = () => <button className={button}>Click!</button>;
 ### `styled` tag
 
 ```tsx
-import { styled } from "@casablanca/styled";
+import { styled } from "@casablanca-css/styled";
 import { MyComponent } from "./components";
 import { colors, baseButton } from "./themes";
 

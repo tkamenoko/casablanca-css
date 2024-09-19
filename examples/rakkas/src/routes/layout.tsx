@@ -1,5 +1,5 @@
-import { injectGlobal } from "@casablanca/core";
-import { styled } from "@casablanca/styled";
+import { injectGlobal } from "@casablanca-css/core";
+import { styled } from "@casablanca-css/styled";
 import openProps from "open-props";
 import type { Layout } from "rakkasjs";
 

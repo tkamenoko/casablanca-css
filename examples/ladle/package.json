@@ -6,8 +6,8 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@casablanca/core": "0.0.1",
-    "@casablanca/styled": "0.0.1",
+    "@casablanca-css/core": "0.0.1",
+    "@casablanca-css/styled": "0.0.1",
     "@ladle/react": "^4.0.2",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "^18.2.55",

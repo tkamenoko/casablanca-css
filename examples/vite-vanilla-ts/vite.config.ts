@@ -1,4 +1,4 @@
-import { casablanca } from "@casablanca/core/vite";
+import { casablanca } from "@casablanca-css/core/vite";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
 

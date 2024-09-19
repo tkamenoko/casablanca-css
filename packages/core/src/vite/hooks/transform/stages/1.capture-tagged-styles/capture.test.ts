@@ -35,7 +35,7 @@ test("should capture variable names initialized with css tag", async ({
   const { code: transformed } = (await transformFromAstAsync(ast)) ?? {};
   assert(transformed);
   expect(transformed).not.toMatch(/{ *css/);
-  expect(transformed).not.toMatch(/@casablanca\/core/);
+  expect(transformed).not.toMatch(/@casablanca-css\/core/);
 
   for (const { temporalName } of capturedVariableNames.values()) {
     const regexp = new RegExp(`export const ${temporalName}`);

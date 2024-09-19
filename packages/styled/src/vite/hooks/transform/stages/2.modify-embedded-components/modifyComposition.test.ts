@@ -18,7 +18,7 @@ test("should replace embedded component ids to property access in css-tagged sty
   const { stages } = transformResult[moduleId] ?? {};
   const { code } = stages?.[2] ?? {};
   assert(code);
-  expect(code).not.toMatch(`import { styled } from '@casablanca/styled';`);
+  expect(code).not.toMatch(`import { styled } from '@casablanca-css/styled';`);
   expect(code).not.toMatch("{TaggedComponent}");
   expect(code).toMatch("{TaggedComponent.__rawClassName}");
   expect(code).not.toMatch(":global(.${TaggedComponent.__rawClassName})");

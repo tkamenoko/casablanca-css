@@ -1,4 +1,4 @@
-# @casablanca/core
+# @casablanca-css/core
 
 Core package of `casablanca-css` .
 
@@ -7,7 +7,7 @@ Core package of `casablanca-css` .
 ### Install
 
 ```sh
-npm install -D @casablanca/core
+npm install -D @casablanca-css/core
 npm install -D postcss-nested  # recommended to support nested @-rule syntax
 ```
 
@@ -27,7 +27,7 @@ Env-var `NODE_OPTIONS=--experimental-vm-modules` is also required because `casab
 
 ```ts
 // vite.config.ts
-import { casablanca } from "@casablanca/core/vite";
+import { casablanca } from "@casablanca-css/core/vite";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";
 
@@ -45,7 +45,7 @@ See [examples](/examples/) for other projects.
 ## Usage
 
 ```tsx
-import { css } from "@casablanca/core";
+import { css } from "@casablanca-css/core";
 import { colors } from "./themes";
 
 const button = css`
