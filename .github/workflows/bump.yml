@@ -10,7 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: matrix
-        run: echo 'packages=['$(ls packages | sed -r -z -e 's/([a-z]+)\/\s/"\1", /g' -e 's/,\s$//')']' >> "$GITHUB_OUTPUT"
+        run: |
+          echo 'packages=['$(ls packages | sed -r -z -e 's/([a-z]+)\/\s/"\1", /g' -e 's/,\s$//')']'
+          echo 'packages=['$(ls packages | sed -r -z -e 's/([a-z]+)\/\s/"\1", /g' -e 's/,\s$//')']' >> "$GITHUB_OUTPUT"
 
   changelog:
     runs-on: ubuntu-latest
