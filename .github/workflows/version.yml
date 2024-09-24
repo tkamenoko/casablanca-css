@@ -41,7 +41,7 @@ jobs:
           EOF
 
       - name: Set package version
-        run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}
+        run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }} --workspaces-update=false
 
       - name: Update ${{ inputs.package-name }} version in other packages
         run: |
