@@ -36,7 +36,7 @@ jobs:
 
       - name: Write changelog content
         run: |
-          cat << EOF > packages/${{inputs.package-name}}/CHANGELOG.md
+          cat << 'EOF' > packages/${{inputs.package-name}}/CHANGELOG.md
           ${{ inputs.content }}
           EOF
 
