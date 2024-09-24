@@ -3,7 +3,7 @@ name: Publish tagged package
 on:
   push:
     tags:
-      - "@casablanca-css/*@v[0-9]+.*"
+      - "@casablanca-css/[a-z]+@v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   package-name:
