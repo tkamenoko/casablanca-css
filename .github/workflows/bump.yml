@@ -32,5 +32,6 @@ jobs:
       matrix:
         package: ${{ fromJSON(needs.setup.outputs.packages) }}
     uses: ./.github/workflows/tag.yml
+    secrets: inherit
     with:
       package-name: ${{ matrix.package }}
