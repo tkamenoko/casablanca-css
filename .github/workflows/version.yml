@@ -48,8 +48,10 @@ jobs:
           npm run set-deps-version -- ${{ inputs.package-name }} ${{ inputs.version }}
           npx syncpack format
 
-      - name: Commit and push updates
+      - name: Commit files
         run: |
           git add --all
           git commit --message 'Set `${{ inputs.package-name }}` version ${{ inputs.version }}' --all --no-verify
-          git push origin
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
