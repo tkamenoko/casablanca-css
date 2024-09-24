@@ -44,5 +44,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.stylelint": "explicit"
   },
-  "conventionalCommits.scopes": ["git-cliff", "github actions"]
+  "conventionalCommits.scopes": ["git-cliff", "github actions", "deps"]
 }
