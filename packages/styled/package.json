@@ -6,7 +6,7 @@
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "dependencies": {
     "@babel/core": "^7.23.9",
-    "@casablanca-css/utils": "^0.0.1"
+    "@casablanca-css/utils": "^0.1.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",

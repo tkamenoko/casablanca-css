@@ -1,7 +1,7 @@
 {
   "name": "@casablanca-css/utils",
   "description": "Common utilities for casablanca-css.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "dependencies": {
