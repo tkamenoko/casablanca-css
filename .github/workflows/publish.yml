@@ -45,7 +45,9 @@ jobs:
         id: pick
         run: |
           cat packages/${{ needs.package-name.outputs.package-name }}/CHANGELOG.md | csplit - '/---/' '{*}'
-          cat xx01 | tail -n +3 | echo "body=$(cat -)" >> "$GITHUB_OUTPUT"
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          cat xx01 | tail -n +3 >> "$GITHUB_OUTPUT"
+          echo EOF >> "$GITHUB_OUTPUT"
 
       - name: Publish to GitHub Release
         uses: softprops/action-gh-release@v2
