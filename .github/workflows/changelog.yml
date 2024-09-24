@@ -43,6 +43,7 @@ jobs:
   version:
     needs: ["changelog"]
     uses: ./.github/workflows/version.yml
+    secrets: inherit
     if: ${{ fromJson(needs.changelog.outputs.is-changed) }}
     with:
       package-name: ${{ inputs.package-name }}
