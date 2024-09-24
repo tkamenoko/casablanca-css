@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
-## [0.1.0] - 2024-09-24
+## [@casablanca-css/styled@v0.1.1](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/styled@v0.1.0..@casablanca-css/styled@v0.1.1) - 2024-09-24
 
 ### Features
 
@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Miscellaneous Chores
 
+- **(deps)** update packages ([#44](https://github.com/tkamenoko/casablanca-css/issues/44)) - ([e244426](https://github.com/tkamenoko/casablanca-css/commit/e244426061d8c9ca13c620e9bed0a58c95b4efe8)) - T.Kameyama
 - rename react to styled ([#16](https://github.com/tkamenoko/casablanca-css/issues/16)) - ([eb19cef](https://github.com/tkamenoko/casablanca-css/commit/eb19cefba56446a9edd65bf5ee9cb36d33abbddd)) - T.Kameyama
 - fix package.json ([#26](https://github.com/tkamenoko/casablanca-css/issues/26)) - ([2c3fb02](https://github.com/tkamenoko/casablanca-css/commit/2c3fb02bcad36c05a6ab43062d4b56f32a34f91e)) - T.Kameyama
 
