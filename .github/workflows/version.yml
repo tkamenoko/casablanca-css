@@ -51,5 +51,5 @@ jobs:
       - name: Commit and push updates
         run: |
           git add --all
-          git commit --message 'Set `${{ inputs.package-name }}` version ${{ inputs.version }}' --all
+          git commit --message 'Set `${{ inputs.package-name }}` version ${{ inputs.version }}' --all --no-verify
           git push origin
