@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changelog: ${{steps.cliff.outputs.content}}
-      version: ${{steps.cliff.outputs.version}}
+      version: ${{steps.version.outputs.version}}
       is-changed: ${{steps.changed.outputs.is-changed}}
 
     steps:
@@ -39,6 +39,10 @@ jobs:
       - name: Set changed status
         id: changed
         run: echo "is-changed=${{ steps.diff.outcome == 'failure' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set version
+        id: version
+        run: echo "${{ steps.cliff.outputs.version }}" | sed -r 's/@casablanca-css\/[a-z]+@v([0-9]+.*)/version=\1/g' >> "$GITHUB_OUTPUT"
 
   version:
     needs: ["changelog"]
