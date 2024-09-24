@@ -6,7 +6,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@casablanca-css/core": "0.0.1",
+    "@casablanca-css/core": "*",
     "@casablanca-css/styled": "0.0.1",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "^18.2.55",
