@@ -35,7 +35,10 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Write changelog content
-        run: echo ${{ inputs.content }} > packages/${{inputs.package-name}}/CHANGELOG.md
+        run: |
+          cat << EOF > packages/${{inputs.package-name}}/CHANGELOG.md
+          ${{ inputs.content }}
+          EOF
 
       - name: Set package version
         run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}
