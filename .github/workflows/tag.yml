@@ -49,4 +49,4 @@ jobs:
 
       - name: Push to origin
         run: |
-          git push --tags
+          git push origin "@casablanca-css/${{ inputs.package-name }}@v${{ steps.version.outputs.version }}"
