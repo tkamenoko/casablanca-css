@@ -50,6 +50,6 @@ jobs:
 
       - name: Commit and push updates
         run: |
-          git add -N .
-          git commit -m "Set `${{ inputs.package-name }}` version ${{ inputs.version }}"
+          git add --all
+          git commit --message 'Set `${{ inputs.package-name }}` version ${{ inputs.version }}' --all
           git push origin
