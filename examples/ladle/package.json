@@ -6,8 +6,8 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@casablanca-css/core": "*",
-    "@casablanca-css/styled": "^0.1.0",
+    "@casablanca-css/core": "0.1.0",
+    "@casablanca-css/styled": "0.1.0",
     "@ladle/react": "^4.0.2",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "^18.2.55",
@@ -16,7 +16,7 @@
     "postcss-nested": "^6.0.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
-    "vite-tsconfig-paths": "^4.3.1"
+    "vite-tsconfig-paths": "5.0.1"
   },
   "private": true,
   "scripts": {
