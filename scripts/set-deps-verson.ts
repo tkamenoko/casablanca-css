@@ -9,11 +9,17 @@ async function main() {
   }
   const packagesDir = resolve("./packages");
   const targetPackages = (
-    await readdir(resolve("./packages"), {
+    await readdir(packagesDir, {
       recursive: false,
       encoding: "ascii",
     })
   ).filter((x) => x !== packageName);
+
+  const examplesDir = resolve("./examples");
+  const targetExamples = await readdir(examplesDir, {
+    recursive: false,
+    encoding: "ascii",
+  });
 
   const packagePrefix = "@casablanca-css/";
 
@@ -21,7 +27,20 @@ async function main() {
     const packageJsonPath = resolve(packagesDir, targetName, "package.json");
 
     const packageJson = await readJson(packageJsonPath);
-    for (const key of ["dependencies", "peerDependencies"]) {
+    for (const key of ["dependencies", "devDependencies", "peerDependencies"]) {
+      if (!(key in packageJson)) {
+        continue;
+      }
+      packageJson[key][`${packagePrefix}${packageName}`] &&= `^${version}`;
+    }
+    await writeJSON(packageJsonPath, packageJson);
+  }
+
+  for (const targetName of targetExamples) {
+    const packageJsonPath = resolve(examplesDir, targetName, "package.json");
+
+    const packageJson = await readJson(packageJsonPath);
+    for (const key of ["dependencies", "devDependencies", "peerDependencies"]) {
       if (!(key in packageJson)) {
         continue;
       }
