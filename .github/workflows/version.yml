@@ -9,11 +9,18 @@ on:
       version:
         required: true
         type: string
+      content:
+        required: true
+        type: string
 
 jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -23,7 +30,12 @@ jobs:
       - run: npm ci
 
       - name: Set git config
-        uses: ./.github/workflows/git-config.yml
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Write changelog content
+        run: echo ${{ inputs.content }} > packages/${{inputs.package-name}}/CHANGELOG.md
 
       - name: Set package version
         run: npm -w packages/${{ inputs.package-name }} version ${{ inputs.version }}

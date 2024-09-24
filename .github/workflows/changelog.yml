@@ -6,16 +6,6 @@ on:
       package-name:
         required: true
         type: string
-    outputs:
-      changelog:
-        description: Content of the changelog.
-        value: ${{jobs.changelog.outputs.changelog}}
-      version:
-        description: Version of the latest release.
-        value: ${{jobs.changelog.outputs.version}}
-      is-changed:
-        description: Set "true" if a new changelog is created, otherwise "false".
-        value: ${{jobs.changelog.outputs.is-changed}}
 
 jobs:
   changelog:
@@ -26,6 +16,10 @@ jobs:
       is-changed: ${{steps.changed.outputs.is-changed}}
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Generate a changelog
         id: cliff
         uses: orhun/git-cliff-action@v3
@@ -45,3 +39,12 @@ jobs:
       - name: Set changed status
         id: changed
         run: echo "is-changed=${{ steps.diff.outcome == 'failure' }}" >> "$GITHUB_OUTPUT"
+
+  version:
+    needs: ["changelog"]
+    uses: ./.github/workflows/version.yml
+    if: ${{ fromJson(needs.changelog.outputs.is-changed) }}
+    with:
+      package-name: ${{ inputs.package-name }}
+      version: ${{ needs.changelog.outputs.version }}
+      content: ${{ needs.changelog.outputs.changelog }}

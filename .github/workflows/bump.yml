@@ -14,45 +14,22 @@ jobs:
           echo 'packages=['$(ls packages | sed -r -z  -e "s/([a-z]+)\n/\"\1\", /g" -e "s/, $//")']' >> "$GITHUB_OUTPUT"
 
   changelog:
-    runs-on: ubuntu-latest
     needs: ["setup"]
     strategy:
       max-parallel: 1
       matrix:
         package: ${{ fromJSON(needs.setup.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Generate a changelog
-        id: changelog
-        uses: ./.github/workflows/changelog.yml
-        with:
-          package-name: ${{ matrix.package }}
-
-      - name: Set version
-        id: version
-        uses: ./.github/workflows/version.yml
-        if: ${{ fromJson(steps.changelog.outputs.is-changed) }}
-        with:
-          package-name: ${{ matrix.package }}
-          version: ${{ steps.changelog.outputs.version }}
+    uses: ./.github/workflows/changelog.yml
+    with:
+      package-name: ${{ matrix.package }}
 
   tags:
-    runs-on: ubuntu-latest
     needs: ["setup", "changelog"]
     strategy:
       max-parallel: 1
       matrix:
         package: ${{ fromJSON(needs.setup.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create tag
-        id: tag
-        uses: ./.github/workflows/tag.yml
-        with:
-          package-name: ${{ matrix.package }}
+    uses: ./.github/workflows/tag.yml
+    with:
+      package-name: ${{ matrix.package }}
