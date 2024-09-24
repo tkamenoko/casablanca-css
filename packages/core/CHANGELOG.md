@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
-## [0.1.0] - 2024-09-24
+## [@casablanca-css/core@v0.2.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.1.0..@casablanca-css/core@v0.2.0) - 2024-09-24
 
 ### Bug Fixes
 
@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Miscellaneous Chores
 
+- **(deps)** update packages ([#44](https://github.com/tkamenoko/casablanca-css/issues/44)) - ([e244426](https://github.com/tkamenoko/casablanca-css/commit/e244426061d8c9ca13c620e9bed0a58c95b4efe8)) - T.Kameyama
 - fix package.json ([#26](https://github.com/tkamenoko/casablanca-css/issues/26)) - ([2c3fb02](https://github.com/tkamenoko/casablanca-css/commit/2c3fb02bcad36c05a6ab43062d4b56f32a34f91e)) - T.Kameyama
 
 ### Build
