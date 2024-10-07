@@ -1,12 +1,18 @@
 import type { TaggedStyle } from "@casablanca-css/utils";
 import type { ComponentType, FC, JSX } from "react";
 
-type TagFunction<T extends object> = <P extends object = T>(
+type PropsType =
+  | Record<string | number | symbol, unknown>
+  | Record<never, never>;
+
+type TagFunction<T extends PropsType> = <
+  P extends PropsType = Record<never, never>,
+>(
   strings: TemplateStringsArray,
   ...vars: (
     | string
     | number
-    | (<U extends T & P>(props: U) => string | number)
+    | ((props: T & P) => string | number)
     | TaggedStyle<unknown>
     | TaggedStyle<unknown>[]
   )[]
@@ -14,10 +20,12 @@ type TagFunction<T extends object> = <P extends object = T>(
 
 type StyleComponent = <C = ComponentType>(
   component: C,
-) => C extends ComponentType<infer P extends object> ? TagFunction<P> : never;
+) => NoInfer<C> extends ComponentType<infer P extends PropsType>
+  ? TagFunction<P>
+  : never;
 type StyleElement = <C extends keyof JSX.IntrinsicElements>(
   component: C,
-) => TagFunction<JSX.IntrinsicElements[C]>;
+) => TagFunction<JSX.IntrinsicElements[NoInfer<C>]>;
 
 type Styled = StyleElement & StyleComponent;
 
