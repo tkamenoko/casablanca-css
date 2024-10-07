@@ -20,7 +20,8 @@
   },
   "private": true,
   "scripts": {
-    "serve": "wireit"
+    "serve": "wireit",
+    "types": "wireit"
   },
   "type": "module",
   "wireit": {
@@ -35,6 +36,18 @@
         "../../packages/styled:build",
         "../../packages/utils:build"
       ]
+    },
+    "types": {
+      "command": "tsc --noemit",
+      "files": [
+        "./.ladle/**/*.{ts,tsx}",
+        "./src/**/*.{ts,tsx}"
+      ],
+      "dependencies": [
+        "../../packages/core:types",
+        "../../packages/styled:types"
+      ],
+      "output": []
     }
   }
 }

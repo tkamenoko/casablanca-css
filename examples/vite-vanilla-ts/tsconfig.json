@@ -1,23 +1,22 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "ESNext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
     "isolatedModules": true,
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
+    "paths": {
+      "#@/*": ["./src/*"]
+    },
     "plugins": [
       {
         "name": "@styled/typescript-styled-plugin",
         "validProperties": ["composes"]
       }
     ],
-    "paths": {
-      "#@/*": ["./src/*"]
-    },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
     "types": ["vite/client"]
   },
-  "include": ["**/*.ts"]
+  "include": ["./src/**/*"]
 }
