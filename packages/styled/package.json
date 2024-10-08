@@ -131,13 +131,11 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts",
-        "../utils/src/**/*.{ts,tsx}",
-        "../utils/tsconfig.json",
-        "../utils/vite.config.ts",
-        "../core/src/**/*.{ts,tsx}",
-        "../core/tsconfig.json",
-        "../core/vite.config.ts"
+        "./vite.config.ts"
+      ],
+      "dependencies": [
+        "../core:types",
+        "../utils:types"
       ],
       "output": []
     }

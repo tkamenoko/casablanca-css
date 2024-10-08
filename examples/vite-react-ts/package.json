@@ -11,6 +11,8 @@
     "@casablanca-css/core": "^0.2.0",
     "@casablanca-css/styled": "^0.1.1",
     "@styled/typescript-styled-plugin": "^1.0.1",
+    "@types/react": "~18.2.79",
+    "@types/react-dom": "~18.2.25",
     "@vitejs/plugin-react": "^4.2.1",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.3.3",
@@ -20,7 +22,8 @@
   "scripts": {
     "build": "wireit",
     "dev": "wireit",
-    "preview": "wireit"
+    "preview": "wireit",
+    "types": "wireit"
   },
   "type": "module",
   "wireit": {
@@ -64,6 +67,18 @@
       "dependencies": [
         "build"
       ]
+    },
+    "types": {
+      "command": "tsc --noemit",
+      "files": [
+        "./.ladle/**/*.{ts,tsx}",
+        "./src/**/*.{ts,tsx}"
+      ],
+      "dependencies": [
+        "../../packages/core:types",
+        "../../packages/styled:types"
+      ],
+      "output": []
     }
   }
 }

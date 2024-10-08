@@ -40,7 +40,8 @@
     "prepare": "husky || true",
     "set-deps-version": "wireit",
     "test-all": "wireit",
-    "types-all": "wireit"
+    "types-all": "wireit",
+    "types-examples": "wireit"
   },
   "type": "module",
   "wireit": {
@@ -55,6 +56,14 @@
         "./packages/core:types",
         "./packages/styled:types",
         "./packages/utils:types"
+      ]
+    },
+    "types-examples": {
+      "dependencies": [
+        "./examples/ladle/:types",
+        "./examples/rakkas/:types",
+        "./examples/vite-react-ts/:types",
+        "./examples/vite-vanilla-ts/:types"
       ]
     },
     "set-deps-version": {

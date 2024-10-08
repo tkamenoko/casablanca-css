@@ -128,10 +128,10 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts",
-        "../utils/src/**/*.{ts,tsx}",
-        "../utils/tsconfig.json",
-        "../utils/vite.config.ts"
+        "./vite.config.ts"
+      ],
+      "dependencies": [
+        "../utils:types"
       ],
       "output": []
     }
