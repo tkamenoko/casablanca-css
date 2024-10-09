@@ -1,5 +1,6 @@
 import vm, { type Module } from "node:vm";
 import type { ViteDevServer } from "vite";
+import type { LoadModuleReturn } from "../../types";
 
 export async function loadViteModule({
   modulesCache,
@@ -11,20 +12,26 @@ export async function loadViteModule({
   specifier: string;
   referencingModule: Module;
   server: ViteDevServer;
-}): Promise<Module | null> {
+}): Promise<LoadModuleReturn> {
   const cached = modulesCache.get(specifier);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
   // resolve id as vite-specific module
   const resolvedModule = server.moduleGraph.getModuleById(specifier);
   if (!resolvedModule) {
-    return null;
+    return {
+      error: new Error(`Failed to resolve "${specifier}"`),
+      module: null,
+    };
   }
   const { url } = resolvedModule;
-  const loaded = await server.ssrLoadModule(url).catch(() => null);
+  const { loaded, error } = await server
+    .ssrLoadModule(url)
+    .then((r) => ({ loaded: r, error: null }))
+    .catch((e) => ({ loaded: null, error: e }));
   if (!loaded) {
-    return null;
+    return { error, module: null };
   }
 
   const exportNames = Object.keys(loaded);
@@ -41,5 +48,5 @@ export async function loadViteModule({
     },
   );
   modulesCache.set(specifier, m);
-  return m;
+  return { error: null, module: m };
 }

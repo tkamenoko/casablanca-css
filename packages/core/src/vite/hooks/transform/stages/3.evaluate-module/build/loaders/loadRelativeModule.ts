@@ -1,6 +1,6 @@
 import vm, { type Module } from "node:vm";
 import { buildInitializeImportMeta } from "../../initializeImportMeta";
-import type { TransformContext } from "../../types";
+import type { LoadModuleReturn, TransformContext } from "../../types";
 
 type LoadRelativeModuleArgs = {
   modulesCache: Map<string, Module>;
@@ -18,24 +18,35 @@ export async function loadRelativeModule({
   ctx,
   basePath,
   importMeta,
-}: LoadRelativeModuleArgs): Promise<Module | null> {
+}: LoadRelativeModuleArgs): Promise<LoadModuleReturn> {
   // resolve id as relative path
   const resolvedRelativePath = await ctx.resolve(specifier, basePath);
   if (!resolvedRelativePath) {
-    return null;
+    return {
+      error: new Error(`Failed to resolve "${specifier}"`),
+      module: null,
+    };
   }
   const cached = modulesCache.get(resolvedRelativePath.id);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
   const loaded = await ctx
     .load({
       id: resolvedRelativePath.id,
       resolveDependencies: true,
     })
-    .catch(() => null);
-  if (typeof loaded?.code !== "string") {
-    return null;
+    .then((r) =>
+      typeof r.code === "string"
+        ? { code: r.code, error: null }
+        : {
+            code: null,
+            error: new Error(`Failed to load "${resolvedRelativePath.id}"`),
+          },
+    )
+    .catch((e) => ({ code: null, error: e }));
+  if (typeof loaded.code !== "string") {
+    return { error: loaded.error, module: null };
   }
 
   const m = new vm.SourceTextModule(loaded.code, {
@@ -47,5 +58,5 @@ export async function loadRelativeModule({
     }),
   });
   modulesCache.set(resolvedRelativePath.id, m);
-  return m;
+  return { error: null, module: m };
 }

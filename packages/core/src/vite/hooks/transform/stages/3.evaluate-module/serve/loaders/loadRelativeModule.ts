@@ -1,5 +1,6 @@
 import vm, { type Module } from "node:vm";
 import type { ViteDevServer } from "vite";
+import type { LoadModuleReturn } from "../../types";
 
 export async function loadRelativeModule({
   modulesCache,
@@ -13,7 +14,7 @@ export async function loadRelativeModule({
   referencingModule: Module;
   server: ViteDevServer;
   basePath: string;
-}): Promise<Module | null> {
+}): Promise<LoadModuleReturn> {
   // resolve id as relative path
   const resolvedRelativePath = await server.pluginContainer.resolveId(
     specifier,
@@ -21,11 +22,14 @@ export async function loadRelativeModule({
   );
 
   if (!resolvedRelativePath) {
-    return null;
+    return {
+      error: new Error(`Failed to resolve "${specifier}"`),
+      module: null,
+    };
   }
   const cached = modulesCache.get(resolvedRelativePath.id);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
 
   const resolvedModule = server.moduleGraph.getModuleById(
@@ -34,9 +38,12 @@ export async function loadRelativeModule({
 
   const url = resolvedModule?.url ?? resolvedRelativePath.id;
 
-  const loaded = await server.ssrLoadModule(url).catch(() => null);
+  const { error, loaded } = await server
+    .ssrLoadModule(url)
+    .then((r) => ({ loaded: r, error: null }))
+    .catch((e) => ({ loaded: null, error: e }));
   if (!loaded) {
-    return null;
+    return { error, module: null };
   }
 
   const exportNames = Object.keys(loaded);
@@ -53,5 +60,5 @@ export async function loadRelativeModule({
     },
   );
   modulesCache.set(specifier, m);
-  return m;
+  return { error: null, module: m };
 }

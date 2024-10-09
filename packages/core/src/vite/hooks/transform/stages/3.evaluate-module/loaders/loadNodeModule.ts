@@ -1,4 +1,5 @@
 import vm, { type Module } from "node:vm";
+import type { LoadModuleReturn } from "../types";
 
 export async function loadNodeModule({
   modulesCache,
@@ -8,14 +9,17 @@ export async function loadNodeModule({
   modulesCache: Map<string, Module>;
   specifier: string;
   referencingModule: Module;
-}): Promise<Module | null> {
+}): Promise<LoadModuleReturn> {
   const cached = modulesCache.get(specifier);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
   const imported = await import(specifier).catch(() => null);
   if (!imported) {
-    return null;
+    return {
+      error: new Error(`Module "${specifier}" was not found in node_modules.`),
+      module: null,
+    };
   }
   const exportNames = Object.keys(imported);
   const m = new vm.SyntheticModule(
@@ -31,5 +35,5 @@ export async function loadNodeModule({
     },
   );
   modulesCache.set(specifier, m);
-  return m;
+  return { error: null, module: m };
 }

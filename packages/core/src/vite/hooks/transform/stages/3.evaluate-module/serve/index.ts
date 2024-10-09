@@ -1,5 +1,6 @@
 import type { Module, ModuleLinker } from "node:vm";
 import type { ViteDevServer } from "vite";
+import { loadModule } from "../loadModule";
 import { loadBuiltinModule } from "../loaders/loadBuiltinModule";
 import { loadNodeModule } from "../loaders/loadNodeModule";
 import { loadRelativeModule } from "./loaders/loadRelativeModule";
@@ -25,36 +26,24 @@ export function createLinker({
       referencingPath === "*target*" ? modulePath : referencingPath;
     const serverSpecifier = normalizeSpecifier(specifier);
 
-    const loadedModule =
-      (await loadBuiltinModule({
-        modulesCache,
-        referencingModule,
-        specifier: serverSpecifier,
-      })) ??
-      (await loadNodeModule({
-        modulesCache,
-        referencingModule,
-        specifier: serverSpecifier,
-      })) ??
-      (await loadViteModule({
-        modulesCache,
-        referencingModule,
-        server,
-        specifier: serverSpecifier,
-      })) ??
-      (await loadRelativeModule({
-        basePath,
-        modulesCache,
-        referencingModule,
-        server,
-        specifier: serverSpecifier,
-      }));
+    const loadModuleArgs = {
+      basePath,
+      modulesCache,
+      referencingModule,
+      server,
+      specifier: serverSpecifier,
+    };
 
-    if (loadedModule) {
-      return loadedModule;
+    const { error, module } = await loadModule(
+      [loadBuiltinModule, loadNodeModule, loadViteModule, loadRelativeModule],
+      loadModuleArgs,
+    );
+
+    if (module) {
+      return module;
     }
 
-    throw new Error(`Failed to load "${serverSpecifier}" from "${modulePath}"`);
+    throw error;
   };
   return { linker };
 }

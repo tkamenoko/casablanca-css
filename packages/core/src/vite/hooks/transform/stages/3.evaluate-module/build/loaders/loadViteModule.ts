@@ -1,6 +1,6 @@
 import vm, { type Module } from "node:vm";
 import { buildInitializeImportMeta } from "../../initializeImportMeta";
-import type { TransformContext } from "../../types";
+import type { LoadModuleReturn, TransformContext } from "../../types";
 
 type LoadViteModuleArgs = {
   modulesCache: Map<string, Module>;
@@ -16,10 +16,10 @@ export async function loadViteModule({
   referencingModule,
   ctx,
   importMeta,
-}: LoadViteModuleArgs): Promise<Module | null> {
+}: LoadViteModuleArgs): Promise<LoadModuleReturn> {
   const cached = modulesCache.get(specifier);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
   // resolve id as vite-specific module
   const loaded = await ctx
@@ -27,9 +27,17 @@ export async function loadViteModule({
       id: specifier,
       resolveDependencies: true,
     })
-    .catch(() => null);
-  if (!loaded?.code) {
-    return null;
+    .then((r) =>
+      r.code
+        ? { code: r.code, error: null }
+        : {
+            code: null,
+            error: new Error(`Failed to load "${specifier}"`),
+          },
+    )
+    .catch((e) => ({ code: null, error: e }));
+  if (!loaded.code) {
+    return { error: loaded.error, module: null };
   }
 
   const m = new vm.SourceTextModule(loaded.code, {
@@ -41,5 +49,5 @@ export async function loadViteModule({
     }),
   });
   modulesCache.set(specifier, m);
-  return m;
+  return { error: null, module: m };
 }
