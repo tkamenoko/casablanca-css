@@ -1,4 +1,5 @@
 import type { Module, ModuleLinker } from "node:vm";
+import { loadModule } from "../loadModule";
 import { loadBuiltinModule } from "../loaders/loadBuiltinModule";
 import { loadNodeModule } from "../loaders/loadNodeModule";
 import type { TransformContext } from "../types";
@@ -29,43 +30,31 @@ export function createLinker({
     const basePath =
       referencingPath === "*target*" ? modulePath : referencingPath;
 
-    const loadedModule =
-      (await loadBuiltinModule({
-        modulesCache,
-        referencingModule,
-        specifier,
-      })) ??
-      (await loadNodeModule({ modulesCache, referencingModule, specifier })) ??
-      (await loadViteModule({
-        ctx,
-        modulesCache,
-        referencingModule,
-        specifier,
-        importMeta,
-      })) ??
-      (await loadAbsoluteModule({
-        ctx,
-        modulesCache,
-        referencingModule,
-        specifier,
-        importMeta,
-      })) ??
-      (await loadRelativeModule({
-        basePath,
-        ctx,
-        modulesCache,
-        referencingModule,
-        specifier,
-        importMeta,
-      }));
+    const loadModuleArgs = {
+      basePath,
+      ctx,
+      modulesCache,
+      referencingModule,
+      specifier,
+      importMeta,
+    };
 
-    if (loadedModule) {
-      return loadedModule;
+    const { error, module } = await loadModule(
+      [
+        loadBuiltinModule,
+        loadNodeModule,
+        loadViteModule,
+        loadAbsoluteModule,
+        loadRelativeModule,
+      ],
+      loadModuleArgs,
+    );
+
+    if (module) {
+      return module;
     }
 
-    throw new Error(
-      `Failed to load "${specifier}" from "${referencingModule.identifier}"`,
-    );
+    throw error;
   };
   return { linker };
 }

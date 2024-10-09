@@ -1,3 +1,4 @@
+import type { Module } from "node:vm";
 import type { types } from "@babel/core";
 import type { Plugin } from "vite";
 import type { CapturedVariableNames } from "../1.capture-tagged-styles/types";
@@ -32,3 +33,8 @@ export type Evaluator = (args: {
 export type TransformContext = ThisParameterType<
   Exclude<NonNullable<Plugin["transform"]>, { order?: unknown }>
 >;
+
+export type LoadModuleFailed = { error: Error; module: null };
+export type LoadModuleOk = { error: null; module: Module };
+
+export type LoadModuleReturn = LoadModuleFailed | LoadModuleOk;

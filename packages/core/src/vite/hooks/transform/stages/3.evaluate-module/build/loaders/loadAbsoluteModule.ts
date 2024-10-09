@@ -2,7 +2,7 @@ import vm, { type Module } from "node:vm";
 import { isVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import { isVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { buildInitializeImportMeta } from "../../initializeImportMeta";
-import type { TransformContext } from "../../types";
+import type { LoadModuleReturn, TransformContext } from "../../types";
 
 type LoadAbsoluteModuleArgs = {
   modulesCache: Map<string, Module>;
@@ -18,7 +18,7 @@ export async function loadAbsoluteModule({
   referencingModule,
   ctx,
   importMeta,
-}: LoadAbsoluteModuleArgs): Promise<Module | null> {
+}: LoadAbsoluteModuleArgs): Promise<LoadModuleReturn> {
   // casablanca modules must be resolved by casablanca plugin.
   const skipSelf =
     !isVirtualCssModuleId(specifier) && !isVirtualGlobalStyleId(specifier);
@@ -27,20 +27,31 @@ export async function loadAbsoluteModule({
     skipSelf,
   });
   if (!resolvedAbsolutePath) {
-    return null;
+    return {
+      error: new Error(`Failed to resolve "${specifier}"`),
+      module: null,
+    };
   }
   const cached = modulesCache.get(resolvedAbsolutePath.id);
   if (cached) {
-    return cached;
+    return { error: null, module: cached };
   }
   const loaded = await ctx
     .load({
       id: resolvedAbsolutePath.id,
       resolveDependencies: true,
     })
-    .catch(() => null);
-  if (!loaded?.code) {
-    return null;
+    .then((r) =>
+      typeof r.code === "string"
+        ? { code: r.code, error: null }
+        : {
+            code: null,
+            error: new Error(`Failed to load "${resolvedAbsolutePath.id}"`),
+          },
+    )
+    .catch((e) => ({ code: null, error: e }));
+  if (typeof loaded.code !== "string") {
+    return { error: loaded.error, module: null };
   }
   const m = new vm.SourceTextModule(loaded.code, {
     context: referencingModule.context,
@@ -51,5 +62,5 @@ export async function loadAbsoluteModule({
     }),
   });
   modulesCache.set(resolvedAbsolutePath.id, m);
-  return m;
+  return { error: null, module: m };
 }
