@@ -25,7 +25,7 @@ export function plugin(
   const include = new Set(options?.includes ?? []);
 
   return {
-    name: "casablanca:react",
+    name: "casablanca-css:styled",
     enforce: "pre",
     async transform(code, id) {
       if (!config) {
