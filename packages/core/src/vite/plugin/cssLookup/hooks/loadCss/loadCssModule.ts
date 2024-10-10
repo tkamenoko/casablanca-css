@@ -1,6 +1,6 @@
 import { extractPathAndParamsFromId } from "@casablanca-css/utils";
-import { isResolvedCssModuleId } from "../../resolvedCssModuleId/isResolvedCssModuleId";
-import type { CssModulesLookup } from "../../types";
+import { isResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
+import type { CssModulesLookup } from "#@/vite/types";
 
 type LoadCssModuleReturn = { code: string; map: string | null };
 

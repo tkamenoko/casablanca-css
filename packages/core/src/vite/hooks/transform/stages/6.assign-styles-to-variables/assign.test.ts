@@ -15,15 +15,15 @@ test("should replace variable initializations with `styles[xxx]`, then append `i
   });
   await build(buildInlineConfig(moduleId));
 
-  const { transformed, jsToCssModuleLookup } = transformResult[moduleId] ?? {};
-  assert(transformed && jsToCssModuleLookup);
+  const { transformed, cssLookupApi } = transformResult[moduleId] ?? {};
+  assert(transformed && cssLookupApi);
 
   assert(transformed);
   expect(transformed).not.toMatch(styleA);
   expect(transformed).not.toMatch("export const styleB");
   expect(transformed).toMatch(notCss);
 
-  assert(jsToCssModuleLookup.has(moduleId));
+  assert(cssLookupApi.cssModule.getFromJsPath(moduleId));
 });
 
 test("should remove temporal variables, import global styles", async ({
@@ -37,13 +37,13 @@ test("should remove temporal variables, import global styles", async ({
   });
   await build(buildInlineConfig(moduleId));
 
-  const { transformed, jsToGlobalStyleLookup } =
-    transformResult[moduleId] ?? {};
-  assert(transformed && jsToGlobalStyleLookup);
+  const { transformed, cssLookupApi } = transformResult[moduleId] ?? {};
+  assert(transformed && cssLookupApi);
 
   assert(transformed);
   expect(transformed).not.toMatch("box-sizing");
-  assert(jsToGlobalStyleLookup.has(moduleId));
+
+  assert(cssLookupApi.globalStyle.getFromJsPath(moduleId));
 });
 
 test("should work with a file using both `css` and `injectGlobal`", async ({
@@ -57,14 +57,13 @@ test("should work with a file using both `css` and `injectGlobal`", async ({
   });
   await build(buildInlineConfig(moduleId));
 
-  const { transformed, jsToGlobalStyleLookup, jsToCssModuleLookup } =
-    transformResult[moduleId] ?? {};
-  assert(transformed && jsToGlobalStyleLookup && jsToCssModuleLookup);
+  const { transformed, cssLookupApi } = transformResult[moduleId] ?? {};
+  assert(transformed && cssLookupApi);
 
   assert(transformed);
   expect(transformed).not.toMatch("aliceblue");
   expect(transformed).not.toMatch("box-sizing");
 
-  assert(jsToCssModuleLookup.has(moduleId));
-  assert(jsToGlobalStyleLookup.has(moduleId));
+  assert(cssLookupApi.cssModule.getFromJsPath(moduleId));
+  assert(cssLookupApi.globalStyle.getFromJsPath(moduleId));
 });

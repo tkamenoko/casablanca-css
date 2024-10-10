@@ -1,4 +1,4 @@
-import type { CssModulesLookup } from "#@/vite/types";
+import type { CssLookupApi } from "#@/vite/plugin/cssLookup";
 import type { UuidToStylesMap } from "../2.prepare-compositions/types";
 import { getResolvedMapElement } from "./getResolvedMapElement";
 import { getUnresolvedMapElement } from "./getUnresolvedMapElement";
@@ -8,7 +8,7 @@ import type { OwnedClassNamesToStyles } from "./types";
 type ReplaceUuidToStylesArgs = {
   ownedClassNamesToStyles: OwnedClassNamesToStyles;
   uuidToStylesMap: UuidToStylesMap;
-  cssModulesLookup: CssModulesLookup;
+  cssModulesLookupApi: CssLookupApi["cssModule"];
 };
 export type ReplaceUuidToStylesReturn = {
   composedStyles: {
@@ -19,7 +19,7 @@ export type ReplaceUuidToStylesReturn = {
 };
 
 export function replaceUuidWithStyles({
-  cssModulesLookup,
+  cssModulesLookupApi,
   ownedClassNamesToStyles,
   uuidToStylesMap: uuidToClassNamesMap,
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
@@ -28,7 +28,11 @@ export function replaceUuidWithStyles({
     Array.from(uuidToClassNamesMap.entries())
       .map(([uuid, { className, resolvedId }]) => {
         const e = resolvedId
-          ? getResolvedMapElement({ className, cssModulesLookup, resolvedId })
+          ? getResolvedMapElement({
+              className,
+              cssModulesLookupApi,
+              resolvedId,
+            })
           : getUnresolvedMapElement({
               className,
               ownedClassNamesToStyles,

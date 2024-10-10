@@ -1,6 +1,6 @@
 import type { ParseResult } from "@babel/core";
 import type { Rollup, ViteDevServer } from "vite";
-import type { CssModulesLookup } from "#@/vite/types";
+import type { CssLookupApi } from "#@/vite/plugin/cssLookup";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { captureTaggedStyles } from "./stages/1.capture-tagged-styles";
@@ -20,7 +20,7 @@ type TransformArgs = {
   isDev: boolean;
   projectRoot: string;
   server: ViteDevServer | null;
-  cssModulesLookup: CssModulesLookup;
+  cssModulesLookupApi: CssLookupApi["cssModule"];
   evaluateOptions: Partial<EvaluateOptions>;
 };
 
@@ -48,7 +48,7 @@ export async function transform({
   isDev,
   projectRoot,
   server,
-  cssModulesLookup,
+  cssModulesLookupApi,
   evaluateOptions,
 }: TransformArgs): Promise<TransformReturn> {
   // find tagged templates, then remove all tags.
@@ -104,7 +104,7 @@ export async function transform({
     });
 
   const { composedStyles } = replaceUuidWithStyles({
-    cssModulesLookup,
+    cssModulesLookupApi,
     ownedClassNamesToStyles: mapOfClassNamesToStyles,
     uuidToStylesMap,
   });
