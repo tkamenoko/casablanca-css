@@ -1,6 +1,6 @@
 import vm, { type Module } from "node:vm";
-import { isVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import { isVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import { isVirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
+import { isVirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
 import { buildInitializeImportMeta } from "../../initializeImportMeta";
 import type { LoadModuleReturn, TransformContext } from "../../types";
 

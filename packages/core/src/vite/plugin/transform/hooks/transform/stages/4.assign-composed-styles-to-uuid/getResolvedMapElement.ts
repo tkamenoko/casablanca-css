@@ -1,5 +1,5 @@
 import type { CssLookupApi } from "#@/vite/plugin/cssLookup";
-import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
+import type { ResolvedCssModuleId } from "#@/vite/types/resolvedCssModuleId";
 import type { MapElement } from "./types";
 
 export function getResolvedMapElement({

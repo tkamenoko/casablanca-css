@@ -1,8 +1,12 @@
 import type { Rollup } from "vite";
-import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
-import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import {
+  type VirtualCssModuleId,
+  buildVirtualCssModuleId,
+} from "#@/vite/types/virtualCssModuleId";
+import {
+  type VirtualGlobalStyleId,
+  buildVirtualGlobalStyleId,
+} from "#@/vite/types/virtualGlobalStyleId";
 import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
 import { buildCssModule } from "./buildCssModule";
 import { buildGlobalStyle } from "./buildGlobalStyle";

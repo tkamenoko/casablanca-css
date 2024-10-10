@@ -3,13 +3,13 @@ import type { Plugin, ViteDevServer } from "vite";
 import {
   type ResolvedCssModuleId,
   buildResolvedCssModuleIdFromVirtualCssModuleId,
-} from "#@/vite/resolvedCssModuleId";
+} from "#@/vite/types/resolvedCssModuleId";
 import {
   type ResolvedGlobalStyleId,
   buildResolvedGlobalStyleIdFromVirtualGlobalStyleId,
-} from "#@/vite/resolvedGlobalStyleId";
-import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+} from "#@/vite/types/resolvedGlobalStyleId";
+import type { VirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
 import { loadCssModule } from "./hooks/load/loadCssModule";
 import { loadGlobalStyle } from "./hooks/load/loadGlobalStyle";
 import { invalidateModule } from "./invalidateModule";

@@ -1,7 +1,9 @@
-import { buildResolvedCssModuleIdFromVirtualCssModuleId } from "#@/vite/resolvedCssModuleId/buildResolvedCssModuleIdFromVirtualCssModuleId";
-import { isResolvedCssModuleId } from "#@/vite/resolvedCssModuleId/isResolvedCssModuleId";
-import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId/types";
-import { isVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
+import {
+  type ResolvedCssModuleId,
+  buildResolvedCssModuleIdFromVirtualCssModuleId,
+  isResolvedCssModuleId,
+} from "#@/vite/types/resolvedCssModuleId";
+import { isVirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
 
 export function resolveCssModuleId({
   id,

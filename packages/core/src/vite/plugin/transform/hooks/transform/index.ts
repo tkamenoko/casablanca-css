@@ -1,8 +1,8 @@
 import type { ParseResult } from "@babel/core";
 import type { Rollup, ViteDevServer } from "vite";
 import type { CssLookupApi } from "#@/vite/plugin/cssLookup";
-import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import type { VirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
 import { captureTaggedStyles } from "./stages/1.capture-tagged-styles";
 import { prepareCompositions } from "./stages/2.prepare-compositions";
 import { createEvaluator } from "./stages/3.evaluate-module";

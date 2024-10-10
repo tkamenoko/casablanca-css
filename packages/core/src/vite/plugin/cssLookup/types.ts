@@ -1,7 +1,9 @@
-import type { ResolvedCssModuleId } from "#@/vite/resolvedCssModuleId";
-import type { ResolvedGlobalStyleId } from "#@/vite/resolvedGlobalStyleId";
-import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+"#@/vite/virtualGlobalStyleId";
+
+import type { ResolvedCssModuleId } from "#@/vite/types/resolvedCssModuleId";
+import type { ResolvedGlobalStyleId } from "#@/vite/types/resolvedGlobalStyleId";
+import type { VirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
+import type { VirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
 
 export type CssModulesLookup = Map<
   ResolvedCssModuleId,

@@ -1,7 +1,11 @@
-import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import { buildVirtualCssModuleId } from "#@/vite/virtualCssModuleId";
-import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
-import { buildVirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
+import {
+  type VirtualCssModuleId,
+  buildVirtualCssModuleId,
+} from "#@/vite/types/virtualCssModuleId";
+import {
+  type VirtualGlobalStyleId,
+  buildVirtualGlobalStyleId,
+} from "#@/vite/types/virtualGlobalStyleId";
 
 export type BuildForProductionArgs = {
   importerPath: string;
