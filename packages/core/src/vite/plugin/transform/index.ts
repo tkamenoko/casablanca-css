@@ -1,9 +1,9 @@
 import { parseAsync } from "@babel/core";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import { extractTargetFilePath } from "../helpers/extractTargetFilePath";
-import { transform } from "../hooks/transform";
-import type { OnExitTransform, PluginOption } from "../types";
-import { type CssLookupApi, cssLookupPluginName } from "./cssLookup";
+import { extractTargetFilePath } from "#@/vite/helpers/extractTargetFilePath";
+import type { OnExitTransform, PluginOption } from "#@/vite/types";
+import { type CssLookupApi, cssLookupPluginName } from "../cssLookup";
+import { transform } from "./hooks/transform";
 
 export function transformPlugin(
   options?: Partial<PluginOption> & {
