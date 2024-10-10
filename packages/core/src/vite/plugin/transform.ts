@@ -1,8 +1,6 @@
 import { parseAsync } from "@babel/core";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { extractTargetFilePath } from "../helpers/extractTargetFilePath";
-import { resolveCssModuleId } from "../hooks/resolveCss/resolveCssModuleId";
-import { resolveGlobalStyleId } from "../hooks/resolveCss/resolveGlobalStyleId";
 import { transform } from "../hooks/transform";
 import type { OnExitTransform, PluginOption } from "../types";
 import { type CssLookupApi, cssLookupPluginName } from "./cssLookup";
@@ -112,9 +110,6 @@ export function transformPlugin(
     },
     async configureServer(server_) {
       server = server_;
-    },
-    resolveId(id) {
-      return resolveCssModuleId({ id }) ?? resolveGlobalStyleId({ id });
     },
   };
 }
