@@ -1,7 +1,7 @@
 import type { InlineConfig } from "vite";
 import { test as t } from "vitest";
 import { plugin as plugin_ } from "#@/vite/plugin";
-import type { TransformResult } from "#@/vite/types";
+import type { TransformResult } from "#@/vite/plugin/transform/types";
 
 type TestContext = {
   plugin: ReturnType<typeof plugin_>;
