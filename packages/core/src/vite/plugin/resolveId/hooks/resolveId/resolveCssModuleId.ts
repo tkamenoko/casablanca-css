@@ -1,6 +1,6 @@
 import {
   type ResolvedCssModuleId,
-  buildResolvedCssModuleIdFromVirtualCssModuleId,
+  buildResolvedCssModuleId,
   isResolvedCssModuleId,
 } from "#@/vite/types/resolvedCssModuleId";
 import { isVirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
@@ -14,7 +14,7 @@ export function resolveCssModuleId({
     return id;
   }
   if (isVirtualCssModuleId(id)) {
-    return buildResolvedCssModuleIdFromVirtualCssModuleId({ id });
+    return buildResolvedCssModuleId({ id });
   }
   return null;
 }

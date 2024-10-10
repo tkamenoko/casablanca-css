@@ -1,6 +1,6 @@
 import {
   type ResolvedGlobalStyleId,
-  buildResolvedGlobalStyleIdFromVirtualGlobalStyleId,
+  buildResolvedGlobalStyleId,
   isResolvedGlobalStyleId,
 } from "#@/vite/types/resolvedGlobalStyleId";
 import { isVirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
@@ -14,7 +14,7 @@ export function resolveGlobalStyleId({
     return id;
   }
   if (isVirtualGlobalStyleId(id)) {
-    return buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({ id });
+    return buildResolvedGlobalStyleId({ id });
   }
   return null;
 }

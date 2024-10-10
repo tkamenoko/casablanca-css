@@ -5,7 +5,7 @@ import {
 } from "../virtualGlobalStyleId";
 import type { ResolvedGlobalStyleId } from "./types";
 
-export function buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
+export function buildResolvedGlobalStyleId({
   id,
 }: {
   id: VirtualGlobalStyleId;

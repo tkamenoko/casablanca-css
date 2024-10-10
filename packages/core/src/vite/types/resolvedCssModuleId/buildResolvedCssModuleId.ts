@@ -3,7 +3,7 @@ import type { VirtualCssModuleId } from "../virtualCssModuleId";
 import { isVirtualCssModuleId } from "../virtualCssModuleId";
 import type { ResolvedCssModuleId } from "./types";
 
-export function buildResolvedCssModuleIdFromVirtualCssModuleId({
+export function buildResolvedCssModuleId({
   id,
 }: {
   id: VirtualCssModuleId;

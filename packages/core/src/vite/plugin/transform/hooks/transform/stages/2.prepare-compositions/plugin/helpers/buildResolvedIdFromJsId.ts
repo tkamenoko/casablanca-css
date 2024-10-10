@@ -1,7 +1,7 @@
 import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import {
   type ResolvedCssModuleId,
-  buildResolvedCssModuleIdFromVirtualCssModuleId,
+  buildResolvedCssModuleId,
 } from "#@/vite/types/resolvedCssModuleId";
 import { buildVirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
 
@@ -17,5 +17,5 @@ export function buildResolvedIdFromJsId({
     importerPath: path,
     projectRoot,
   });
-  return buildResolvedCssModuleIdFromVirtualCssModuleId({ id: virtualId });
+  return buildResolvedCssModuleId({ id: virtualId });
 }

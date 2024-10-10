@@ -2,11 +2,11 @@ import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import type { Plugin, ViteDevServer } from "vite";
 import {
   type ResolvedCssModuleId,
-  buildResolvedCssModuleIdFromVirtualCssModuleId,
+  buildResolvedCssModuleId,
 } from "#@/vite/types/resolvedCssModuleId";
 import {
   type ResolvedGlobalStyleId,
-  buildResolvedGlobalStyleIdFromVirtualGlobalStyleId,
+  buildResolvedGlobalStyleId,
 } from "#@/vite/types/resolvedGlobalStyleId";
 import type { VirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
@@ -81,7 +81,7 @@ export function cssLookupPlugin(): Plugin {
   const api: CssLookupApi = {
     cssModule: {
       register({ classNameToStyle, map, path, style, virtualId }) {
-        const resolvedId = buildResolvedCssModuleIdFromVirtualCssModuleId({
+        const resolvedId = buildResolvedCssModuleId({
           id: virtualId,
         });
         cssModulesLookup.set(resolvedId, {
@@ -107,7 +107,7 @@ export function cssLookupPlugin(): Plugin {
     },
     globalStyle: {
       register({ map, path, style, virtualId }) {
-        const resolvedId = buildResolvedGlobalStyleIdFromVirtualGlobalStyleId({
+        const resolvedId = buildResolvedGlobalStyleId({
           id: virtualId,
         });
         globalStylesLookup.set(resolvedId, {
