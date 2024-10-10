@@ -8,17 +8,17 @@ import {
   type ResolvedGlobalStyleId,
   buildResolvedGlobalStyleIdFromVirtualGlobalStyleId,
 } from "#@/vite/resolvedGlobalStyleId";
-import type {
-  CssModulesLookup,
-  GlobalStylesLookup,
-  JsToCssModuleLookup,
-  JsToGlobalStyleLookup,
-} from "#@/vite/types";
 import type { VirtualCssModuleId } from "#@/vite/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/virtualGlobalStyleId";
 import { loadCssModule } from "./hooks/load/loadCssModule";
 import { loadGlobalStyle } from "./hooks/load/loadGlobalStyle";
 import { invalidateModule } from "./invalidateModule";
+import type {
+  CssModulesLookup,
+  GlobalStylesLookup,
+  JsToCssModuleLookup,
+  JsToGlobalStyleLookup,
+} from "./types";
 
 export const cssLookupPluginName = "casablanca-css:css-lookup";
 
