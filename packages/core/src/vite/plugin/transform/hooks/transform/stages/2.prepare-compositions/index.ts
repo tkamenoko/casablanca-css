@@ -35,7 +35,7 @@ export async function prepareCompositions({
     resolve,
   });
 
-  // replace `compose` calls with `composes: ...;` expressions.
+  // replace `composes: ...;` expressions with `compose` calls.
   const uuidToStylesMap: UuidToStylesMap = new Map();
   const pluginOption: Options = {
     temporalVariableNames: stage1Result.variableNames.map(
