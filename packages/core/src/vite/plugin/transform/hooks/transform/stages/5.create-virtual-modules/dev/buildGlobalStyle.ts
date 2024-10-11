@@ -1,14 +1,14 @@
 import remapping from "@ampproject/remapping";
 import { SourceMapGenerator } from "source-map";
 import type { Rollup } from "vite";
-import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
+import type { GlobalStylePosition } from "../../1.capture-tagged-styles/types";
 
 type BuildGlobalStyleArgs = {
   filename: string;
   content: string;
   projectRoot: string;
   evaluatedGlobalStyles: string[];
-  jsGlobalStylePositions: GlobalStylePositions;
+  jsGlobalStylePositions: GlobalStylePosition[];
   previousSourceMap: Rollup.SourceMap;
 };
 

@@ -15,10 +15,10 @@ export type CapturedVariableNames = Map<string, VariableInfo>;
 
 export type CapturedGlobalStyleTempNames = string[];
 
-export type GlobalStylePositions = {
+export type GlobalStylePosition = {
   start: { line: number; column: number };
   end: { line: number; column: number };
-}[];
+};
 
 export type ImportSource = {
   names: { className: string; localName: string }[];
@@ -28,7 +28,7 @@ export type ImportSource = {
 export type Options = {
   capturedVariableNames: CapturedVariableNames;
   capturedGlobalStylesTempNames: CapturedGlobalStyleTempNames;
-  globalStylePositions: GlobalStylePositions;
+  globalStylePositions: GlobalStylePosition[];
   importSources: ImportSource[];
 };
 

@@ -1,23 +1,28 @@
-import { type NodePath, type PluginPass, types } from "@babel/core";
+import { type NodePath, types } from "@babel/core";
 import {
   isCasablancaCssTemplate,
   isTopLevelStatement,
 } from "@casablanca-css/utils";
-import type { BabelState } from "../types";
+import type { GlobalStylePosition } from "../types";
 
-export function captureGlobalStyles(
-  path: NodePath<types.ExpressionStatement>,
-  state: PluginPass & BabelState,
-): boolean {
+export function captureGlobalStyle(path: NodePath<types.ExpressionStatement>): {
+  exportingTemporalNode: types.ExportNamedDeclaration;
+  temporalGlobalStyleName: string;
+  originalPosition: GlobalStylePosition;
+} | null {
+  // capture tagged global style
+  // injectGlobal`...style`;
+  // ->
+  // export const temporalName = `...style`;
   if (!isTopLevelStatement(path)) {
-    return false;
+    return null;
   }
   const exp = path.get("expression");
   if (!exp.isTaggedTemplateExpression()) {
-    return false;
+    return null;
   }
   if (!isCasablancaCssTemplate(exp, "injectGlobal")) {
-    return false;
+    return null;
   }
   if (!path.node.loc) {
     throw new Error("Missing node location");
@@ -26,7 +31,6 @@ export function captureGlobalStyles(
     start: { ...path.node.loc.start },
     end: { ...path.node.loc.end },
   };
-
   // create temp var
   const temporalId = path.scope.generateUidIdentifier("temporal_global");
   // assign style
@@ -35,9 +39,10 @@ export function captureGlobalStyles(
       types.variableDeclarator(temporalId, exp.get("quasi").node),
     ]),
   );
-  path.replaceWith(exportingTemporalNode);
-  // push to capturedGlobalStyleTempNames
-  state.opts.capturedGlobalStylesTempNames.push(temporalId.name);
-  state.opts.globalStylePositions.push(originalPosition);
-  return true;
+
+  return {
+    exportingTemporalNode,
+    temporalGlobalStyleName: temporalId.name,
+    originalPosition,
+  };
 }

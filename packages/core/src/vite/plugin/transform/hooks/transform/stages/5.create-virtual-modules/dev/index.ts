@@ -7,7 +7,7 @@ import {
   type VirtualGlobalStyleId,
   buildVirtualGlobalStyleId,
 } from "#@/vite/types/virtualGlobalStyleId";
-import type { GlobalStylePositions } from "../../1.capture-tagged-styles/types";
+import type { GlobalStylePosition } from "../../1.capture-tagged-styles/types";
 import { buildCssModule } from "./buildCssModule";
 import { buildGlobalStyle } from "./buildGlobalStyle";
 
@@ -31,7 +31,7 @@ export type BuildForDevArgs = {
         end: { line: number; column: number };
       }
     >;
-    jsGlobalStylePositions: GlobalStylePositions;
+    jsGlobalStylePositions: GlobalStylePosition[];
   };
 };
 

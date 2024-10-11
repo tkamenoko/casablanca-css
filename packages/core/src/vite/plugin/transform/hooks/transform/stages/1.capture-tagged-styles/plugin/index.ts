@@ -1,7 +1,7 @@
 import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import { isCasablancaImport } from "@casablanca-css/utils";
 import type { BabelState } from "../types";
-import { captureGlobalStyles } from "./captureGlobalStyles";
+import { captureGlobalStyle } from "./captureGlobalStyle";
 import { captureVariableName } from "./captureVariableName";
 import { collectImportSource } from "./collectImportSource";
 import { removeImports } from "./removeImports";
@@ -82,7 +82,20 @@ export function plugin(): PluginObj<PluginPass & BabelState> {
           if (!state.shouldTraverse) {
             return;
           }
-          captureGlobalStyles(path, state);
+          const captured = captureGlobalStyle(path);
+          if (!captured) {
+            return;
+          }
+          const {
+            exportingTemporalNode,
+            originalPosition,
+            temporalGlobalStyleName,
+          } = captured;
+          path.replaceWith(exportingTemporalNode);
+          state.opts.capturedGlobalStylesTempNames.push(
+            temporalGlobalStyleName,
+          );
+          state.opts.globalStylePositions.push(originalPosition);
         },
       },
     },

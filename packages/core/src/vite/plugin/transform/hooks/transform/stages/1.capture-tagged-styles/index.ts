@@ -3,7 +3,7 @@ import { transformFromAstAsync } from "@babel/core";
 import { plugin } from "./plugin";
 import type {
   CapturedVariableNames,
-  GlobalStylePositions,
+  GlobalStylePosition,
   ImportSource,
   Options,
 } from "./types";
@@ -18,7 +18,7 @@ export type CaptureTaggedStylesReturn = {
   ast: types.File;
   capturedVariableNames: CapturedVariableNames;
   capturedGlobalStylesTempNames: string[];
-  globalStylePositions: GlobalStylePositions;
+  globalStylePositions: GlobalStylePosition[];
   importSources: ImportSource[];
 };
 
