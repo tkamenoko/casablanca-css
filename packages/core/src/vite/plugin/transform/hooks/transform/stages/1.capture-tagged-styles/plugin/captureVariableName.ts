@@ -1,26 +1,28 @@
-import { type NodePath, type PluginPass, types } from "@babel/core";
+import { type NodePath, types } from "@babel/core";
 import {
   isCasablancaCssTemplate,
   isTopLevelStatement,
 } from "@casablanca-css/utils";
-import type { BabelState } from "../types";
+import type { VariableInfo } from "../types";
 
-export function captureVariableNames(
-  path: NodePath<types.VariableDeclarator>,
-  state: PluginPass & BabelState,
-): boolean {
+export function captureVariableName(path: NodePath<types.VariableDeclarator>): {
+  exportingTemporalCssNode: types.ExportNamedDeclaration;
+  originalClassNameNode: types.StringLiteral;
+  capturedVariableInfo: VariableInfo;
+} | null {
   const declaration = path.parentPath;
   if (!(declaration.isDeclaration() && isTopLevelStatement(declaration))) {
-    return false;
+    return null;
   }
+
   const init = path.get("init");
 
   if (!isCasablancaCssTemplate(init, "css")) {
-    return false;
+    return null;
   }
   const id = path.get("id");
   if (!id.isIdentifier()) {
-    return false;
+    return null;
   }
   const originalName = id.node.name;
 
@@ -36,23 +38,22 @@ export function captureVariableNames(
     `temporal_${originalName}`,
   );
 
-  const exportingTemporalNode = types.exportNamedDeclaration(
+  const exportingTemporalCssNode = types.exportNamedDeclaration(
     types.variableDeclaration("const", [
       types.variableDeclarator(temporalId, init.get("quasi").node),
     ]),
   );
-  if (declaration.isExportNamedDeclaration()) {
-    declaration.parentPath.insertAfter(exportingTemporalNode);
-  } else {
-    declaration.insertAfter(exportingTemporalNode);
-  }
-  init.replaceWith(types.stringLiteral(originalName));
-
-  state.opts.capturedVariableNames.set(originalName, {
+  const originalClassNameNode = types.stringLiteral(originalName);
+  const capturedVariableInfo = {
     originalName,
     temporalName: temporalId.name,
     start: originalPosition.start,
     end: originalPosition.end,
-  });
-  return true;
+  };
+
+  return {
+    capturedVariableInfo,
+    exportingTemporalCssNode,
+    originalClassNameNode,
+  };
 }

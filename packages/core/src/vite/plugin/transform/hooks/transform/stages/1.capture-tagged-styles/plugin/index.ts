@@ -2,7 +2,7 @@ import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import { isCasablancaImport } from "@casablanca-css/utils";
 import type { BabelState } from "../types";
 import { captureGlobalStyles } from "./captureGlobalStyles";
-import { captureVariableNames } from "./captureVariables";
+import { captureVariableName } from "./captureVariableName";
 import { collectImportSource } from "./collectImportSource";
 import { removeImports } from "./removeImports";
 
@@ -51,7 +51,30 @@ export function plugin(): PluginObj<PluginPass & BabelState> {
           if (!state.shouldTraverse) {
             return;
           }
-          captureVariableNames(path, state);
+          const captured = captureVariableName(path);
+          if (!captured) {
+            return;
+          }
+          const {
+            capturedVariableInfo,
+            exportingTemporalCssNode,
+            originalClassNameNode,
+          } = captured;
+
+          const declaration = path.parentPath;
+          if (declaration.isExportNamedDeclaration()) {
+            declaration.parentPath.insertAfter(exportingTemporalCssNode);
+          } else {
+            declaration.insertAfter(exportingTemporalCssNode);
+          }
+
+          const init = path.get("init");
+          init.replaceWith(originalClassNameNode);
+
+          state.opts.capturedVariableNames.set(
+            capturedVariableInfo.originalName,
+            capturedVariableInfo,
+          );
         },
       },
       ExpressionStatement: {

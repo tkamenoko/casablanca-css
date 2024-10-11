@@ -1,18 +1,17 @@
-export type CapturedVariableNames = Map<
-  string,
-  {
-    originalName: string;
-    temporalName: string;
-    start: {
-      line: number;
-      column: number;
-    };
-    end: {
-      line: number;
-      column: number;
-    };
-  }
->;
+export type VariableInfo = {
+  originalName: string;
+  temporalName: string;
+  start: {
+    line: number;
+    column: number;
+  };
+  end: {
+    line: number;
+    column: number;
+  };
+};
+
+export type CapturedVariableNames = Map<string, VariableInfo>;
 
 export type CapturedGlobalStyleTempNames = string[];
 
