@@ -1,10 +1,11 @@
-import type { NodePath, PluginPass, types } from "@babel/core";
-import type { BabelState, ImportSource } from "../types";
+import type { NodePath, types } from "@babel/core";
+import type { ImportSource } from "../types";
 
-export function collectImportSources(
+export function collectImportSource(
   path: NodePath<types.ImportDeclaration>,
-  state: PluginPass & BabelState,
-): boolean {
+): ImportSource {
+  // collect imported classNames
+  // import {className as localName} from "source";
   const source = path.get("source").node.value;
   const names = path
     .get("specifiers")
@@ -19,6 +20,5 @@ export function collectImportSources(
       return { className, localName };
     })
     .filter((x): x is ImportSource["names"][number] => !!x);
-  state.opts.importSources.push({ names, source });
-  return true;
+  return { names, source };
 }

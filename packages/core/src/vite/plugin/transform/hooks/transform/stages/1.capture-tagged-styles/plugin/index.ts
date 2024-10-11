@@ -3,7 +3,7 @@ import { isCasablancaImport } from "@casablanca-css/utils";
 import type { BabelState } from "../types";
 import { captureGlobalStyles } from "./captureGlobalStyles";
 import { captureVariableNames } from "./captureVariables";
-import { collectImportSources } from "./collectImportSources";
+import { collectImportSource } from "./collectImportSource";
 import { removeImports } from "./removeImports";
 
 export function plugin(): PluginObj<PluginPass & BabelState> {
@@ -42,7 +42,8 @@ export function plugin(): PluginObj<PluginPass & BabelState> {
           if (!state.shouldTraverse) {
             return;
           }
-          collectImportSources(path, state);
+          const importSource = collectImportSource(path);
+          state.opts.importSources.push(importSource);
         },
       },
       VariableDeclarator: {
