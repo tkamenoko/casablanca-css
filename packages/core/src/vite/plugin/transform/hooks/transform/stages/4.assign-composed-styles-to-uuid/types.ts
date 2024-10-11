@@ -17,6 +17,6 @@ export type ResolvedUuidToStyle = Map<
   {
     uuid: string;
     style: string;
-    dependsOn: Set<string>;
+    className: string;
   }
 >;

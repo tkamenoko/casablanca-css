@@ -25,8 +25,8 @@ export function replaceUuidWithStyles({
 }: ReplaceUuidToStylesArgs): ReplaceUuidToStylesReturn {
   const uuids = Array.from(uuidToClassNamesMap.keys());
   const uuidToStyle = new Map(
-    Array.from(uuidToClassNamesMap.entries())
-      .map(([uuid, { className, resolvedId }]) => {
+    Array.from(uuidToClassNamesMap.entries()).map(
+      ([uuid, { className, resolvedId }]) => {
         const e = resolvedId
           ? getResolvedMapElement({
               className,
@@ -46,8 +46,8 @@ export function replaceUuidWithStyles({
             ...e,
           },
         ] as const;
-      })
-      .sort(([, a], [, b]) => a.dependsOn.size - b.dependsOn.size),
+      },
+    ),
   );
   const resolvedUuidToStyle = resolveEmbeddedUuids({ uuidToStyle });
 
@@ -60,5 +60,6 @@ export function replaceUuidWithStyles({
       return { style: s, temporalVariableName, originalName };
     },
   );
+
   return { composedStyles: result };
 }

@@ -9,8 +9,13 @@ export const styleA = css`
   color: red;
 `;
 
+const composedInComposed = css`
+  font-style: italic;
+`;
+
 const _styledLocalComponent = css`
   display: block;
+  composes: ${composedInComposed};
 `;
 const LocalComponent = (() => (
   <div className={_styledLocalComponent}>Foo</div>
