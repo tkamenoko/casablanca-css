@@ -10,6 +10,11 @@ export function captureVariableName(path: NodePath<types.VariableDeclarator>): {
   originalClassNameNode: types.StringLiteral;
   capturedVariableInfo: VariableInfo;
 } | null {
+  // capture variable name using tagged template
+  // const originalName = css`...styles`;
+  // ->
+  // const originalName = "originalName";
+  // export const temporalName = `...styles`;
   const declaration = path.parentPath;
   if (!(declaration.isDeclaration() && isTopLevelStatement(declaration))) {
     return null;
