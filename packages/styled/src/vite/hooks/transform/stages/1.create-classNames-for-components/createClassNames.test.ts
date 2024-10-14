@@ -27,5 +27,4 @@ test("should create css-tagged styles from styled-tagged components", async ({
   expect(code).not.toMatch("NotExportedComponent = styled");
   expect(code).not.toMatch("${(p) =>}");
   expect(code).toMatch(/\${"var\(--.+\)"}/);
-  console.log(code);
 });
