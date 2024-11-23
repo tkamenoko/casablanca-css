@@ -7,14 +7,14 @@
   "dependencies": {
     "@ampproject/remapping": "^2.3.0",
     "@babel/core": "^7.25.2",
-    "@casablanca-css/utils": "^0.1.1",
+    "@casablanca-css/utils": "0.1.1",
     "happy-dom": "15.11.6",
     "source-map": "^0.7.4"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "~18.2.79",
+    "@types/react-dom": "~18.2.25",
     "open-props": "^1.7.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

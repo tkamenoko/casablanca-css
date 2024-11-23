@@ -8,13 +8,13 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@casablanca-css/core": "^0.3.0",
-    "@casablanca-css/styled": "^0.1.2",
+    "@casablanca-css/core": "0.3.0",
+    "@casablanca-css/styled": "0.1.2",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/react": "~18.2.79",
     "@types/react-dom": "~18.2.25",
     "@vitejs/plugin-react": "^4.2.1",
-    "postcss-nested": "^6.0.1",
+    "postcss-nested": "7.0.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
   },
