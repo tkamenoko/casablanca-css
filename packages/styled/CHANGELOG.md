@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [@casablanca-css/styled@v0.1.2](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/styled@v0.1.1..@casablanca-css/styled@v0.1.2) - 2024-11-23
+
+### Refactoring
+
+- rewrite styled types ([#46](https://github.com/tkamenoko/casablanca-css/issues/46)) - ([ccd6c88](https://github.com/tkamenoko/casablanca-css/commit/ccd6c88c56dddd675eb7ffba4d4eeaf76f4e92e6)) - T.Kameyama
+- unify project structure ([#48](https://github.com/tkamenoko/casablanca-css/issues/48)) - ([42e6c23](https://github.com/tkamenoko/casablanca-css/commit/42e6c239d47271806bcc9b586923735bdf98d353)) - T.Kameyama
+
+---
 ## [@casablanca-css/styled@v0.1.1](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/styled@v0.1.0..@casablanca-css/styled@v0.1.1) - 2024-09-24
 
 ### Features
