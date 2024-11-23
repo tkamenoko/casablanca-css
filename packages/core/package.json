@@ -1,7 +1,7 @@
 {
   "name": "@casablanca-css/core",
   "description": "Zero-Runtime CSS-in-JS powered by vite.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
   "dependencies": {

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [@casablanca-css/core@v0.3.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.2.0..@casablanca-css/core@v0.3.0) - 2024-11-23
+
+### Features
+
+- show more error messages while evaluation ([#47](https://github.com/tkamenoko/casablanca-css/issues/47)) - ([3635edd](https://github.com/tkamenoko/casablanca-css/commit/3635edde486009fe3934ba6d37bc9b52024ffbdf)) - T.Kameyama
+
+### Refactoring
+
+- rewrite styled types ([#46](https://github.com/tkamenoko/casablanca-css/issues/46)) - ([ccd6c88](https://github.com/tkamenoko/casablanca-css/commit/ccd6c88c56dddd675eb7ffba4d4eeaf76f4e92e6)) - T.Kameyama
+- unify project structure ([#48](https://github.com/tkamenoko/casablanca-css/issues/48)) - ([42e6c23](https://github.com/tkamenoko/casablanca-css/commit/42e6c239d47271806bcc9b586923735bdf98d353)) - T.Kameyama
+
+### Build
+
+- **(deps)** update dependencies ([#49](https://github.com/tkamenoko/casablanca-css/issues/49)) - ([84bb52d](https://github.com/tkamenoko/casablanca-css/commit/84bb52d1458366d9aa05f63bc702c368d988e9f4)) - T.Kameyama
+
+---
 ## [@casablanca-css/core@v0.2.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.1.0..@casablanca-css/core@v0.2.0) - 2024-09-24
 
 ### Bug Fixes
