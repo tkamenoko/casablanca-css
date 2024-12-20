@@ -10,6 +10,9 @@
   "devDependencies": {
     "@types/babel__core": "^7.20.5"
   },
+  "engines": {
+    "node": ">=20.15.1"
+  },
   "exports": {
     ".": {
       "types": "./dist/lib/index.d.ts",

@@ -12,6 +12,9 @@
     "@types/babel__core": "^7.20.5",
     "@types/react": "~18.2.79"
   },
+  "engines": {
+    "node": ">=20.15.1"
+  },
   "exports": {
     ".": {
       "types": "./dist/lib/index.d.ts",

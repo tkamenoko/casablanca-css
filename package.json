@@ -30,7 +30,7 @@
     "wireit": "^0.14.4"
   },
   "engines": {
-    "node": ">=18.19.0"
+    "node": ">=20.15.1"
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
   "license": "MIT",
