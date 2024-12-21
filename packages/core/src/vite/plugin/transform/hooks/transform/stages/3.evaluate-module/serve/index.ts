@@ -3,6 +3,7 @@ import type { ViteDevServer } from "vite";
 import { loadModule } from "../loadModule";
 import { loadBuiltinModule } from "../loaders/loadBuiltinModule";
 import { loadNodeModule } from "../loaders/loadNodeModule";
+import { loadReactRefreshModule } from "./loaders/loadReactRefresh";
 import { loadRelativeModule } from "./loaders/loadRelativeModule";
 import { loadViteModule } from "./loaders/loadViteModule";
 import { normalizeSpecifier } from "./normalizeSpecifier";
@@ -35,7 +36,13 @@ export function createLinker({
     };
 
     const { error, module } = await loadModule(
-      [loadBuiltinModule, loadNodeModule, loadViteModule, loadRelativeModule],
+      [
+        loadBuiltinModule,
+        loadNodeModule,
+        loadReactRefreshModule,
+        loadViteModule,
+        loadRelativeModule,
+      ],
       loadModuleArgs,
     );
 
