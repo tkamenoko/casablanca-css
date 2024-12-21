@@ -3,7 +3,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
-## [@casablanca-css/core@v0.3.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.2.0..@casablanca-css/core@v0.3.0) - 2024-11-23
+## [@casablanca-css/core@v1.0.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.2.0..@casablanca-css/core@v1.0.0) - 2024-12-21
+
+### Bug Fixes
+
+- mock react-refresh in dev server ([#53](https://github.com/tkamenoko/casablanca-css/issues/53)) - ([bab8950](https://github.com/tkamenoko/casablanca-css/commit/bab8950d109b952296914326e383a5f76d9cbcad)) - T.Kameyama
 
 ### Features
 
@@ -17,6 +21,10 @@ All notable changes to this project will be documented in this file. See [conven
 ### Build
 
 - **(deps)** update dependencies ([#49](https://github.com/tkamenoko/casablanca-css/issues/49)) - ([84bb52d](https://github.com/tkamenoko/casablanca-css/commit/84bb52d1458366d9aa05f63bc702c368d988e9f4)) - T.Kameyama
+- **(deps)** [**breaking**] Update dependencies with dropping Node18 support ([#52](https://github.com/tkamenoko/casablanca-css/issues/52)) - ([6eba9b2](https://github.com/tkamenoko/casablanca-css/commit/6eba9b24251ed86cb5c4f47ce6732fc7c2292454)) - T.Kameyama
+- remove unnecessary peer deps ([#50](https://github.com/tkamenoko/casablanca-css/issues/50)) - ([49274ed](https://github.com/tkamenoko/casablanca-css/commit/49274ed32514294504acbba75edd22dd5000a512)) - T.Kameyama
+- fix scripts to include keywords ([#51](https://github.com/tkamenoko/casablanca-css/issues/51)) - ([4bf7f14](https://github.com/tkamenoko/casablanca-css/commit/4bf7f14db2192e293abbe99e31d94eb4852ce640)) - T.Kameyama
+- include `engines` field in package.json ([#54](https://github.com/tkamenoko/casablanca-css/issues/54)) - ([aa12a61](https://github.com/tkamenoko/casablanca-css/commit/aa12a614d26f6c07890b562797a1926de5a40e8b)) - T.Kameyama
 
 ---
 ## [@casablanca-css/core@v0.2.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/core@v0.1.0..@casablanca-css/core@v0.2.0) - 2024-09-24

@@ -6,7 +6,7 @@
     "open-props": "^1.7.4"
   },
   "devDependencies": {
-    "@casablanca-css/core": "0.3.0",
+    "@casablanca-css/core": "^1.0.0",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "postcss-nested": "7.0.2",
     "typescript": "^5.3.3",
