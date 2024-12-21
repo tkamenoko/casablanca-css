@@ -5,6 +5,7 @@ import {
   bugs,
   dependencies,
   description,
+  engines,
   exports,
   homepage,
   license,
@@ -27,6 +28,7 @@ async function main() {
     bugs,
     dependencies,
     description,
+    engines,
     exports: {
       ".": {
         types: typesExport.replace("dist/", ""),
