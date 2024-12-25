@@ -69,7 +69,6 @@
     "types": {
       "command": "tsc --noemit",
       "files": [
-        "./.ladle/**/*.{ts,tsx}",
         "./src/**/*.{ts,tsx}"
       ],
       "dependencies": [
