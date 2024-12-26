@@ -1,0 +1,94 @@
+{
+  "name": "@casablanca-css/website",
+  "dependencies": {
+    "@acab/reset.css": "^0.11.0",
+    "open-props": "^1.7.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@casablanca-css/core": "^1.0.0",
+    "@casablanca-css/styled": "^1.0.0",
+    "@mdx-js/rollup": "^3.1.0",
+    "@styled/typescript-styled-plugin": "^1.0.1",
+    "@types/react": "~18.2.79",
+    "@types/react-dom": "~18.2.25",
+    "@vitejs/plugin-react": "^4.2.1",
+    "icon-gen": "^5.0.0",
+    "postcss-nested": "7.0.2",
+    "rakkasjs": "0.7.0-next.49",
+    "rehype-pretty-code": "^0.14.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-mdx-frontmatter": "^5.0.0"
+  },
+  "private": true,
+  "scripts": {
+    "build": "wireit",
+    "dev": "wireit",
+    "preview": "wireit",
+    "types": "wireit"
+  },
+  "type": "module",
+  "wireit": {
+    "dev": {
+      "command": "rakkas",
+      "service": true,
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../packages/core:build",
+        "../packages/styled:build",
+        "../packages/utils:build"
+      ]
+    },
+    "build": {
+      "command": "rakkas build",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "dependencies": [
+        "../packages/core:build",
+        "../packages/styled:build",
+        "../packages/utils:build"
+      ],
+      "files": [
+        "./src/",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/"
+      ]
+    },
+    "build:routes": {
+      "command": "rakkas page-urls",
+      "files": [
+        "./src/routes/**/*.page.tsx"
+      ],
+      "output": [
+        "./src/page-urls.ts"
+      ]
+    },
+    "preview": {
+      "command": "rakkas preview",
+      "dependencies": [
+        "build"
+      ],
+      "service": true
+    },
+    "types": {
+      "command": "tsc --noemit",
+      "files": [
+        "./src/**/*.{ts,tsx}"
+      ],
+      "dependencies": [
+        "../packages/core:types",
+        "../packages/styled:types",
+        "build:routes"
+      ],
+      "output": []
+    }
+  }
+}
