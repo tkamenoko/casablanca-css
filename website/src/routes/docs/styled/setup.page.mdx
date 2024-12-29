@@ -1,0 +1,37 @@
+---
+title: "Setup"
+nextSlug: "/styled/first-component"
+previousSlug: "/styled"
+---
+
+# Setup
+
+## Prerequisites
+
+- Setup `@casablanca-css/core` (see [here](../core/setup))
+
+## Install
+
+```console
+npm install -D @casablanca-css/styled
+```
+
+## Vite config
+
+```ts filename="vite.config.ts"
+import { casablanca } from "@casablanca-css/core/vite";
+import { casablancaStyled } from "@casablanca-css/styled/vite";
+import react from "@vitejs/plugin-react";
+import postcssNested from "postcss-nested";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  css: {
+    postcss: { plugins: [postcssNested()] },
+    devSourcemap: true,
+  },
+  plugins: [react(), casablancaStyled(), casablanca()],
+});
+```
+
+{/* TODO: describe options */}
