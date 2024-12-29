@@ -17,6 +17,7 @@
     "icon-gen": "^5.0.0",
     "postcss-nested": "7.0.2",
     "rakkasjs": "0.7.0-next.49",
+    "rehype-mdx-code-props": "^3.0.1",
     "rehype-pretty-code": "^0.14.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",

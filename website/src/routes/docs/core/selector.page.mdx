@@ -1,0 +1,23 @@
+---
+title: "Select casablanca class"
+nextSlug: "/core/composition"
+previousSlug: "/core/js-values"
+---
+
+# Select casablanca class
+
+You can select casablanca classes using embedding variables. Do not forget to put `.` before class name.
+
+```ts
+import { css } from "@casablanca-css/core";
+import { buttonStyle } from "./button";
+
+const formContainer = css`
+  display: grid;
+  & > .${buttonStyle}{
+    align-self: center;
+    justify-self: center;
+  }
+`
+
+```

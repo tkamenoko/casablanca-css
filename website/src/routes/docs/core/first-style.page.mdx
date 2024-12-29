@@ -1,0 +1,89 @@
+---
+title: "Write your first style"
+nextSlug: "/core/js-values"
+previousSlug: "/core/setup"
+---
+
+
+# Write your first style
+
+`css` tag function creates class name from styles. Written styles will move into virtual css modules, and tagged styles will be replaced with class names. 
+
+```ts
+import { css } from "@casablanca-css/core";
+
+const buttonClass = css`
+  color: red;
+  border: 3px solid currentcolor;
+  background-color: white;
+`;
+
+const html = `
+  <button class="${buttonClass}">Styled with casablanca</button>
+`;
+```
+
+It will be transformed like this:
+```ts
+import styles from "virtual:casablanca-modules/path/to/code.ts.module.css";
+
+const buttonClass = styles["buttonClass"];
+
+const html = `
+  <button class="${buttonClass}">Styled with casablanca</button>
+`
+```
+
+With `postcss-nested` , you can write @-rules beside styles.
+
+```ts
+import { css } from "@casablanca-css/core";
+
+const flexContainer = css`
+  display: flex;
+  flex-direction: row;
+  @media(width < 500px){
+    flex-direction: column;
+  }
+`
+```
+
+To write global styles, use `injectGlobal` tag.
+
+```ts
+import { injectGlobal } from "@casablanca-css/core";
+
+injectGlobal`
+  body{
+    min-height: 100svh;
+    font-size: 16px;
+  }
+`
+```
+
+## Limitation
+
+You can only write styles at top level of code. In other words, you cannot write styles inside function, class, or any statement that may be ignored on evaluation. 
+To evaluate styles, `casablanca-css` temporarily exports all tagged styles while transformation. JS exports must be at the top level of code. That's why styles must be at the top level. 
+
+
+```ts
+import { css } from "@casablanca-css/core";
+
+// OK: casablanca exports this value while evaluation.
+const internalStyle = css`
+...
+`
+// OK: you can export styles to reuse anywhere in the project.
+export const exportedStyle = css`
+...
+`
+// NG: casablanca cannot evaluate this style.
+function notAllowed() {
+  const style = css`
+  ...
+  `
+}
+
+```
+

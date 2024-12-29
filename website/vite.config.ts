@@ -4,6 +4,7 @@ import mdx from "@mdx-js/rollup";
 import react from "@vitejs/plugin-react";
 import postcssNested from "postcss-nested";
 import rakkas from "rakkasjs/vite-plugin";
+import rehypeCodeProps from "rehype-mdx-code-props";
 import rehypePrettyCode, { type Options } from "rehype-pretty-code";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
@@ -27,6 +28,7 @@ export default defineConfig({
             rehypePrettyCode,
             { theme: "one-dark-pro", keepBackground: true } satisfies Options,
           ],
+          rehypeCodeProps,
         ],
         providerImportSource: "@mdx-js/react",
       }),

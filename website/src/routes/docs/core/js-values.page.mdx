@@ -1,0 +1,27 @@
+---
+title: "Embed JS values"
+nextSlug: "/core/selector"
+previousSlug: "/core/first-style"
+---
+
+
+# Embed JS values
+
+You can use any JS values in tagged styles. Note that values are converted to string implicitly (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#string_coercion)) .
+
+```ts
+import { css } from "@casablanca-css/core";
+
+const fontWeight = "bold";
+
+const style = css`
+  /* string */
+  color: ${"red"};
+  /* number */
+  font-size: ${100/3}px;
+  /* variable */
+  font-weight: ${fontWeight};
+  /* call function
+  background-color: ${randomColor()};
+`
+```
