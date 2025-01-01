@@ -10,7 +10,7 @@ const allDocs = import.meta.glob<true, string, MdxModuleType>(
 const slugToDocsMeta = new Map<string, DocsMeta>();
 
 for (const [path, module] of Object.entries(allDocs)) {
-  const slug = path.replace(/\.page\.mdx$/, "");
+  const slug = path.replace(/\.page\.mdx$/, "").replace(/^\.\//, "/");
   const metadata = module.frontmatter;
   if (!metadata) {
     throw new Error(`${slug} has no metadata`);
@@ -19,13 +19,13 @@ for (const [path, module] of Object.entries(allDocs)) {
   if (!title) {
     throw new Error(`${slug} has no title`);
   }
-  const validatedMeta = { title, nextSlug, previousSlug };
+  const validatedMeta = { title, nextSlug, previousSlug, slug };
   slugToDocsMeta.set(slug, validatedMeta);
   if (slug.endsWith("/index")) {
     const noIndex = slug.replace(/\/index$/, "");
-    slugToDocsMeta.set(noIndex, validatedMeta);
+    slugToDocsMeta.set(noIndex, { ...validatedMeta, slug: noIndex });
     if (!noIndex) {
-      slugToDocsMeta.set("/", validatedMeta);
+      slugToDocsMeta.set("/", { ...validatedMeta, slug: "/" });
     }
   }
 }
