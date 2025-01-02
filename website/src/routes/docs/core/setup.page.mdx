@@ -21,7 +21,7 @@ npm install -D postcss-nested # optional, but recommended
 
 ## Config package.json
 
-```json
+```json title="package.json"
 {
   ...
   "type": "module",
@@ -33,7 +33,7 @@ Env-var `NODE_OPTIONS=--experimental-vm-modules` is also required because `casab
 
 ## Vite config
 
-```ts filename="vite.config.ts"
+```ts title="vite.config.ts"
 import { casablanca } from "@casablanca-css/core/vite";
 import postcssNested from "postcss-nested";
 import { defineConfig } from "vite";

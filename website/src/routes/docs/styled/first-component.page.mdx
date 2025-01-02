@@ -13,12 +13,12 @@ Note that styled component should start with a capital letter.
 ```tsx
 import { styled } from "@casablanca-css/styled";
 
-const StyledButton = styled("button")`
+const MyButton = styled("button")`
   color: red;
   border: 3px solid currentcolor;
 `
 
-export const StyledCustomComponent = styled(CustomComponent)`
+export const MyCustomComponent = styled(CustomComponent)`
   font-size: 1.5rem;
 `
 ```
@@ -29,23 +29,23 @@ It will be transformed like this:
 import { css } from "@casablanca-css/core";
 
 
-const _StyledButtonStyle = css`
+const __styledMyButton = css`
   color: red;
   border: 3px solid currentcolor;
 `
 
-const StyledButton = (props) => {
+const MyButton = (props) => {
   const { className, _rest } = props;
-  return <button className={`${_StyledButtonStyle} ${className}`} {...rest} />
+  return <button className={`${__styledMyButton} ${className}`} {...rest} />
 }
 
-const _StyledCustomComponentStyle = css`
+const __styledMyCustomComponentStyle = css`
   font-size: 1.5rem;
 `
 
-export const StyledCustomComponent = (props) => {
+export const MyCustomComponent = (props) => {
   const { className, _rest } = props;
-  return <CustomComponent className={`${_StyledButtonStyle} ${className}`} {...rest} />
+  return <CustomComponent className={`${___styledMyCustomComponentStyle} ${className}`} {...rest} />
 }
 
 ```
