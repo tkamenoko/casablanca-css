@@ -30,4 +30,16 @@ for (const [path, module] of Object.entries(allDocs)) {
   }
 }
 
+export function slugToPath(slug: string): string {
+  return slug === "/" ? "/docs" : `/docs${slug}`;
+}
+
+export function pathToSlug(path: string): string | null {
+  if (!path.startsWith("/docs")) {
+    return null;
+  }
+  const slug = path.replace(/^\/docs\/?/, "/");
+  return slug;
+}
+
 export { slugToDocsMeta };

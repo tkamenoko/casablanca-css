@@ -10,7 +10,3 @@ export type DocsMeta = {
   nextSlug?: string | undefined;
   previousSlug?: string | undefined;
 };
-
-export function slugToPath(slug: string): string {
-  return slug === "/" ? "/docs" : `/docs${slug}`;
-}
