@@ -39,8 +39,9 @@ const mdxStyledComponents: Parameters<typeof MDXProvider>[0]["components"] = {
 const MainPanel = styled("article")`
   padding: 0.3rem 0.5rem;
   display: grid;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto 1fr;
   row-gap: 1rem;
+  align-items: start;
 
   & *:not(pre) > code {
     padding: 0 0.2em;
@@ -66,7 +67,7 @@ const MainPanel = styled("article")`
     position: relative;
     border-radius: ${openProps.radius2};
 
-    &[title]{
+    &[title] {
     border-top-left-radius: 0;}
   }
 `;
