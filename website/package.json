@@ -2,6 +2,7 @@
   "name": "@casablanca-css/website",
   "dependencies": {
     "@acab/reset.css": "^0.11.0",
+    "feather-icons": "^4.29.2",
     "open-props": "^1.7.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

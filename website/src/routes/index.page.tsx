@@ -15,16 +15,25 @@ const HomeWrapper = styled("main")`
 
 const Heading = styled("h1")`
   display: grid;
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(3, auto);
   row-gap: 2rem;
   align-items: center;
   padding: 4rem 0;
+
+  @container (width < 1024px) {
+    row-gap: 0.5rem;
+    padding: 2rem 0;
+  }
 `;
 
 const Phrase = styled("span")`
   text-align: center;
   font-size: 4rem;
   color: ${tokens.colors.brand};
+
+  @container (width < 1024px) {
+    line-height: 1.1em;
+  }
 `;
 
 const Descriptions = styled("div")`
@@ -50,6 +59,19 @@ const ExampleWrapper = styled("div")`
     grid-column: 2 / 3;
     border: ${openProps.borderSize4} solid rgb(40 44 52);
     border-radius: ${openProps.radius2};
+  }
+
+  @container (width <= 700px) {
+    grid-template-columns: 1fr;
+    padding: 0 0.5rem;
+
+    & > * {
+      grid-column: unset;
+    }
+
+    & pre {
+      white-space: pre-wrap;
+    }
   }
 `;
 
