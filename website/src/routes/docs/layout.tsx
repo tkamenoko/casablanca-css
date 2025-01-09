@@ -15,7 +15,6 @@ const H2 = styled("h2")`
 `;
 const Ul = styled("ul")`
   list-style: disc inside;
-  
 `;
 
 const mdxStyledComponents: Parameters<typeof MDXProvider>[0]["components"] = {
@@ -48,27 +47,29 @@ const MainPanel = styled("article")`
     background-color: ${openProps.gray3};
   }
 
+  & figure {
+    overflow-x: scroll;
+  }
 
-
- & figcaption{
-  width: min-content;
-  border: ${openProps.borderSize1} solid ${openProps.gray11};
-  border-radius: ${openProps.radius2} ${openProps.radius2} 0 0;
-  border-bottom: none;
-  padding: 0 .3em;
-  line-height: 1.8em;
-  font-size: ${openProps.fontSize0};
-  
- }
+  & figcaption {
+    width: min-content;
+    border: ${openProps.borderSize1} solid ${openProps.gray11};
+    border-radius: ${openProps.radius2} ${openProps.radius2} 0 0;
+    border-bottom: none;
+    padding: 0 0.3em;
+    line-height: 1.8em;
+    font-size: ${openProps.fontSize0};
+  }
 
   & pre {
     /* WORKAROUND: fix after inline style bug */
-    padding: .8em 1.5em;
+    padding: 0.8em 1.5em;
     position: relative;
     border-radius: ${openProps.radius2};
 
     &[title] {
-    border-top-left-radius: 0;}
+      border-top-left-radius: 0;
+    }
   }
 `;
 
@@ -87,6 +88,16 @@ const DocsWrapper = styled("div")`
   }
   & > .${MenuPanel} {
     grid-column: 1 / 2;
+  }
+
+  @media screen and (width < 800px) {
+    grid-template-columns: 1fr;
+    & > .${MainPanel} {
+      grid-column: auto;
+    }
+    & > .${MenuPanel} {
+      display: none;
+    }
   }
 `;
 

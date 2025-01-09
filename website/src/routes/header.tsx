@@ -85,9 +85,6 @@ const Wrapper = styled("header")`
 
       & > a {
         padding: 0.1em 0;
-      }
-
-      & > a:first-child {
         border-bottom: ${openProps.borderSize1} solid ${openProps.gray4};
       }
     }

@@ -62,6 +62,10 @@ const Wrapper = styled("footer")`
   & > .${NextLink} {
     grid-column: -2 / -1;
   }
+
+  @media screen and (width < 800px) {
+      grid-template-columns: 2fr 1fr 2fr;
+    }
 `;
 
 const GoForward: FC<LinkInfo> = ({ title, slug }) => {

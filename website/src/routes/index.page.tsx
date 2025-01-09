@@ -61,16 +61,16 @@ const ExampleWrapper = styled("div")`
     border-radius: ${openProps.radius2};
   }
 
+  & figure {
+    overflow-x: scroll;
+  }
+
   @container (width <= 700px) {
     grid-template-columns: 1fr;
     padding: 0 0.5rem;
 
     & > * {
       grid-column: unset;
-    }
-
-    & pre {
-      white-space: pre-wrap;
     }
   }
 `;
