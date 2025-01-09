@@ -62,7 +62,12 @@ const ExampleWrapper = styled("div")`
   }
 
   & figure {
-    overflow-x: scroll;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  & pre {
+    overflow-x: auto;
   }
 
   @container (width <= 700px) {

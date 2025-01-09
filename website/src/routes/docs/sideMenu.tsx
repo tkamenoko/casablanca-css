@@ -41,9 +41,22 @@ function collectStyledLinks(meta: DocsMeta | null | undefined) {
   collectStyledLinks(next);
 }
 collectStyledLinks(styledMeta);
+const [coreTop, ...coreRest] = coreLinks;
+const [styledTop, ...styledRest] = styledLinks;
+if (!(coreTop && styledTop)) {
+  throw new Error("Invalid slug");
+}
 
-export const MenuPanel = styled("nav")`
-  padding: 1rem;
+const MenuSwitch = styled("label")`
+  line-height: 3rem;
+  font-size: ${openProps.fontSize2};
+  font-weight: ${openProps.fontWeight6};
+  vertical-align: middle;
+  padding: 0 0.2em;
+  border-bottom: ${openProps.borderSize1} solid ${openProps.gray6};
+`;
+const SwitchBox = styled("input")`
+  display: none;
 `;
 
 const SubMenu = styled(StyledLink)`
@@ -84,15 +97,37 @@ const TopList = styled("ol")`
   }
 `;
 
-const [coreTop, ...coreRest] = coreLinks;
-const [styledTop, ...styledRest] = styledLinks;
-if (!(coreTop && styledTop)) {
-  throw new Error("Invalid slug");
-}
+export const MenuPanel = styled("nav")`
+  padding: 1rem;
+  & > .${MenuSwitch} {
+    display: none;
+  }
+
+  @media screen and (width < 800px) {
+    padding: 0;
+    background-color: ${openProps.gray1};
+    border-bottom: ${openProps.borderSize1} solid ${openProps.gray6};
+    height: fit-content;
+    & > .${TopList} {
+      display: none;
+    }
+    & > .${MenuSwitch} {
+      display: block;
+    }
+    &:has(.${SwitchBox}:checked) > .${TopList} {
+      padding: 0.5em 0.3em;
+      display: grid;
+    }
+  }
+`;
 
 export const SideMenu: FC = () => {
   return (
     <MenuPanel>
+      <MenuSwitch>
+        ・ LoC
+        <SwitchBox type="checkbox" />
+      </MenuSwitch>
       <TopList>
         <TopItem>
           <TopMenu href={slugToPath(homeMeta.slug)}>{homeMeta.title}</TopMenu>

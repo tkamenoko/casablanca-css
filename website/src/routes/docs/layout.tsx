@@ -21,11 +21,13 @@ const MainPanel = styled("article")`
   }
 
   & figure {
-    overflow-x: scroll;
+    overflow-x: auto;
+    max-width: 100%;
   }
 
   & figcaption {
     width: min-content;
+    overflow-x: auto;
     border: ${openProps.borderSize1} solid ${openProps.gray11};
     border-radius: ${openProps.radius2} ${openProps.radius2} 0 0;
     border-bottom: none;
@@ -36,6 +38,7 @@ const MainPanel = styled("article")`
 
   & pre {
     /* WORKAROUND: fix after inline style bug */
+    overflow-x: auto;
     padding: 0.8em 1.5em;
     position: relative;
     border-radius: ${openProps.radius2};
@@ -63,13 +66,21 @@ const DocsWrapper = styled("div")`
     grid-column: 1 / 2;
   }
 
+  @media screen and (width < 1200px) {
+    grid-template-columns: minmax(15rem, 1fr) 3fr;
+  }
+
   @media screen and (width < 800px) {
     grid-template-columns: 1fr;
-    & > .${MainPanel} {
-      grid-column: auto;
-    }
+    grid-template-rows: auto 1fr;
+
     & > .${MenuPanel} {
-      display: none;
+      grid-column: 1 / -1;
+      grid-row: 1 / 2;
+    }
+    & > .${MainPanel} {
+      grid-column: 1 / -1;
+      grid-row: 2 / 3;
     }
   }
 `;
