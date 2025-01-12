@@ -7,6 +7,7 @@ import { buildInlineStylesAssignmentStatement } from "./helpers/buildInlineStyle
 import { buildInnerJsxElement } from "./helpers/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./helpers/buildNewClassNameAssignmentStatement";
 import { buildPropsCleaningStatement } from "./helpers/buildPropsCleaningStatement";
+import { buildStyleExtractingStatement } from "./helpers/buildStyleExtractingStatement";
 import { extractPathsFromDeclaration } from "./helpers/extractPathsFromDeclaration";
 import { getAnnotatedParams } from "./helpers/getAnnotatedParams";
 import { getImportedNameFromImportSpecifier } from "./helpers/getImportedNameFromImportSpecifier";
@@ -150,9 +151,15 @@ export function plugin({
             newClassNameId,
           });
 
+          const givenStyleId = path.scope.generateUidIdentifier("givenStyle");
           const inlineStyleId = path.scope.generateUidIdentifier("inlineStyle");
+          const extractGivenStyle = buildStyleExtractingStatement({
+            givenStyleId,
+            propsId,
+          });
           const assignInlineStyles = buildInlineStylesAssignmentStatement({
             cssDynamicVars,
+            additionalStyleId: givenStyleId,
             inlineStyleId,
             propsId,
           });
@@ -179,6 +186,7 @@ export function plugin({
 
           const blockStatements = [
             extractGivenClassName,
+            extractGivenStyle,
             assignNewClassName,
             assignInlineStyles,
             cleanProps,

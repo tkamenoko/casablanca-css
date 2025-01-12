@@ -3,6 +3,7 @@ import { types } from "@babel/core";
 export function buildInlineStylesAssignmentStatement({
   cssDynamicVars,
   propsId,
+  additionalStyleId,
   inlineStyleId,
 }: {
   cssDynamicVars: {
@@ -10,6 +11,7 @@ export function buildInlineStylesAssignmentStatement({
     cssVarName: `--${string}`;
   }[];
   propsId: types.Identifier;
+  additionalStyleId: types.Identifier;
   inlineStyleId: types.Identifier;
 }): types.VariableDeclaration {
   // const inlineStyleId={"--varName": embeddedFunction(propsId)}
@@ -24,7 +26,10 @@ export function buildInlineStylesAssignmentStatement({
   const assignInlineStyles = types.variableDeclaration("const", [
     types.variableDeclarator(
       inlineStyleId,
-      types.objectExpression(inlineStyleProperties),
+      types.objectExpression([
+        types.spreadElement(additionalStyleId),
+        ...inlineStyleProperties,
+      ]),
     ),
   ]);
   return assignInlineStyles;
