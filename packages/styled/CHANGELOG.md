@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [@casablanca-css/styled@v1.0.1](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/styled@v1.0.0..@casablanca-css/styled@v1.0.1) - 2025-01-12
+
+### Bug Fixes
+
+- styled components to accept inline style ([#55](https://github.com/tkamenoko/casablanca-css/issues/55)) - ([22e2cb5](https://github.com/tkamenoko/casablanca-css/commit/22e2cb5f04f45befdececde008eb4c407c58d7bb)) - T.Kameyama
+
+---
 ## [@casablanca-css/styled@v1.0.0](https://github.com/tkamenoko/casablanca-css/compare/@casablanca-css/styled@v0.1.2..@casablanca-css/styled@v1.0.0) - 2024-12-21
 
 ### Build
