@@ -1,6 +1,5 @@
 import { styled } from "@casablanca-css/styled";
 import { MDXProvider } from "@mdx-js/react";
-import openProps from "open-props";
 import { Head, type Layout, ResponseHeaders } from "rakkasjs";
 import { slugToDocsMeta } from "./docsMeta";
 import { DocsFooter, type LinkInfo } from "./footer";
@@ -14,39 +13,6 @@ const MainPanel = styled("article")`
   grid-template-rows: auto 1fr;
   row-gap: 1rem;
   align-items: start;
-
-  & *:not(pre) > code {
-    padding: 0 0.2em;
-    background-color: ${openProps.gray3};
-  }
-
-  & figure {
-    overflow-x: auto;
-    max-width: 100%;
-  }
-
-  & figcaption {
-    width: min-content;
-    overflow-x: auto;
-    border: ${openProps.borderSize1} solid ${openProps.gray11};
-    border-radius: ${openProps.radius2} ${openProps.radius2} 0 0;
-    border-bottom: none;
-    padding: 0 0.3em;
-    line-height: 1.8em;
-    font-size: ${openProps.fontSize0};
-  }
-
-  & pre {
-    /* WORKAROUND: fix after inline style bug */
-    overflow-x: auto;
-    padding: 0.8em 1.5em;
-    position: relative;
-    border-radius: ${openProps.radius2};
-
-    &[title] {
-      border-top-left-radius: 0;
-    }
-  }
 `;
 
 const DocsBody = styled("section")`
