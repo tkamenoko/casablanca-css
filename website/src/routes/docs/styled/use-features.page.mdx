@@ -1,0 +1,35 @@
+---
+title: "Use casablanca features with styled components"
+nextSlug: "/styled/props"
+previousSlug: "/styled/first-component"
+---
+
+
+# Use casablanca features with styled components
+
+You can use all casablanca features with styled components.
+
+```tsx
+import { css } from "@casablanca-css/core";
+import { styled } from "@casablanca-css/styled";
+import { StyledForm } from "./components"
+import { commonStyle } from "./mixin";
+
+const styledWithCssTag = css`
+  color: red;
+`
+
+const StyledButton = styled("button")`
+  /* js values */
+  font-size: ${2*3}rem;
+  /* selector */
+  .${StyledForm} {
+    align-self: center;
+  }
+  & > .${styledWithCssTag} {
+    font-weight: bold;
+  }
+  /* composition */
+  composes: ${commonStyle};
+`
+```

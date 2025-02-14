@@ -1,0 +1,58 @@
+---
+title: "Write your first component"
+nextSlug: "/styled/use-features"
+previousSlug: "/styled/setup"
+---
+
+# Write your first component
+
+`styled` function accepts a HTML tag name or JSX component and returns tag function to write styles. A tagged style creates a new component that has unique class name. 
+
+Note that styled component should start with a capital letter.
+
+```tsx
+import { styled } from "@casablanca-css/styled";
+
+const MyButton = styled("button")`
+  color: red;
+  border: 3px solid currentcolor;
+`
+
+export const MyCustomComponent = styled(CustomComponent)`
+  font-size: 1.5rem;
+`
+```
+
+It will be transformed like this:
+
+```tsx
+import { css } from "@casablanca-css/core";
+
+
+const __styledMyButton = css`
+  color: red;
+  border: 3px solid currentcolor;
+`
+
+const MyButton = (props) => {
+  const { className, _rest } = props;
+  return <button className={`${__styledMyButton} ${className}`} {...rest} />
+}
+
+const __styledMyCustomComponentStyle = css`
+  font-size: 1.5rem;
+`
+
+export const MyCustomComponent = (props) => {
+  const { className, _rest } = props;
+  return <CustomComponent className={`${___styledMyCustomComponentStyle} ${className}`} {...rest} />
+}
+
+```
+
+... and `@casablanca-css/core` will process the transformed code.
+
+
+## Limitation
+
+As same as `@casablanca-css/core` , you can define components only at the top level.  

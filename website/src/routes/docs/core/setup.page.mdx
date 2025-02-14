@@ -1,0 +1,50 @@
+---
+title: "Setup"
+nextSlug: "/core/first-style"
+previousSlug: "/core"
+---
+
+# Setup
+
+## Prerequisites
+
+* Node.js >=20
+
+`casablanca-css` depends on `node:vm` module. Bun and Deno are not supported.
+
+## Install
+
+```console
+npm install -D @casablanca-css/core vite # required
+npm install -D postcss-nested # optional, but recommended
+```
+
+## Config package.json
+
+```json title="package.json"
+{
+  ...
+  "type": "module",
+  ...
+}
+```
+
+Env-var `NODE_OPTIONS=--experimental-vm-modules` is also required because `casablanca-css` uses [`vm.Module`](https://nodejs.org/api/vm.html#class-vmmodule) features.
+
+## Vite config
+
+```ts title="vite.config.ts"
+import { casablanca } from "@casablanca-css/core/vite";
+import postcssNested from "postcss-nested";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [casablanca()],
+  css: {
+    postcss: { plugins: [postcssNested()] },
+    devSourcemap: true,
+  },
+});
+```
+
+{/* TODO: describe options */}

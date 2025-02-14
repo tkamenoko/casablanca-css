@@ -1,0 +1,44 @@
+---
+title: "Compose styles to reuse properties"
+nextSlug: "/styled"
+previousSlug: "/core/selector"
+---
+
+# Compose styles to reuse properties
+
+To reuse same styles in multiple components, use `composes` property.
+
+```ts
+import { css } from "@casablanca-css/core";
+import { styleA, styleB } from "./styles";
+
+const composingSingleStyle = css`
+  display: grid;
+  composes: ${styleA};
+  min-height: 100vh;
+`
+
+const composingMultipleStyles = css`
+  display: flex;
+  composes: ${[styleA, styleB]};
+  min-width: 100%;
+`
+```
+
+These styles will be transformed like this:
+
+```css
+.composingSingleStyle {
+  display: grid;
+  /* styleA properties here */
+  min-height: 100vh; /* it overwrites styleA property */
+}
+
+.composingMultipleStyles {
+  display: flex;
+  /* styleA properties here */
+  /* styleB properties here */
+  min-width: 100%; /* it has higher priority than that of composed properties */
+}
+
+```

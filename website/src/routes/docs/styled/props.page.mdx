@@ -1,0 +1,47 @@
+---
+title: "Dynamic styling with props"
+previousSlug: "/styled/use-features"
+---
+
+
+# Dynamic styling with props
+
+You can embed functions in styles to use props for dynamic styling. 
+
+
+```tsx
+import { styled } from "@casablanca-css/styled";
+
+const DynamicStyledComponent = styled(CustomComponent)`
+  color: ${(props) => props.color};
+`
+```
+
+## Pass additional props safely with type annotation
+
+When you want to pass additional props that is not used in the original component, write type annotation. Typed additional props will be used by styled components, but not passed to the original components.
+
+```tsx
+import { styled } from "@casablanca-css/styled";
+
+// Note: use object literal annotation to optimize props.
+const ButtonWithAdditionalProps = styled("button")<{state: "ok" | "error"}>`
+  color: ${(props) => props.state === "ok" ? "green" : "red"};
+`
+```
+
+It will be transformed like this:
+
+```tsx
+import { css } from "@casablanca-css/core";
+
+const _ButtonWithAdditionalPropsStyle = css`
+  color: var(--temporal);
+`
+const embeddedFunction = (props) => props.state === "ok" ? "green" : "red"; 
+const ButtonWithAdditionalProps = (props) => {
+  const { state: _disposed, className, ...rest} = props;
+
+  return <button style={{"--temporal":embeddedFunction(props)}} className={`${_ButtonWithAdditionalPropsStyle} ${className}`} {...rest} />
+}
+```
