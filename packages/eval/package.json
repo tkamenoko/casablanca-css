@@ -1,0 +1,85 @@
+{
+  "name": "@casablanca-css/eval",
+  "description": "Evaluate modules at build time.",
+  "version": "0.0.1",
+  "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
+  "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
+  "engines": {
+    "node": ">=20.15.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "development": "./src/index.ts",
+      "production": "./src/index.ts",
+      "default": "./dist/lib/index.js"
+    },
+    "./loaders": {
+      "types": "./dist/lib/loaders.d.ts",
+      "development": "./src/loaders/index.ts",
+      "production": "./src/loaders/index.ts",
+      "default": "./dist/lib/loaders.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
+  "license": "MIT",
+  "private": true,
+  "repository": "tkamenoko/casablanca-css.git",
+  "scripts": {
+    "build": "wireit",
+    "lint": "wireit",
+    "test": "wireit",
+    "types": "wireit"
+  },
+  "type": "module",
+  "types": "dist/lib/index.d.ts",
+  "wireit": {
+    "build": {
+      "dependencies": [
+        "build:transpile"
+      ]
+    },
+    "build:transpile": {
+      "command": "vite build",
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": [
+        "./dist/lib/**/*.{js,d.ts}"
+      ]
+    },
+    "test": {
+      "command": "vitest run",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    },
+    "lint": {
+      "command": "biome check --apply ./",
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./vite.config.ts",
+        "../../biome.json"
+      ],
+      "output": []
+    },
+    "types": {
+      "command": "tsc --noEmit",
+      "files": [
+        "./src/**/*.{ts,tsx}",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    }
+  }
+}
