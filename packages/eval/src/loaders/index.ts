@@ -1,4 +1,5 @@
 export { nodeBuiltinLoader } from "./nodeBuiltinLoader";
+export { nodeModuleLoader } from "./nodeModuleLoader";
 export type {
   Loader,
   LoaderArgs,
