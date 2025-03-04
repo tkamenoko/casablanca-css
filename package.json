@@ -49,12 +49,14 @@
     "test-all": {
       "dependencies": [
         "./packages/core:test",
+        "./packages/eval:test",
         "./packages/styled:test"
       ]
     },
     "types-packages": {
       "dependencies": [
         "./packages/core:types",
+        "./packages/eval:types",
         "./packages/styled:types",
         "./packages/utils:types"
       ]
