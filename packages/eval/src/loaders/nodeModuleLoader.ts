@@ -1,15 +1,11 @@
-import vm, { type Module } from "node:vm";
-import type { LoadModuleReturn } from "../types";
+import vm from "node:vm";
+import type { Loader } from "./types";
 
-export async function loadNodeModule({
+export const nodeModuleLoader: Loader = async ({
   modulesCache,
   specifier,
   referencingModule,
-}: {
-  modulesCache: Map<string, Module>;
-  specifier: string;
-  referencingModule: Module;
-}): Promise<LoadModuleReturn> {
+}) => {
   const cached = modulesCache.get(specifier);
   if (cached) {
     return { error: null, module: cached };
@@ -17,7 +13,9 @@ export async function loadNodeModule({
   const imported = await import(specifier).catch(() => null);
   if (!imported) {
     return {
-      error: new Error(`Module "${specifier}" was not found in node_modules.`),
+      error: new Error(
+        `NodeModuleLoader: Module "${specifier}" was not found in node_modules.`,
+      ),
       module: null,
     };
   }
@@ -36,4 +34,4 @@ export async function loadNodeModule({
   );
   modulesCache.set(specifier, m);
   return { error: null, module: m };
-}
+};

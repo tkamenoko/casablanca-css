@@ -1,24 +1,12 @@
 {
-  "name": "@casablanca-css/core",
-  "description": "Zero-Runtime CSS-in-JS powered by vite.",
-  "version": "1.0.0",
+  "name": "@casablanca-css/eval",
+  "description": "Evaluate modules at build time.",
+  "version": "0.0.1",
   "author": "Tessei Kameyama <tkamenoko@vivaldi.net>",
   "bugs": "https://github.com/tkamenoko/casablanca-css/issues",
-  "dependencies": {
-    "@ampproject/remapping": "^2.3.0",
-    "@babel/core": "^7.25.2",
-    "@casablanca-css/eval": "0.0.1",
-    "@casablanca-css/utils": "^1.0.0",
-    "happy-dom": "^15.11.7",
-    "source-map": "^0.7.4"
-  },
   "devDependencies": {
-    "@types/babel__core": "^7.20.5",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
-    "open-props": "^1.7.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "polished": "4.3.1",
+    "valibot": "^1.0.0-rc.1"
   },
   "engines": {
     "node": ">=20.15.1"
@@ -30,25 +18,16 @@
       "production": "./src/index.ts",
       "default": "./dist/lib/index.js"
     },
-    "./package.json": "./package.json",
-    "./vite": {
-      "types": "./dist/lib/vite.d.ts",
-      "development": "./src/vite/index.ts",
-      "production": "./src/vite/index.ts",
-      "default": "./dist/lib/vite.js"
-    }
+    "./loaders": {
+      "types": "./dist/lib/loaders.d.ts",
+      "development": "./src/loaders/index.ts",
+      "production": "./src/loaders/index.ts",
+      "default": "./dist/lib/loaders.js"
+    },
+    "./package.json": "./package.json"
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
-  "keywords": [
-    "css",
-    "css-in-js",
-    "vite",
-    "vite-plugin"
-  ],
   "license": "MIT",
-  "peerDependencies": {
-    "vite": "^5.0.12 || ^6.0.5"
-  },
   "private": true,
   "repository": "tkamenoko/casablanca-css.git",
   "scripts": {
@@ -62,9 +41,9 @@
   "wireit": {
     "build": {
       "dependencies": [
-        "build:transpile",
         "build:copy",
-        "build:package.json"
+        "build:package.json",
+        "build:transpile"
       ]
     },
     "build:transpile": {
@@ -72,13 +51,7 @@
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
-        "./vite.config.ts",
-        "../eval/src/**/*.ts",
-        "../eval/tsconfig.json",
-        "../eval/vite.config.ts",
-        "../utils/src/**/*.{ts,tsx}",
-        "../utils/tsconfig.json",
-        "../utils/vite.config.ts"
+        "./vite.config.ts"
       ],
       "output": [
         "./dist/lib/**/*.{js,d.ts}"
@@ -106,6 +79,18 @@
         "./dist/package.json"
       ]
     },
+    "test": {
+      "command": "vitest run",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
+      "files": [
+        "./src/**/*.ts",
+        "./tsconfig.json",
+        "./vite.config.ts"
+      ],
+      "output": []
+    },
     "lint": {
       "command": "biome check --apply ./",
       "files": [
@@ -115,34 +100,12 @@
       ],
       "output": []
     },
-    "test": {
-      "command": "vitest run",
-      "env": {
-        "NODE_OPTIONS": "--experimental-vm-modules"
-      },
-      "files": [
-        "./src/**/*.{ts,tsx}",
-        "./tsconfig.json",
-        "./vite.config.ts",
-        "../eval/src/**/*.ts",
-        "../eval/tsconfig.json",
-        "../eval/vite.config.ts",
-        "../utils/src/**/*.{ts,tsx}",
-        "../utils/tsconfig.json",
-        "../utils/vite.config.ts"
-      ],
-      "output": []
-    },
     "types": {
       "command": "tsc --noEmit",
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
         "./vite.config.ts"
-      ],
-      "dependencies": [
-        "../eval:types",
-        "../utils:types"
       ],
       "output": []
     }

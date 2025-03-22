@@ -1,20 +1,17 @@
-import vm, { type Module } from "node:vm";
-import type { ViteDevServer } from "vite";
-import type { LoadModuleReturn } from "../../types";
+import vm from "node:vm";
+import type { Loader } from "@casablanca-css/eval/loaders";
 
-export async function loadReactRefreshModule({
+export const reactRefreshLoader: Loader = async ({
   modulesCache,
-  specifier,
   referencingModule,
-}: {
-  modulesCache: Map<string, Module>;
-  specifier: string;
-  referencingModule: Module;
-  server: ViteDevServer;
-  basePath: string;
-}): Promise<LoadModuleReturn> {
+  specifier,
+}) => {
   if (specifier !== "/@react-refresh") {
     return { error: new Error("This is not /@react-refresh"), module: null };
+  }
+  const cached = modulesCache.get(specifier);
+  if (cached) {
+    return { error: null, module: cached };
   }
   const m = new vm.SyntheticModule(
     ["default"],
@@ -30,4 +27,4 @@ export async function loadReactRefreshModule({
   );
   modulesCache.set(specifier, m);
   return { error: null, module: m };
-}
+};

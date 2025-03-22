@@ -1,15 +1,17 @@
-import type { LoadModuleReturn } from "./types";
+import type { Loader, LoaderArgs, LoaderReturn } from "./loaders/types";
 
-export async function loadModule<T extends { specifier: string }>(
-  loaders: ((a: T) => Promise<LoadModuleReturn>)[],
-  args: T,
-): Promise<LoadModuleReturn> {
-  const tailLoader = loaders.pop();
-  if (!tailLoader) {
+export async function loadModule(
+  loaders: Loader[],
+  args: LoaderArgs,
+): Promise<LoaderReturn> {
+  const tailLoader = loaders.at(-1);
+  const otherLoaders = loaders.slice(0, -1);
+
+  if (!(tailLoader && loaders.length)) {
     throw new Error("Loaders are empty.");
   }
   const errors: Error[] = [];
-  for (const loader of loaders) {
+  for (const loader of otherLoaders) {
     const result = await loader(args);
     if (result.module) {
       return result;

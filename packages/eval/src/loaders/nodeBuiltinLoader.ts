@@ -1,23 +1,21 @@
 import { isBuiltin } from "node:module";
-import vm, { type Module } from "node:vm";
-import type { LoadModuleReturn } from "../types";
+import vm from "node:vm";
+import type { Loader } from "./types";
 
-export async function loadBuiltinModule({
+export const nodeBuiltinLoader: Loader = async ({
   modulesCache,
   specifier,
   referencingModule,
-}: {
-  modulesCache: Map<string, Module>;
-  specifier: string;
-  referencingModule: Module;
-}): Promise<LoadModuleReturn> {
+}) => {
   const cached = modulesCache.get(specifier);
   if (cached) {
     return { error: null, module: cached };
   }
   if (!isBuiltin(specifier)) {
     return {
-      error: new Error(`"${specifier}" is not a builtin module.`),
+      error: new Error(
+        `NodeBuiltinLoader: "${specifier}" is not a builtin module.`,
+      ),
       module: null,
     };
   }
@@ -27,7 +25,9 @@ export async function loadBuiltinModule({
   const imported = await import(normalizedSpecifier).catch(() => null);
   if (!imported) {
     return {
-      error: new Error(`Module "${specifier}" was not found in builtins.`),
+      error: new Error(
+        `NodeBuiltinLoader: Module "${specifier}" was not found in builtins.`,
+      ),
       module: null,
     };
   }
@@ -49,4 +49,4 @@ export async function loadBuiltinModule({
   isBuiltin(shortSpecifier) ? modulesCache.set(shortSpecifier, m) : void 0;
 
   return { error: null, module: m };
-}
+};

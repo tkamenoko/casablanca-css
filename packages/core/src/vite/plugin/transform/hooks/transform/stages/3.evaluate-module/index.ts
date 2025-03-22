@@ -1,9 +1,17 @@
 import { transformFromAstAsync } from "@babel/core";
+import { evaluate } from "@casablanca-css/eval";
+import {
+  nodeBuiltinLoader,
+  nodeModuleLoader,
+} from "@casablanca-css/eval/loaders";
 import type { ViteDevServer } from "vite";
-import { createLinker as createLinkerForProduction } from "./build";
-import { evaluate } from "./evaluate";
+import { collectEvaluatedStyles } from "./collectEvaluatedStyles";
+import { createComposeInternal } from "./createComposeInternal";
+import { createDevLoaders } from "./createDevLoaders";
+import { createGlobalContext } from "./createGlobalContext";
+import { createProdLoaders } from "./createProdLoaders";
+import { injectReactRefresh } from "./injectReactRefresh";
 import { merge } from "./merge";
-import { createLinker as createLinkerForServer } from "./serve";
 import type { EvaluateOptions, Evaluator, TransformContext } from "./types";
 
 export type { EvaluateModuleReturn } from "./types";
@@ -26,38 +34,6 @@ export function createEvaluator({
 }: CreateEvaluatorArgs): Evaluator {
   const globals = merge(defaultGlobals, evaluateOptions.globals ?? {});
   const importMeta = merge(defaultImportMeta, evaluateOptions.importMeta ?? {});
-  if (server) {
-    const { linker } = createLinkerForServer({
-      modulePath,
-      server,
-    });
-    const evaluator: Evaluator = async ({
-      ast,
-      capturedVariableNames,
-      temporalGlobalStyles,
-      uuidToStylesMap,
-    }) => {
-      const { code } = (await transformFromAstAsync(ast)) ?? {};
-      if (!code) {
-        throw new Error("Failed");
-      }
-      return await evaluate({
-        code,
-        linker,
-        capturedVariableNames,
-        temporalGlobalStyles,
-        uuidToStylesMap,
-        globals,
-        importMeta,
-      });
-    };
-    return evaluator;
-  }
-  const { linker } = createLinkerForProduction({
-    modulePath,
-    transformContext,
-    importMeta,
-  });
 
   const evaluator: Evaluator = async ({
     ast,
@@ -65,19 +41,47 @@ export function createEvaluator({
     temporalGlobalStyles,
     uuidToStylesMap,
   }) => {
+    // ast to code
     const { code } = (await transformFromAstAsync(ast)) ?? {};
     if (!code) {
       throw new Error("Failed");
     }
-    return await evaluate({
-      code,
-      linker,
-      capturedVariableNames,
-      temporalGlobalStyles,
-      uuidToStylesMap,
-      globals,
+
+    // prepare globals and import meta
+    const globalPropertyNames = Object.getOwnPropertyNames(
+      globalThis,
+    ) as (keyof Global)[];
+    const currentGlobals = Object.fromEntries(
+      globalPropertyNames.map((n) => [n, globalThis[n]]),
+    );
+    const { injected: injectedCode, reactGlobals } = injectReactRefresh(code);
+
+    // prepare loaders
+    const additionalLoaders = server
+      ? createDevLoaders(server)
+      : createProdLoaders(transformContext);
+    const loaders = [nodeBuiltinLoader, nodeModuleLoader, ...additionalLoaders];
+    const evaluatedNamespace = await evaluate({
+      code: injectedCode,
+      loaders,
+      modulePath,
+      globals: {
+        ...currentGlobals,
+        ...reactGlobals,
+        __composeInternal: createComposeInternal(uuidToStylesMap),
+        ...createGlobalContext(),
+        ...globals,
+      },
       importMeta,
     });
+    // collect styles from evaluated result
+    const styles = collectEvaluatedStyles({
+      capturedVariableNames,
+      evaluatedNamespace,
+      temporalGlobalStyles,
+    });
+    return styles;
   };
+
   return evaluator;
 }
