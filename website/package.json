@@ -12,6 +12,7 @@
     "@casablanca-css/styled": "^1.0.1",
     "@mdx-js/rollup": "^3.1.0",
     "@styled/typescript-styled-plugin": "^1.0.1",
+    "@types/feather-icons": "~4.29.4",
     "@types/react": "~18.2.79",
     "@types/react-dom": "~18.2.25",
     "@vitejs/plugin-react": "^4.2.1",
