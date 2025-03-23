@@ -69,7 +69,9 @@
     "types": {
       "command": "tsc --noemit",
       "files": [
-        "./src/**/*.{ts,tsx}"
+        "./src/**/*.{ts,tsx}",
+        "./vite.config.ts",
+        "./tsconfig.json"
       ],
       "dependencies": [
         "../../packages/core:types",
