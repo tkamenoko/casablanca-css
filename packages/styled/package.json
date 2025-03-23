@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
-    "@types/react": "~18.2.79"
+    "@types/react": "~19.0.12"
   },
   "engines": {
     "node": ">=20.15.1"
