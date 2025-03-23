@@ -13,8 +13,11 @@ export default defineConfig({
   },
   plugins: [
     tsconfigPaths(),
+    // @ts-expect-error vite version mismatch
     react(),
+    // @ts-expect-error vite version mismatch
     casablancaStyled(),
+    // @ts-expect-error vite version mismatch
     casablanca({ evaluateOptions: { globals: { rakkas: {} } } }),
     rakkas(),
   ],
