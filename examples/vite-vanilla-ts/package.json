@@ -68,7 +68,7 @@
         "./tsconfig.json"
       ],
       "dependencies": [
-        "../../packages/core:types"
+        "../../packages/core:build"
       ],
       "output": []
     }

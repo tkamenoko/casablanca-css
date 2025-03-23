@@ -74,8 +74,8 @@
         "./tsconfig.json"
       ],
       "dependencies": [
-        "../../packages/core:types",
-        "../../packages/styled:types"
+        "../../packages/core:build",
+        "../../packages/styled:build"
       ],
       "output": []
     }
