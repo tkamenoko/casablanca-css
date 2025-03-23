@@ -71,8 +71,9 @@
     "types": {
       "command": "tsc --noemit",
       "files": [
-        "./.ladle/**/*.{ts,tsx}",
-        "./src/**/*.{ts,tsx}"
+        "./src/**/*.{ts,tsx}",
+        "./vite.config.ts",
+        "./tsconfig.json"
       ],
       "dependencies": [
         "../../packages/core:types",
