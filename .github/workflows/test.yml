@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20, 22]
-    if: ${{ ! contains(github.actor ,'[bot]')}}
+    if: ${{ ! contains(github.actor ,'github-actions[bot]')}}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -26,3 +26,24 @@ jobs:
 
       - run: npm ci
       - run: npm run test-all
+
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    if: ${{ ! contains(github.actor ,'github-actions[bot]')}}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      # Set up GitHub Actions caching for Wireit.
+      - uses: google/wireit@setup-github-actions-caching/v1
+
+      - run: npm ci
+      - run: npm run types-packages
+      - run: npm run types-examples
