@@ -10,7 +10,7 @@
     "@styled/typescript-styled-plugin": "^1.0.1",
     "postcss-nested": "7.0.2",
     "typescript": "~5.8.2",
-    "vite": "^6.2.2"
+    "vite": "^6.2.5"
   },
   "private": true,
   "scripts": {
