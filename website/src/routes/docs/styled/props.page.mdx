@@ -45,3 +45,19 @@ const ButtonWithAdditionalProps = (props) => {
   return <button style={{"--temporal":embeddedFunction(props)}} className={`${_ButtonWithAdditionalPropsStyle} ${className}`} {...rest} />
 }
 ```
+
+## Set default value for no-JS environment
+
+`style` attribute is evaluated after JS loading. It may be problem at first time rendering or JS-disabled environment.
+
+To avoid there issues, set default value like this:
+
+```tsx
+import { styled } from "@casablanca-css/styled";
+
+const defaultColor = "red";
+
+const ButtonWithAdditionalProps = styled("button")<{state: "ok" | "error"}>`
+  color: ${[(props) => props.state === "ok" ? "green" : "red", defaultColor]};
+`
+```
