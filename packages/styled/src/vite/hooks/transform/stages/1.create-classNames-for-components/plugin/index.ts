@@ -3,6 +3,7 @@ import type babel from "@babel/core";
 import { isCasablancaImport, isTopLevelStatement } from "@casablanca-css/utils";
 import { buildClassNameExtractingStatement } from "./helpers/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./helpers/buildCssDynamicVarsFromEmbeddedFunctions";
+import { buildCssDynamicVarsWithDefaultValues } from "./helpers/buildCssDynamicVarsWithDefaultValues";
 import { buildInlineStylesAssignmentStatement } from "./helpers/buildInlineStylesAssignmentStatement";
 import { buildInnerJsxElement } from "./helpers/buildInnerJsxElement";
 import { buildNewClassNameAssignmentStatement } from "./helpers/buildNewClassNameAssignmentStatement";
@@ -119,13 +120,21 @@ export function plugin({
           // extract functions from template for dynamic styling
           const arrowFunctionPaths = cssTemplate
             .get("expressions")
-            .filter((e): e is NodePath<types.ArrowFunctionExpression> =>
-              e.isArrowFunctionExpression(),
-            );
+            .filter((e) => e.isArrowFunctionExpression());
           const cssDynamicVars = buildCssDynamicVarsFromEmbeddedFunctions({
             arrowFunctionPaths,
             path: declaration,
           });
+          // extract functions with default values
+          const arrayPaths = cssTemplate
+            .get("expressions")
+            .filter((e) => e.isArrayExpression());
+          cssDynamicVars.push(
+            ...buildCssDynamicVarsWithDefaultValues({
+              arrayPaths,
+              path: declaration,
+            }),
+          );
           // move function to the top level
           const outerFunctions = cssDynamicVars.map((c) => c.outerFunction);
           insertNodeOnTopLevel(declaration, outerFunctions, "before");
