@@ -13,6 +13,7 @@ type TagFunction<T extends PropsType> = <
     | string
     | number
     | ((props: T & P) => string | number)
+    | [(props: T & P) => string | number, string | number]
     | TaggedStyle<unknown>
     | TaggedStyle<unknown>[]
   )[]
