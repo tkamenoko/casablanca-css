@@ -1,4 +1,3 @@
-import nodeExternals from "rollup-plugin-node-externals";
 import type { InlineConfig } from "vite";
 import { test as t } from "vitest";
 
@@ -13,7 +12,7 @@ export const test = t.extend<TestContext>({
       configFile: false,
       appType: "custom",
       plugins: [
-        { ...nodeExternals(), enforce: "pre", apply: "build" },
+        // { ...nodeExternals(), enforce: "pre", apply: "build" },
         {
           name: "captureResult",
           enforce: "post",
@@ -24,6 +23,7 @@ export const test = t.extend<TestContext>({
       ],
       build: moduleId
         ? {
+            ssr: true,
             write: false,
             lib: { entry: moduleId, formats: ["es"] },
           }

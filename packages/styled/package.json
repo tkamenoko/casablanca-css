@@ -17,20 +17,23 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
+      "types": "./dist/lib/index.d.mts",
       "development": "./src/index.ts",
       "production": "./src/index.ts",
-      "default": "./dist/lib/index.js"
+      "default": "./dist/lib/index.mjs"
     },
     "./package.json": "./package.json",
     "./vite": {
-      "types": "./dist/lib/vite.d.ts",
+      "types": "./dist/lib/vite.d.mts",
       "development": "./src/vite/index.ts",
       "production": "./src/vite/index.ts",
-      "default": "./dist/lib/vite.js"
+      "default": "./dist/lib/vite.mjs"
     }
   },
   "homepage": "https://github.com/tkamenoko/casablanca-css#readme",
+  "imports": {
+    "#@/*": "./src/*"
+  },
   "keywords": [
     "css",
     "css-in-js",
@@ -54,7 +57,7 @@
     "types": "wireit"
   },
   "type": "module",
-  "types": "dist/lib/index.d.ts",
+  "types": "dist/lib/index.d.mts",
   "wireit": {
     "build": {
       "dependencies": [
@@ -64,20 +67,18 @@
       ]
     },
     "build:transpile": {
-      "command": "vite build",
+      "command": "tsdown",
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
-        "./vite.config.ts",
+        "./tsdown.config.ts",
         "../utils/src/**/*.{ts,tsx}",
         "../utils/tsconfig.json",
-        "../utils/vite.config.ts",
         "../core/src/**/*.{ts,tsx}",
-        "../core/tsconfig.json",
-        "../core/vite.config.ts"
+        "../core/tsconfig.json"
       ],
       "output": [
-        "./dist/lib/**/*.{js,d.ts}"
+        "./dist/lib/**/*.{mjs,d.mts}"
       ]
     },
     "build:copy": {
@@ -113,10 +114,8 @@
         "./vite.config.ts",
         "../utils/src/**/*.{ts,tsx}",
         "../utils/tsconfig.json",
-        "../utils/vite.config.ts",
         "../core/src/**/*.{ts,tsx}",
-        "../core/tsconfig.json",
-        "../core/vite.config.ts"
+        "../core/tsconfig.json"
       ],
       "output": []
     },
@@ -125,6 +124,7 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./vite.config.ts",
+        "./tsdown.config.ts",
         "../../biome.json"
       ],
       "output": []
@@ -134,7 +134,8 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "./tsdown.config.ts"
       ],
       "dependencies": [
         "../core:types",
