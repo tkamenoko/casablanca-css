@@ -15,10 +15,10 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
+      "types": "./dist/lib/index.d.mts",
       "development": "./src/index.ts",
       "production": "./src/index.ts",
-      "default": "./dist/lib/index.js"
+      "default": "./dist/lib/index.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -33,7 +33,7 @@
     "types": "wireit"
   },
   "type": "module",
-  "types": "dist/lib/index.d.ts",
+  "types": "dist/lib/index.d.mts",
   "wireit": {
     "build": {
       "dependencies": [
@@ -43,14 +43,14 @@
       ]
     },
     "build:transpile": {
-      "command": "vite build",
+      "command": "tsdown",
       "files": [
         "./src/**/*.ts",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./tsdown.config.ts"
       ],
       "output": [
-        "./dist/lib/**/*.{js,d.ts}"
+        "./dist/lib/**/*.{mjs,d.mts}"
       ]
     },
     "build:copy": {
@@ -92,6 +92,7 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./vite.config.ts",
+        "./tsdown.config.ts",
         "../../biome.json"
       ],
       "output": []
@@ -101,7 +102,8 @@
       "files": [
         "./src/**/*.{ts,tsx}",
         "./tsconfig.json",
-        "./vite.config.ts"
+        "./vite.config.ts",
+        "./tsdown.config.ts"
       ],
       "output": []
     }
