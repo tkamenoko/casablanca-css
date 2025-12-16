@@ -120,7 +120,7 @@
       "output": []
     },
     "lint": {
-      "command": "biome check --apply ./",
+      "command": "biome check --write ./",
       "files": [
         "./src/**/*.{ts,tsx}",
         "./vite.config.ts",
