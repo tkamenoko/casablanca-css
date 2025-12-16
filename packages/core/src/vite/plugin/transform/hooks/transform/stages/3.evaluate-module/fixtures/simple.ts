@@ -18,6 +18,5 @@ export const functionCall = css`
   font-weight: ${getWeight()};
 `;
 
-// biome-ignore lint/style/noUnusedTemplateLiteral: test plugin to ignore other templates
 export const thisIs = `not a target`;
 export const thisIsAlsoIgnored = document.baseURI;

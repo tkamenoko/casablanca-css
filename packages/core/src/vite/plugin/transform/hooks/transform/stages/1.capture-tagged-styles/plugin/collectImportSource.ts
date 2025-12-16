@@ -14,7 +14,7 @@ export function collectImportSource(
       const imported = i.get("imported");
       const className = imported.isIdentifier() ? imported.node.name : null;
       if (!className) {
-        return;
+        return null;
       }
       const localName = i.get("local").node.name;
       return { className, localName };
