@@ -5,7 +5,7 @@ import.meta.hot = false;
 `;
 
 const reactRefreshPattern =
-  /import\s+RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm;
+  /import\s+(\* as )?RefreshRuntime\s+from\s+["']\/@react-refresh["'];/gm;
 
 export function injectReactRefresh(code: string): {
   injected: string;
