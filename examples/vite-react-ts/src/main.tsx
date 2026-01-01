@@ -1,3 +1,4 @@
+import "open-props/style";
 import { injectGlobal } from "@casablanca-css/core";
 import React from "react";
 import ReactDOM from "react-dom/client";

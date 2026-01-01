@@ -1,3 +1,4 @@
+import "open-props/style";
 import { css, injectGlobal } from "@casablanca-css/core";
 import openProps from "open-props";
 import { grid, textAlign } from "./styles";
