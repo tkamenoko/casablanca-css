@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
     if: ${{ ! contains(github.actor ,'github-actions[bot]')}}
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
           cache: "npm"
 
       # Set up GitHub Actions caching for Wireit.
-      - uses: google/wireit@setup-github-actions-caching/v1
+      - uses: google/wireit@setup-github-actions-caching/v2
 
       - run: npm ci
       - run: npm run test-all
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
     if: ${{ ! contains(github.actor ,'github-actions[bot]')}}
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
           cache: "npm"
 
       # Set up GitHub Actions caching for Wireit.
-      - uses: google/wireit@setup-github-actions-caching/v1
+      - uses: google/wireit@setup-github-actions-caching/v2
 
       - run: npm ci
       - run: npm run types-packages

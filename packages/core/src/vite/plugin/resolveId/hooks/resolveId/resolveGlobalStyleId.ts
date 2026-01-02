@@ -1,7 +1,7 @@
 import {
-  type ResolvedGlobalStyleId,
   buildResolvedGlobalStyleId,
   isResolvedGlobalStyleId,
+  type ResolvedGlobalStyleId,
 } from "#@/vite/types/resolvedGlobalStyleId";
 import { isVirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";
 

@@ -31,5 +31,4 @@ injectGlobal`
   }  
 `;
 
-// biome-ignore lint/style/noUnusedTemplateLiteral: test plugin to ignore other template string
 export const notStyleString = ``;

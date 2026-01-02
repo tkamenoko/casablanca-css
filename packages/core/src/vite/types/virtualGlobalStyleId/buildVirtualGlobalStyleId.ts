@@ -1,4 +1,4 @@
-import { type VirtualGlobalStyleId, globalStyleIdPrefix } from "./types";
+import { globalStyleIdPrefix, type VirtualGlobalStyleId } from "./types";
 
 export function buildVirtualGlobalStyleId({
   importerPath: importerId,

@@ -1,7 +1,7 @@
 import {
-  type ResolvedCssModuleId,
   buildResolvedCssModuleId,
   isResolvedCssModuleId,
+  type ResolvedCssModuleId,
 } from "#@/vite/types/resolvedCssModuleId";
 import { isVirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
 

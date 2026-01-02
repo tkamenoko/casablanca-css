@@ -1,4 +1,4 @@
-import { type ViteDevServer, createServer } from "vite";
+import { createServer, type ViteDevServer } from "vite";
 import { assert } from "vitest";
 import { buildModuleId } from "../fixtures/buildModuleId";
 import { test as t } from "../fixtures/extendedTest";

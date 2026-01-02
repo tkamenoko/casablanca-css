@@ -1,10 +1,10 @@
 import {
-  type VirtualCssModuleId,
   buildVirtualCssModuleId,
+  type VirtualCssModuleId,
 } from "#@/vite/types/virtualCssModuleId";
 import {
-  type VirtualGlobalStyleId,
   buildVirtualGlobalStyleId,
+  type VirtualGlobalStyleId,
 } from "#@/vite/types/virtualGlobalStyleId";
 
 export type BuildForProductionArgs = {

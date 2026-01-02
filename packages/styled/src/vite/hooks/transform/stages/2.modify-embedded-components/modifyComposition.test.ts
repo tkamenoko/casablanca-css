@@ -21,6 +21,8 @@ test("should replace embedded component ids to property access in css-tagged sty
   expect(code).not.toMatch(`import { styled } from '@casablanca-css/styled';`);
   expect(code).not.toMatch("{TaggedComponent}");
   expect(code).toMatch("{TaggedComponent.__rawClassName}");
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: test matcher for template literal
   expect(code).not.toMatch(":global(.${TaggedComponent.__rawClassName})");
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: test matcher for template literal
   expect(code).toMatch(":global(.${StyledDiv.__modularizedClassName})");
 });

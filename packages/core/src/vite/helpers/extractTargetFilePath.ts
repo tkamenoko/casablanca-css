@@ -4,9 +4,11 @@ export function extractTargetFilePath({
   extensions,
   id,
   include,
-}: { id: string; include: Set<string>; extensions: `.${string}`[] }):
-  | string
-  | null {
+}: {
+  id: string;
+  include: Set<string>;
+  extensions: `.${string}`[];
+}): string | null {
   const { path, queries } = extractPathAndParamsFromId(id);
   if (queries.has("raw")) {
     return null;

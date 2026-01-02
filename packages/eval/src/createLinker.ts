@@ -1,6 +1,6 @@
 import type { Module, ModuleLinker } from "node:vm";
-import { loadModule } from "./loadModule";
 import type { Loader } from "./loaders/types";
+import { loadModule } from "./loadModule";
 
 type CreateLinkerArgs = {
   modulePath: string;

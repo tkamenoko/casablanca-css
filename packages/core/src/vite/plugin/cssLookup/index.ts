@@ -1,12 +1,12 @@
 import { extractPathAndParamsFromId } from "@casablanca-css/utils";
 import type { Plugin, ViteDevServer } from "vite";
 import {
-  type ResolvedCssModuleId,
   buildResolvedCssModuleId,
+  type ResolvedCssModuleId,
 } from "#@/vite/types/resolvedCssModuleId";
 import {
-  type ResolvedGlobalStyleId,
   buildResolvedGlobalStyleId,
+  type ResolvedGlobalStyleId,
 } from "#@/vite/types/resolvedGlobalStyleId";
 import type { VirtualCssModuleId } from "#@/vite/types/virtualCssModuleId";
 import type { VirtualGlobalStyleId } from "#@/vite/types/virtualGlobalStyleId";

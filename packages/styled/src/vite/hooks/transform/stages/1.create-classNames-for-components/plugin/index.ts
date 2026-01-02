@@ -1,5 +1,5 @@
-import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import type babel from "@babel/core";
+import type { NodePath, PluginObj, PluginPass, types } from "@babel/core";
 import { isCasablancaImport, isTopLevelStatement } from "@casablanca-css/utils";
 import { buildClassNameExtractingStatement } from "./helpers/buildClassNameExtractingStatement";
 import { buildCssDynamicVarsFromEmbeddedFunctions } from "./helpers/buildCssDynamicVarsFromEmbeddedFunctions";

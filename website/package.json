@@ -4,8 +4,8 @@
     "@acab/reset.css": "^0.11.0",
     "feather-icons": "^4.29.2",
     "open-props": "^1.7.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "18.x",
+    "react-dom": "18.x"
   },
   "devDependencies": {
     "@casablanca-css/core": "^1.0.0",
@@ -13,9 +13,9 @@
     "@mdx-js/rollup": "^3.1.0",
     "@styled/typescript-styled-plugin": "^1.0.1",
     "@types/feather-icons": "~4.29.4",
-    "@types/react": "~18.2.79",
-    "@types/react-dom": "~18.2.25",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@types/react": "18.x",
+    "@types/react-dom": "18.x",
+    "@vitejs/plugin-react": "5.1.2",
     "icon-gen": "^5.0.0",
     "postcss-nested": "7.0.2",
     "rakkasjs": "0.7.0-next.49",
